@@ -1,6 +1,7 @@
 """
 PRINAD - Streaming Sender
 Sends simulated client data to the API for real-time dashboard demonstration.
+Includes bank system simulation with origin systems, credit products, and request types.
 """
 
 import requests
@@ -16,6 +17,71 @@ from pathlib import Path
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+# ============================================================================
+# CONFIGURAÇÃO DE PROPORÇÕES - SIMULAÇÃO DE SISTEMAS BANCÁRIOS
+# ============================================================================
+
+# Sistemas de origem das solicitações (proporções)
+SISTEMAS_ORIGEM = [
+    ('app_mobile', 0.50),           # 50%
+    ('sis_agencia', 0.30),          # 30%
+    ('terminal_eletronico', 0.15),  # 15%
+    ('central_cliente', 0.05)       # 5%
+]
+
+# Produtos de crédito (proporções)
+PRODUTOS_CREDITO = [
+    ('consignado', 0.40),           # 40%
+    ('banparacard', 0.20),          # 20%
+    ('cartao_credito', 0.20),       # 20%
+    ('imobiliario', 0.10),          # 10%
+    ('antecipacao_13_sal', 0.05),   # 5%
+    ('cred_veiculo', 0.03),         # 3%
+    ('energia_solar', 0.02)         # 2%
+]
+
+# Tipo de solicitação (proporções)
+TIPOS_SOLICITACAO = [
+    ('Proposta', 0.70),             # 70%
+    ('Contratacao', 0.30)           # 30%
+]
+
+# ============================================================================
+# FUNÇÕES DE SELEÇÃO PONDERADA
+# ============================================================================
+
+def selecionar_ponderado(opcoes: List[tuple]) -> str:
+    """
+    Seleciona um valor baseado em pesos/proporções.
+    
+    Args:
+        opcoes: Lista de tuplas (valor, peso)
+    
+    Returns:
+        Valor selecionado
+    """
+    valores = [o[0] for o in opcoes]
+    pesos = [o[1] for o in opcoes]
+    return random.choices(valores, weights=pesos)[0]
+
+
+def selecionar_sistema_origem() -> str:
+    """Seleciona sistema de origem com proporções definidas."""
+    return selecionar_ponderado(SISTEMAS_ORIGEM)
+
+
+def selecionar_produto_credito() -> str:
+    """Seleciona produto de crédito com proporções definidas."""
+    return selecionar_ponderado(PRODUTOS_CREDITO)
+
+
+def selecionar_tipo_solicitacao() -> str:
+    """Seleciona tipo de solicitação com proporções definidas."""
+    return selecionar_ponderado(TIPOS_SOLICITACAO)
+
+# ============================================================================
+# FUNÇÕES DE GERAÇÃO DE DADOS
+# ============================================================================
 
 def generate_random_cpf() -> str:
     """Generate a random CPF (for demo purposes)."""
@@ -82,6 +148,11 @@ def generate_random_client() -> Dict[str, Any]:
     
     comportamental = generate_behavioral_data(profile_type)
     
+    # Selecionar dados da simulação bancária
+    sistema_origem = selecionar_sistema_origem()
+    produto_credito = selecionar_produto_credito()
+    tipo_solicitacao = selecionar_tipo_solicitacao()
+    
     return {
         'cpf': generate_random_cpf(),
         'dados_cadastrais': {
@@ -98,7 +169,11 @@ def generate_random_client() -> Dict[str, Any]:
             'PORTABILIDADE': random.choice(['PORTADO', 'NAO PORTADO']),
             'COMP_RENDA': round(random.uniform(0.1, 0.8), 4)
         },
-        'dados_comportamentais': comportamental
+        'dados_comportamentais': comportamental,
+        # Novos campos de simulação bancária
+        'sistema_origem': sistema_origem,
+        'produto_credito': produto_credito,
+        'tipo_solicitacao': tipo_solicitacao
     }
 
 
@@ -188,13 +263,18 @@ def run_streaming(api_url: str, interval: float, count: int = -1, verbose: bool 
         verbose: Print results
     """
     
-    print(f"\n{'='*60}")
-    print("PRINAD Streaming Sender")
-    print(f"{'='*60}")
+    print(f"\n{'='*70}")
+    print("PRINAD Streaming Sender - Simulação de Sistemas Bancários")
+    print(f"{'='*70}")
     print(f"API URL: {api_url}")
     print(f"Interval: {interval}s")
     print(f"Count: {'Infinite' if count < 0 else count}")
-    print(f"{'='*60}\n")
+    print(f"{'='*70}")
+    print("\nProporções configuradas:")
+    print("  Sistemas: 50% app_mobile | 30% sis_agencia | 15% terminal | 5% central")
+    print("  Produtos: 40% consignado | 20% banparacard | 20% cartao | outros")
+    print("  Tipos: 70% Proposta | 30% Contratação")
+    print(f"{'='*70}\n")
     
     # Check API health first
     try:
@@ -211,6 +291,9 @@ def run_streaming(api_url: str, interval: float, count: int = -1, verbose: bool 
     errors = 0
     
     rating_counts = {}
+    sistema_counts = {}
+    produto_counts = {}
+    tipo_counts = {}
     
     try:
         while count < 0 or sent < count:
@@ -230,6 +313,15 @@ def run_streaming(api_url: str, interval: float, count: int = -1, verbose: bool 
                 rating = result.get('rating', 'Unknown')
                 rating_counts[rating] = rating_counts.get(rating, 0) + 1
                 
+                # Count bank simulation fields
+                sistema = client_data.get('sistema_origem', 'Unknown')
+                produto = client_data.get('produto_credito', 'Unknown')
+                tipo = client_data.get('tipo_solicitacao', 'Unknown')
+                
+                sistema_counts[sistema] = sistema_counts.get(sistema, 0) + 1
+                produto_counts[produto] = produto_counts.get(produto, 0) + 1
+                tipo_counts[tipo] = tipo_counts.get(tipo, 0) + 1
+                
                 if verbose:
                     prinad = result.get('prinad', 0)
                     
@@ -244,7 +336,8 @@ def run_streaming(api_url: str, interval: float, count: int = -1, verbose: bool 
                         color = '🔴'
                     
                     print(f"[{sent}] {color} CPF: ***{client_data['cpf'][-4:]} | "
-                          f"PRINAD: {prinad:5.1f}% | Rating: {rating}")
+                          f"PRINAD: {prinad:5.1f}% | Rating: {rating} | "
+                          f"Sistema: {sistema} | Produto: {produto} | Tipo: {tipo}")
             
             # Wait before next request
             time.sleep(interval)
@@ -253,19 +346,36 @@ def run_streaming(api_url: str, interval: float, count: int = -1, verbose: bool 
         print("\n\n⛔ Streaming stopped by user")
     
     # Print summary
-    print(f"\n{'='*60}")
+    print(f"\n{'='*70}")
     print("SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'='*70}")
     print(f"Total Sent: {sent}")
     print(f"Successes: {successes}")
     print(f"Errors: {errors}")
-    print(f"\nRating Distribution:")
+    
+    print(f"\n📊 Rating Distribution:")
     for rating in ['A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'D']:
-        count = rating_counts.get(rating, 0)
-        pct = (count / successes * 100) if successes > 0 else 0
+        cnt = rating_counts.get(rating, 0)
+        pct = (cnt / successes * 100) if successes > 0 else 0
         bar = '█' * int(pct / 5)
-        print(f"  {rating}: {count:4d} ({pct:5.1f}%) {bar}")
-    print(f"{'='*60}")
+        print(f"  {rating}: {cnt:4d} ({pct:5.1f}%) {bar}")
+    
+    print(f"\n🏦 Sistemas de Origem:")
+    for sistema, cnt in sorted(sistema_counts.items(), key=lambda x: -x[1]):
+        pct = (cnt / successes * 100) if successes > 0 else 0
+        print(f"  {sistema}: {cnt:4d} ({pct:5.1f}%)")
+    
+    print(f"\n💳 Produtos de Crédito:")
+    for produto, cnt in sorted(produto_counts.items(), key=lambda x: -x[1]):
+        pct = (cnt / successes * 100) if successes > 0 else 0
+        print(f"  {produto}: {cnt:4d} ({pct:5.1f}%)")
+    
+    print(f"\n📝 Tipos de Solicitação:")
+    for tipo, cnt in sorted(tipo_counts.items(), key=lambda x: -x[1]):
+        pct = (cnt / successes * 100) if successes > 0 else 0
+        print(f"  {tipo}: {cnt:4d} ({pct:5.1f}%)")
+    
+    print(f"{'='*70}")
 
 
 def main():
@@ -281,8 +391,8 @@ def main():
     parser.add_argument(
         '--interval', '-i',
         type=float,
-        default=1.0,
-        help='Seconds between requests (default: 1.0)'
+        default=5.0,
+        help='Seconds between requests (default: 5.0)'
     )
     parser.add_argument(
         '--count', '-c',

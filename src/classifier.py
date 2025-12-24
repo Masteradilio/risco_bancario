@@ -107,8 +107,9 @@ class PRINADClassifier:
         self.feature_engineer = None
         self.shap_explainer = None
         self.historical_calculator = HistoricalPenaltyCalculator(
-            forgiveness_months=12,
-            max_penalty=1.5
+            forgiveness_months=6,
+            max_penalty_internal=0.75,
+            max_penalty_external=0.75
         )
         
         self._load_artifacts()
@@ -198,7 +199,7 @@ class PRINADClassifier:
             rating_descricao=rating_info['descricao'],
             cor=rating_info['cor'],
             pd_base=round(pd_base, 2),
-            penalidade_historica=round(historical_analysis.penalidade, 2),
+            penalidade_historica=round(historical_analysis.penalidade_total, 2),
             peso_atual=self.PESO_ATUAL,
             peso_historico=self.PESO_HISTORICO,
             acao_sugerida=rating_info['acao_sugerida'],

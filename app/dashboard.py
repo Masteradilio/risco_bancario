@@ -1,6 +1,7 @@
 """
 PRINAD - Streamlit Dashboard
 Real-time dashboard for monitoring credit risk classifications.
+Includes bank system simulation metrics and streaming control.
 """
 
 import streamlit as st
@@ -14,8 +15,10 @@ import json
 from datetime import datetime, timedelta
 import time
 from collections import deque
-import threading
-import websocket
+import subprocess
+import sys
+import os
+from pathlib import Path
 from typing import Dict, Any, List
 
 # Page config
@@ -41,12 +44,29 @@ st.markdown("""
     .rating-C1, .rating-C2 { color: #ef4444; }
     .rating-D { color: #1f2937; }
     .stMetric { background-color: rgba(28, 131, 225, 0.1); border-radius: 10px; padding: 10px; }
+    .big-button {
+        font-size: 20px !important;
+        padding: 15px 30px !important;
+    }
+    .streaming-active {
+        background-color: #22c55e;
+        padding: 10px;
+        border-radius: 5px;
+        color: white;
+        text-align: center;
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Configuration
 API_URL = st.sidebar.text_input("API URL", "http://localhost:8000")
-REFRESH_INTERVAL = st.sidebar.slider("Intervalo de atualização (s)", 1, 10, 2)
+REFRESH_INTERVAL = 5  # Fixed 5 seconds as requested
 
 # Rating colors
 RATING_COLORS = {
@@ -57,19 +77,32 @@ RATING_COLORS = {
     'D': '#1f2937'
 }
 
+# Sistema colors
+SISTEMA_COLORS = {
+    'app_mobile': '#3b82f6',
+    'sis_agencia': '#8b5cf6',
+    'terminal_eletronico': '#06b6d4',
+    'central_cliente': '#f59e0b'
+}
+
+# Produto colors
+PRODUTO_COLORS = {
+    'consignado': '#22c55e',
+    'banparacard': '#3b82f6',
+    'cartao_credito': '#8b5cf6',
+    'imobiliario': '#f59e0b',
+    'antecipacao_13_sal': '#ef4444',
+    'cred_veiculo': '#06b6d4',
+    'energia_solar': '#84cc16'
+}
+
 # Initialize session state
-if 'classifications' not in st.session_state:
-    st.session_state.classifications = deque(maxlen=1000)
-if 'stats' not in st.session_state:
-    st.session_state.stats = {
-        'total': 0,
-        'por_rating': {},
-        'por_minuto': deque(maxlen=60),
-        'prinad_medio': 0,
-        'start_time': datetime.now()
-    }
-if 'running' not in st.session_state:
-    st.session_state.running = False
+if 'streaming_process' not in st.session_state:
+    st.session_state.streaming_process = None
+if 'streaming_active' not in st.session_state:
+    st.session_state.streaming_active = False
+if 'start_time' not in st.session_state:
+    st.session_state.start_time = datetime.now()
 
 
 def check_api_health() -> Dict[str, Any]:
@@ -90,25 +123,58 @@ def get_metrics() -> Dict[str, Any]:
         return {}
 
 
-def add_classification(result: Dict[str, Any]):
-    """Add a classification result to session state."""
-    st.session_state.classifications.append({
-        **result,
-        'received_at': datetime.now().isoformat()
-    })
-    
-    # Update stats
-    st.session_state.stats['total'] += 1
-    rating = result.get('rating', 'Unknown')
-    st.session_state.stats['por_rating'][rating] = \
-        st.session_state.stats['por_rating'].get(rating, 0) + 1
-    
-    # Update average PRINAD
-    prinad = result.get('prinad', 0)
-    current_avg = st.session_state.stats['prinad_medio']
-    total = st.session_state.stats['total']
-    st.session_state.stats['prinad_medio'] = \
-        (current_avg * (total - 1) + prinad) / total
+def get_avaliacoes(limit: int = 50) -> List[Dict[str, Any]]:
+    """Get evaluations from API."""
+    try:
+        response = requests.get(f"{API_URL}/avaliacoes?limit={limit}", timeout=5)
+        data = response.json()
+        return data.get('avaliacoes', [])
+    except:
+        return []
+
+
+def get_stats() -> Dict[str, Any]:
+    """Get aggregated stats from API."""
+    try:
+        response = requests.get(f"{API_URL}/stats", timeout=5)
+        return response.json()
+    except:
+        return {}
+
+
+def clear_avaliacoes():
+    """Clear all evaluations."""
+    try:
+        response = requests.delete(f"{API_URL}/avaliacoes", timeout=5)
+        return response.json()
+    except:
+        return {"error": "Failed to clear"}
+
+
+def start_streaming():
+    """Start the streaming sender process."""
+    if st.session_state.streaming_process is None or st.session_state.streaming_process.poll() is not None:
+        # Get path to streaming_sender.py
+        app_dir = Path(__file__).parent
+        sender_path = app_dir / "streaming_sender.py"
+        
+        # Start process
+        st.session_state.streaming_process = subprocess.Popen(
+            [sys.executable, str(sender_path), "-i", "5", "-u", API_URL],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NEW_CONSOLE if os.name == 'nt' else 0
+        )
+        st.session_state.streaming_active = True
+        st.session_state.start_time = datetime.now()
+
+
+def stop_streaming():
+    """Stop the streaming sender process."""
+    if st.session_state.streaming_process is not None:
+        st.session_state.streaming_process.terminate()
+        st.session_state.streaming_process = None
+        st.session_state.streaming_active = False
 
 
 def render_header():
@@ -120,65 +186,81 @@ def render_header():
     health = check_api_health()
     status_color = "🟢" if health.get('status') == 'healthy' else "🔴"
     st.markdown(f"{status_color} API Status: **{health.get('status', 'unknown')}** | "
-                f"Model: **{'Loaded' if health.get('model_loaded') else 'Not Loaded'}**")
+                f"Model: **{'Loaded' if health.get('model_loaded') else 'Not Loaded'}** | "
+                f"Atualização: **{REFRESH_INTERVAL}s**")
+
+
+def render_streaming_control():
+    """Render streaming control buttons."""
+    st.subheader("🎮 Controle do Streaming")
+    
+    col1, col2, col3 = st.columns([2, 2, 3])
+    
+    with col1:
+        if st.button("▶️ Iniciar Streaming", type="primary", use_container_width=True,
+                     disabled=st.session_state.streaming_active):
+            start_streaming()
+            st.rerun()
+    
+    with col2:
+        if st.button("⏹️ Parar Streaming", type="secondary", use_container_width=True,
+                     disabled=not st.session_state.streaming_active):
+            stop_streaming()
+            st.rerun()
+    
+    with col3:
+        if st.session_state.streaming_active:
+            # Check if process is still running
+            if st.session_state.streaming_process and st.session_state.streaming_process.poll() is None:
+                elapsed = datetime.now() - st.session_state.start_time
+                st.markdown(f"""
+                <div class="streaming-active">
+                    🔴 STREAMING ATIVO | Tempo: {int(elapsed.total_seconds())}s | Intervalo: 5s
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.session_state.streaming_active = False
+                st.info("Streaming parou")
+        else:
+            st.info("Streaming inativo. Clique em 'Iniciar Streaming' para começar.")
 
 
 def render_kpis():
     """Render KPI metrics."""
+    stats = get_stats()
+    metrics = get_metrics()
+    
     col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
-        st.metric(
-            "Total Classificações",
-            st.session_state.stats['total'],
-            delta=None
-        )
+        total = stats.get('total_avaliacoes', 0)
+        st.metric("Total Classificações", total)
     
     with col2:
-        st.metric(
-            "PRINAD Médio",
-            f"{st.session_state.stats['prinad_medio']:.1f}%",
-            delta=None
-        )
+        prinad_medio = stats.get('prinad_medio', 0)
+        st.metric("PRINAD Médio", f"{prinad_medio:.1f}%")
     
     with col3:
-        # Count by risk level
-        high_risk = sum(
-            st.session_state.stats['por_rating'].get(r, 0) 
-            for r in ['C1', 'C2', 'D']
-        )
-        st.metric(
-            "Alto Risco (C1+)",
-            high_risk,
-            delta=None
-        )
+        # Count high risk
+        por_rating = stats.get('por_rating', {})
+        high_risk = sum(por_rating.get(r, 0) for r in ['C1', 'C2', 'D'])
+        st.metric("Alto Risco (C1+)", high_risk)
     
     with col4:
-        low_risk = sum(
-            st.session_state.stats['por_rating'].get(r, 0) 
-            for r in ['A1', 'A2', 'A3']
-        )
-        st.metric(
-            "Baixo Risco (A)",
-            low_risk,
-            delta=None
-        )
+        low_risk = sum(por_rating.get(r, 0) for r in ['A1', 'A2', 'A3'])
+        st.metric("Baixo Risco (A)", low_risk)
     
     with col5:
-        uptime = datetime.now() - st.session_state.stats['start_time']
-        hours = uptime.total_seconds() / 3600
-        st.metric(
-            "Uptime",
-            f"{hours:.1f}h",
-            delta=None
-        )
+        latency = metrics.get('latencia_media_ms', 0)
+        st.metric("Latência Média", f"{latency:.0f}ms")
 
 
 def render_rating_distribution():
     """Render rating distribution chart."""
     st.subheader("📊 Distribuição de Ratings")
     
-    ratings = st.session_state.stats['por_rating']
+    stats = get_stats()
+    ratings = stats.get('por_rating', {})
     
     if ratings:
         # Ensure all ratings are present
@@ -210,11 +292,109 @@ def render_rating_distribution():
         st.info("Aguardando classificações...")
 
 
+def render_sistema_distribution():
+    """Render system origin distribution chart."""
+    st.subheader("🏦 Sistemas de Origem")
+    
+    stats = get_stats()
+    sistemas = stats.get('por_sistema', {})
+    
+    if sistemas and any(v > 0 for v in sistemas.values()):
+        labels = list(sistemas.keys())
+        values = list(sistemas.values())
+        colors = [SISTEMA_COLORS.get(s, '#888888') for s in labels]
+        
+        fig = go.Figure(data=[go.Pie(
+            labels=labels,
+            values=values,
+            marker_colors=colors,
+            hole=0.4,
+            textinfo='label+percent',
+            textposition='outside'
+        )])
+        
+        fig.update_layout(
+            height=300,
+            margin=dict(l=20, r=20, t=20, b=20),
+            paper_bgcolor='rgba(0,0,0,0)',
+            showlegend=False
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Aguardando dados de sistemas...")
+
+
+def render_produto_distribution():
+    """Render credit product distribution chart."""
+    st.subheader("💳 Produtos de Crédito")
+    
+    stats = get_stats()
+    produtos = stats.get('por_produto', {})
+    
+    if produtos and any(v > 0 for v in produtos.values()):
+        # Sort by value descending
+        sorted_items = sorted(produtos.items(), key=lambda x: -x[1])
+        labels = [item[0] for item in sorted_items]
+        values = [item[1] for item in sorted_items]
+        colors = [PRODUTO_COLORS.get(p, '#888888') for p in labels]
+        
+        fig = go.Figure(data=[
+            go.Bar(
+                x=values,
+                y=labels,
+                orientation='h',
+                marker_color=colors,
+                text=values,
+                textposition='auto'
+            )
+        ])
+        
+        fig.update_layout(
+            height=300,
+            margin=dict(l=20, r=20, t=20, b=20),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            xaxis_title="Quantidade",
+            yaxis_title=""
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("Aguardando dados de produtos...")
+
+
+def render_tipo_distribution():
+    """Render request type distribution."""
+    st.subheader("📝 Tipo de Solicitação")
+    
+    stats = get_stats()
+    tipos = stats.get('por_tipo', {})
+    
+    if tipos and any(v > 0 for v in tipos.values()):
+        col1, col2 = st.columns(2)
+        
+        proposta = tipos.get('Proposta', 0)
+        contratacao = tipos.get('Contratacao', 0)
+        total = proposta + contratacao
+        
+        with col1:
+            pct = (proposta / total * 100) if total > 0 else 0
+            st.metric("📋 Propostas", f"{proposta}", f"{pct:.1f}%")
+        
+        with col2:
+            pct = (contratacao / total * 100) if total > 0 else 0
+            st.metric("✅ Contratações", f"{contratacao}", f"{pct:.1f}%")
+    else:
+        st.info("Aguardando dados...")
+
+
 def render_prinad_gauge():
     """Render PRINAD average gauge."""
     st.subheader("🎯 PRINAD Médio")
     
-    avg_prinad = st.session_state.stats['prinad_medio']
+    stats = get_stats()
+    avg_prinad = stats.get('prinad_medio', 0)
     
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -251,11 +431,14 @@ def render_timeseries():
     """Render classification timeseries."""
     st.subheader("📈 Classificações ao Longo do Tempo")
     
-    if st.session_state.classifications:
-        df = pd.DataFrame(list(st.session_state.classifications))
+    avaliacoes = get_avaliacoes(100)
+    
+    if avaliacoes:
+        df = pd.DataFrame(avaliacoes)
         
         if 'timestamp' in df.columns:
             df['time'] = pd.to_datetime(df['timestamp'])
+            df['prinad'] = pd.to_numeric(df['prinad'], errors='coerce')
             
             # PRINAD over time
             fig = make_subplots(rows=2, cols=1, 
@@ -280,14 +463,15 @@ def render_timeseries():
                 )
             
             # Count per minute
-            df['minute'] = df['time'].dt.floor('T')
+            df['minute'] = df['time'].dt.floor('min')
             counts = df.groupby('minute').size().reset_index(name='count')
             
             fig.add_trace(
                 go.Bar(
                     x=counts['minute'],
                     y=counts['count'],
-                    marker_color='#3b82f6'
+                    marker_color='#3b82f6',
+                    showlegend=False
                 ),
                 row=2, col=1
             )
@@ -304,26 +488,22 @@ def render_timeseries():
         st.info("Aguardando classificações...")
 
 
-def render_recent_classifications():
-    """Render table of recent classifications."""
-    st.subheader("📋 Classificações Recentes")
+def render_avaliacoes_table():
+    """Render table of evaluations."""
+    st.subheader("📋 Tabela de Avaliações de Risco")
     
-    if st.session_state.classifications:
-        df = pd.DataFrame(list(st.session_state.classifications)[-20:])
+    avaliacoes = get_avaliacoes(50)
+    
+    if avaliacoes:
+        df = pd.DataFrame(avaliacoes)
         
         # Select and rename columns for display
-        display_cols = ['cpf', 'prinad', 'rating', 'rating_descricao', 'cor', 'pd_base', 
-                        'penalidade_historica', 'acao_sugerida', 'timestamp']
+        display_cols = ['timestamp', 'cpf', 'pd_base', 'penalidade_historica', 'prinad', 
+                        'rating', 'sistema_origem', 'produto_credito', 'tipo_solicitacao']
         available_cols = [c for c in display_cols if c in df.columns]
         
         if available_cols:
             df_display = df[available_cols].copy()
-            
-            # Format CPF (mask for privacy)
-            if 'cpf' in df_display.columns:
-                df_display['cpf'] = df_display['cpf'].apply(
-                    lambda x: f"***{str(x)[-4:]}" if pd.notna(x) else "N/A"
-                )
             
             # Format timestamp
             if 'timestamp' in df_display.columns:
@@ -331,64 +511,26 @@ def render_recent_classifications():
             
             # Rename columns
             col_names = {
+                'timestamp': 'Hora',
                 'cpf': 'CPF',
-                'prinad': 'PRINAD (%)',
-                'rating': 'Rating',
-                'rating_descricao': 'Descrição',
-                'cor': 'Cor',
                 'pd_base': 'PD Base (%)',
                 'penalidade_historica': 'Penalidade',
-                'acao_sugerida': 'Ação',
-                'timestamp': 'Hora'
+                'prinad': 'PRINAD (%)',
+                'rating': 'Rating',
+                'sistema_origem': 'Sistema',
+                'produto_credito': 'Produto',
+                'tipo_solicitacao': 'Tipo'
             }
             df_display = df_display.rename(columns=col_names)
             
             st.dataframe(
-                df_display.iloc[::-1],  # Most recent first
+                df_display,
                 use_container_width=True,
-                hide_index=True
+                hide_index=True,
+                height=400
             )
     else:
-        st.info("Aguardando classificações...")
-
-
-def render_risk_breakdown():
-    """Render risk breakdown pie chart."""
-    st.subheader("🥧 Breakdown de Risco")
-    
-    ratings = st.session_state.stats['por_rating']
-    
-    if ratings:
-        # Group by risk level
-        risk_levels = {
-            'Baixo (A)': sum(ratings.get(r, 0) for r in ['A1', 'A2', 'A3']),
-            'Moderado (B1-B2)': sum(ratings.get(r, 0) for r in ['B1', 'B2']),
-            'Elevado (B3)': ratings.get('B3', 0),
-            'Alto (C)': sum(ratings.get(r, 0) for r in ['C1', 'C2']),
-            'Default (D)': ratings.get('D', 0)
-        }
-        
-        colors = ['#22c55e', '#eab308', '#f97316', '#ef4444', '#1f2937']
-        
-        fig = go.Figure(data=[go.Pie(
-            labels=list(risk_levels.keys()),
-            values=list(risk_levels.values()),
-            marker_colors=colors,
-            hole=0.4,
-            textinfo='label+percent',
-            textposition='outside'
-        )])
-        
-        fig.update_layout(
-            height=300,
-            margin=dict(l=20, r=20, t=20, b=20),
-            paper_bgcolor='rgba(0,0,0,0)',
-            showlegend=False
-        )
-        
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Aguardando classificações...")
+        st.info("Aguardando avaliações...")
 
 
 def main():
@@ -397,11 +539,15 @@ def main():
     render_header()
     st.divider()
     
+    # Streaming control
+    render_streaming_control()
+    st.divider()
+    
     # KPIs row
     render_kpis()
     st.divider()
     
-    # Charts row 1
+    # Charts row 1: Ratings and Systems
     col1, col2 = st.columns([2, 1])
     
     with col1:
@@ -412,48 +558,52 @@ def main():
     
     st.divider()
     
-    # Charts row 2
-    col1, col2 = st.columns([2, 1])
+    # Charts row 2: Products and Types
+    col1, col2, col3 = st.columns([2, 1, 1])
     
     with col1:
-        render_timeseries()
+        render_produto_distribution()
     
     with col2:
-        render_risk_breakdown()
+        render_sistema_distribution()
+    
+    with col3:
+        render_tipo_distribution()
     
     st.divider()
     
-    # Recent classifications table
-    render_recent_classifications()
+    # Timeseries
+    render_timeseries()
     
-    # Auto-refresh
-    if st.sidebar.checkbox("Auto-refresh", value=True):
-        time.sleep(REFRESH_INTERVAL)
-        st.rerun()
+    st.divider()
     
-    # Manual controls
+    # Evaluations table
+    render_avaliacoes_table()
+    
+    # Sidebar controls
     st.sidebar.divider()
-    st.sidebar.subheader("Controles")
+    st.sidebar.subheader("⚙️ Controles")
     
     if st.sidebar.button("🔄 Atualizar Agora"):
         st.rerun()
     
     if st.sidebar.button("🗑️ Limpar Dados"):
-        st.session_state.classifications = deque(maxlen=1000)
-        st.session_state.stats = {
-            'total': 0,
-            'por_rating': {},
-            'por_minuto': deque(maxlen=60),
-            'prinad_medio': 0,
-            'start_time': datetime.now()
-        }
+        clear_avaliacoes()
+        st.rerun()
+    
+    # Auto-refresh
+    st.sidebar.divider()
+    auto_refresh = st.sidebar.checkbox("Auto-refresh (5s)", value=True)
+    
+    if auto_refresh:
+        time.sleep(REFRESH_INTERVAL)
         st.rerun()
     
     # Info
     st.sidebar.divider()
     st.sidebar.info(
         "Este dashboard mostra classificações de risco em tempo real. "
-        "Execute o `streaming_sender.py` para simular dados."
+        "Clique em 'Iniciar Streaming' para começar a simulação."
     )
 
 
