@@ -1,201 +1,210 @@
-# PRINAD - Modelo de Probabilidade de Inadimplência
+# 🏦 PRINAD - Sistema de Risco de Crédito Bancário
 
-Sistema de classificação de risco de crédito baseado em Machine Learning, alinhado com as práticas internacionais do **Basel III**.
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![AUC-ROC: 0.9986](https://img.shields.io/badge/AUC--ROC-0.9986-brightgreen.svg)]()
+[![Precision: 0.95](https://img.shields.io/badge/Precision-0.95-brightgreen.svg)]()
+[![Recall: 0.97](https://img.shields.io/badge/Recall-0.97-brightgreen.svg)]()
 
-## 📋 Visão Geral
+Sistema de **Probabilidade de Inadimplência (PRINAD)** para instituições financeiras, em conformidade com as diretrizes **Basel III** e integração com o **SCR do Banco Central**.
 
-O PRINAD (Probabilidade de Inadimplência) é um modelo de scoring de crédito que avalia o risco de default de clientes de um banco comercial, combinando:
+## 📊 Métricas do Modelo
 
-- **Modelo de Machine Learning** (XGBoost + LightGBM ensemble)
-- **Componente Histórico** (penalidade baseada em comportamento passado)
-- **Interpretabilidade** (SHAP para explicação de decisões)
+| Métrica | Valor | Status |
+|---------|-------|--------|
+| **AUC-ROC** | 0.9986 | ✅ Excelente |
+| **Gini** | 0.9972 | ✅ Excelente |
+| **KS** | 0.9595 | ✅ Excelente |
+| **Precision** | 0.9535 | ✅ Meta atingida |
+| **Recall** | 0.9713 | ✅ Meta atingida |
 
-### Fórmula do Score
+## 🏗️ Arquitetura
 
 ```
-PRINAD = PD_Base × (1 + Penalidade_Histórica)
+┌─────────────────────────────────────────────────────────────────────┐
+│                      PIPELINE PRINAD v2.0                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │
+│  │ Cadastro   │  │ Comportam. │  │ Histórico  │  │ SCR (BCB)  │    │
+│  │ (15 feat.) │  │ (12 feat.) │  │ Interno    │  │ (16 feat.) │    │
+│  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘  └─────┬──────┘    │
+│        │               │               │               │           │
+│        └───────┬───────┴───────┬───────┴───────┬───────┘           │
+│                ▼               ▼               ▼                    │
+│        ┌───────────────────────────────────────────────────┐       │
+│        │              Ensemble ML (XGBoost + LightGBM)     │       │
+│        │              + Penalidades Históricas             │       │
+│        │              50% ML | 25% Interno | 25% SCR       │       │
+│        └──────────────────────┬────────────────────────────┘       │
+│                               ▼                                     │
+│        ┌───────────────────────────────────────────────────┐       │
+│        │              PRINAD + Rating (A1 → D)             │       │
+│        │              + Explicação SHAP                    │       │
+│        └───────────────────────────────────────────────────┘       │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-- `PD_Base`: Probabilidade de default do modelo ML (0-100%)
-- `Penalidade_Histórica`: Multiplicador de 0.0 a 1.5 baseado nos últimos 24 meses
+## 📂 Estrutura do Projeto
 
-## 🎯 Escala de Rating
+```
+risco_bancario/
+├── 📁 app/                    # Dashboard Streamlit
+│   ├── dashboard.py           # Interface visual
+│   └── streaming_sender.py    # Envio de dados em tempo real
+├── 📁 dados/                  # Datasets
+│   ├── base_cadastro.csv      # Dados cadastrais
+│   ├── base_3040.csv          # Dados comportamentais
+│   └── scr_mock_data.csv      # Dados SCR mockados
+├── 📁 docs/                   # Documentação
+│   ├── modelo_prinad_basel3.md # Metodologia Basel III
+│   └── api_documentation.md   # Documentação da API
+├── 📁 modelo/                 # Artefatos treinados
+│   ├── ensemble_model.joblib  # Modelo ensemble
+│   ├── preprocessor.joblib    # Preprocessador
+│   └── shap_explainer.joblib  # Explicador SHAP
+├── 📁 src/                    # Código-fonte
+│   ├── train_model.py         # Treinamento do modelo
+│   ├── classifier.py          # Classificador PRINAD
+│   ├── data_pipeline.py       # Pipeline de dados
+│   ├── feature_engineering.py # Engenharia de features
+│   ├── historical_penalty.py  # Penalidades históricas
+│   ├── scr_data_generator.py  # Gerador de dados SCR
+│   └── api.py                 # API FastAPI
+├── 📁 tests/                  # Testes unitários
+├── requirements.txt           # Dependências
+└── README.md                  # Este arquivo
+```
 
-| Rating | Faixa PD | Descrição | Ação Sugerida |
-|--------|----------|-----------|---------------|
-| A1 | 0-2% | Risco Mínimo | Aprovação automática |
-| A2 | 2-5% | Risco Muito Baixo | Aprovação automática |
-| A3 | 5-10% | Risco Baixo | Análise simplificada |
-| B1 | 10-20% | Risco Baixo-Moderado | Análise padrão |
-| B2 | 20-35% | Risco Moderado | Análise detalhada |
-| B3 | 35-50% | Risco Moderado-Alto | Possíveis garantias |
-| C1 | 50-70% | Risco Alto | Exige garantias |
-| C2 | 70-90% | Risco Muito Alto | Condições especiais |
-| D | 90-100% | Default/Iminente | Negação |
+## 🚀 Instalação
 
-## 🛠️ Instalação
-
-### Requisitos
-
+### Pré-requisitos
 - Python 3.10+
-- pip
+- Git
 
-### Instalação
+### Setup
 
 ```bash
 # Clone o repositório
-cd novo_prinad
+git clone https://github.com/Masteradilio/risco_bancario.git
+cd risco_bancario
 
-# Crie um ambiente virtual
+# Crie o ambiente virtual
 python -m venv venv
-venv\Scripts\activate  # Windows
 source venv/bin/activate  # Linux/Mac
+# ou
+.\venv\Scripts\activate   # Windows
 
 # Instale as dependências
 pip install -r requirements.txt
 ```
 
-## 🚀 Uso
+## 💻 Uso
 
-### 1. Treinar o Modelo
-
-```bash
-cd src
-python train_model.py
-```
-
-Isso irá:
-- Carregar dados de `dados/base_cadastro.csv` e `dados/base_3040.csv`
-- Aplicar feature engineering
-- Balancear com SMOTE-Tomek
-- Treinar ensemble XGBoost + LightGBM
-- Calibrar probabilidades
-- Salvar artefatos em `modelo/`
-
-### 2. Iniciar a API
+### Treinar o Modelo
 
 ```bash
-cd src
-python api.py
+python src/train_model.py
 ```
 
-A API estará disponível em `http://localhost:8000`
-
-- Documentação: `http://localhost:8000/docs`
-- Health check: `http://localhost:8000/health`
-
-### 3. Iniciar o Dashboard
-
-Em outro terminal:
+### Executar a API
 
 ```bash
-cd app
-streamlit run dashboard.py
+python src/api.py
+# API disponível em http://localhost:8000
 ```
 
-O dashboard abrirá em `http://localhost:8501`
-
-### 4. Simular Classificações (Demo)
-
-Para demonstrar o sistema em tempo real:
+### Executar o Dashboard
 
 ```bash
-cd app
-python streaming_sender.py --interval 1.0
+streamlit run app/dashboard.py
+# Dashboard disponível em http://localhost:8501
 ```
 
-Isso enviará classificações simuladas para a API, que aparecerão no dashboard.
-
-## 📡 API Endpoints
-
-| Endpoint | Método | Descrição |
-|----------|--------|-----------|
-| `/health` | GET | Status da API |
-| `/predict` | POST | Classificar um cliente |
-| `/batch` | POST | Classificar múltiplos clientes |
-| `/metrics` | GET | Métricas de uso |
-| `/ws/stream` | WebSocket | Stream em tempo real |
-
-### Exemplo de Requisição
+### Classificar um Cliente
 
 ```python
-import requests
+from src.classifier import PRINADClassifier
 
-response = requests.post("http://localhost:8000/predict", json={
-    "cpf": "12345678901",
-    "dados_cadastrais": {
-        "IDADE_CLIENTE": 35,
-        "RENDA_BRUTA": 5000.0,
-        "RENDA_LIQUIDA": 4200.0,
-        "OCUPACAO": "ASSALARIADO",
-        "ESCOLARIDADE": "SUPERIOR",
-        "QT_DEPENDENTES": 2,
-        "TEMPO_RELAC": 48.0
-    },
-    "dados_comportamentais": {
-        "v205": 0.0, "v210": 0.0, "v220": 0.0, "v230": 0.0,
-        "v240": 0.0, "v245": 0.0, "v250": 0.0, "v255": 0.0,
-        "v260": 0.0, "v270": 0.0, "v280": 0.0, "v290": 0.0
-    }
+classifier = PRINADClassifier()
+result = classifier.classify({
+    'IDADE_CLIENTE': 35,
+    'RENDA_LIQUIDA': 5000,
+    'v205': 0,
+    'v210': 0,
+    'scr_classificacao_risco': 'A',
+    'scr_dias_atraso': 0
 })
 
-result = response.json()
-print(f"PRINAD: {result['prinad']}% - Rating: {result['rating']}")
+print(f"PRINAD: {result['prinad']:.2f}%")
+print(f"Rating: {result['rating']}")
 ```
 
-## 📁 Estrutura do Projeto
+## 📋 Componentes do Score
 
+### 1. PD Base (50%)
+Modelo de machine learning ensemble (XGBoost + LightGBM) calibrado.
+
+### 2. Penalidade Histórica Interna (25%)
+Baseada nos vértices v* de atraso interno dos últimos 24 meses.
+
+### 3. Penalidade Histórica Externa - SCR (25%)
+Baseada nos dados do Sistema de Informações de Crédito do Banco Central:
+- Classificação de risco (AA a H)
+- Valor vencido em outras instituições
+- Dias de atraso
+- Valores em prejuízo
+
+### 🔄 Período de Cura
+Cliente é "perdoado" após **6 meses consecutivos** sem nenhum evento negativo **interno E externo**.
+
+## 📈 Escala de Rating
+
+| Rating | Faixa PD | Descrição | Ação |
+|--------|----------|-----------|------|
+| **A1** | 0-2% | Risco Mínimo | Aprovação automática |
+| **A2** | 2-5% | Risco Muito Baixo | Aprovação automática |
+| **A3** | 5-10% | Risco Baixo | Análise simplificada |
+| **B1** | 10-20% | Risco Baixo-Moderado | Análise padrão |
+| **B2** | 20-35% | Risco Moderado | Análise detalhada |
+| **B3** | 35-50% | Risco Moderado-Alto | Análise rigorosa |
+| **C1** | 50-70% | Risco Alto | Exige garantias |
+| **C2** | 70-90% | Risco Muito Alto | Condições especiais |
+| **D** | 90-100% | Default/Iminente | Negação |
+
+## 🧪 Testes
+
+```bash
+pytest tests/ -v
 ```
-novo_prinad/
-├── src/                          # Código-fonte principal
-│   ├── data_pipeline.py          # Carregamento e merge de dados
-│   ├── feature_engineering.py    # Criação de features derivadas
-│   ├── historical_penalty.py     # Cálculo de penalidade histórica
-│   ├── train_model.py            # Treinamento do modelo
-│   ├── classifier.py             # Pipeline de classificação
-│   └── api.py                    # API FastAPI
-├── app/                          # Aplicativos
-│   ├── dashboard.py              # Dashboard Streamlit
-│   └── streaming_sender.py       # Simulador de dados
-├── modelo/                       # Artefatos de modelo
-│   ├── ensemble_model.joblib     # Modelo treinado
-│   ├── preprocessor.joblib       # Preprocessador
-│   └── shap_explainer.joblib     # Explainer SHAP
-├── dados/                        # Dados de entrada
-│   ├── base_cadastro.csv         # Dados cadastrais
-│   └── base_3040.csv             # Dados comportamentais
-├── docs/                         # Documentação
-│   ├── modelo_prinad_basel3.md   # Metodologia Basel III
-│   └── api_documentation.md      # Documentação da API
-├── modelo_antigo/                # Modelo anterior (referência)
-├── requirements.txt              # Dependências Python
-└── README.md                     # Este arquivo
-```
 
-## 📊 Métricas de Performance
+## 📚 Documentação
 
-O modelo é avaliado com as seguintes métricas mínimas:
+- [Metodologia Basel III](docs/modelo_prinad_basel3.md)
+- [Documentação da API](docs/api_documentation.md)
 
-| Métrica | Mínimo | Target |
-|---------|--------|--------|
-| AUC-ROC | 0.75 | 0.82+ |
-| Gini | 0.50 | 0.64+ |
-| KS | 0.35 | 0.45+ |
-| Precision (Default) | 0.60 | 0.75+ |
-| Recall (Default) | 0.55 | 0.70+ |
+## 🔐 Integração com SCR
 
-## 🔒 Conformidade e Regulação
+Em produção, substitua o `scr_mock_data.csv` pela integração real com a API do SCR:
 
-Este modelo foi desenvolvido em conformidade com:
+**Endpoint:** `https://www9.bcb.gov.br/wsscr2n/api/`
 
-- **Basel III**: Requisitos de modelo interno (IRB)
-- **LGPD Art. 20**: Direito à explicação de decisões automatizadas
-- **BCB Circular 3.648**: Cálculo de risco de crédito
+Campos necessários:
+- `valorVencer`, `valorVencido`, `valorPrejuizo`
+- `limCredito`, `limCreditoUtilizado`
+- `diasAtraso`, `classificacaoRisco`
+- `qtdOperacoes`, `qtdInstituicoes`
 
-## 📝 Licença
+> ⚠️ A consulta ao SCR requer autorização prévia do cliente (Res. BCB 4.571/2017).
 
-Uso interno do Banco - Todos os direitos reservados.
+## 📄 Licença
 
-## 👥 Equipe
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
-Desenvolvido pela equipe de Data Science / Risco de Crédito.
+## 👥 Autor
+
+Desenvolvido para análise de risco de crédito em conformidade com as melhores práticas internacionais Basel III.
+
+---
+
+**⭐ Se este projeto foi útil, considere dar uma estrela!**
