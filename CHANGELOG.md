@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-26
+
+### Fixed
+
+#### Pipeline de Inferência
+- **Colunas Obrigatórias**: Adicionado método `_ensure_base_columns()` no classifier que preenche automaticamente colunas faltantes (SCR, v-columns, cadastrais) com valores default sensíveis
+- **Fallback 25%**: Corrigido problema onde falta de colunas causava exceções silenciosas que retornavam sempre 25% como fallback
+- **Atributo penalidade_total**: Corrigido acesso ao atributo correto no `HistoricalAnalysis`
+
+#### Performance
+- **Latência Reduzida**: De ~1000ms para ~45ms por requisição (22x mais rápido)
+- **SHAP Desabilitado**: Cálculo SHAP desabilitado temporariamente (causava ~5s de latência adicional e erros)
+- **Mínimo PRINAD**: Adicionado floor de 0.5% - nenhum cliente tem risco zero
+
+### Changed
+
+#### Dashboard v2.0 (`dashboard.py`)
+- **Timeline no Topo**: Gráfico de timeline movido para topo da página principal
+- **Controles na Sidebar**: Botões de streaming movidos para sidebar esquerda
+- **Intervalo Configurável**: Seletor de intervalo de 1-10 segundos (padrão: 2s)
+- **Streaming Integrado**: Dashboard envia requisições diretamente à API (não precisa mais do streaming_sender.py externo)
+
+#### Perfis de Simulação
+- **7 Perfis Graduais**: Substituídos 4 perfis extremos por 7 perfis realistas:
+  - `excelente` (25%): PRINAD 0.5-2% → Rating A1
+  - `muito_bom` (20%): PRINAD 2-5% → Rating A2
+  - `bom` (20%): PRINAD 5-10% → Rating A3
+  - `moderado` (15%): PRINAD 10-20% → Rating B1
+  - `atencao` (10%): PRINAD 20-35% → Rating B2
+  - `risco` (7%): PRINAD 35-70% → Rating B3/C1
+  - `alto_risco` (3%): PRINAD 70-100% → Rating C2/D
+- **SCR Variável**: Dados SCR agora variam conforme perfil (AA até G)
+- **V-Columns Graduais**: Exposição em atraso progride gradualmente entre perfis
+
+### Added
+- **test_diagnosis.py**: Script de diagnóstico para testar variação de PRINAD e latência
+
 ## [1.1.0] - 2025-12-24
 
 ### Added

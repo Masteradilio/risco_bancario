@@ -214,12 +214,16 @@ class PRINADClassifier:
         """Get base PD from ML model."""
         
         try:
+            # Ensure all required base columns exist with defaults
+            df = self._ensure_base_columns(df)
+            
             # Apply feature engineering
             if self.feature_engineer:
                 df_engineered = self.feature_engineer.transform(df)
             else:
                 df_engineered = df
             
+            # Fill any remaining NaN values
             df_engineered = df_engineered.fillna(0)
             
             # Preprocess
@@ -231,20 +235,98 @@ class PRINADClassifier:
             # Convert to percentage
             pd_base = proba * 100
             
+            # Apply minimum floor of 0.5% - no client has zero risk
+            pd_base = max(0.5, pd_base)
+            
             return pd_base
             
         except Exception as e:
             logger.error(f"Error predicting PD base: {e}")
+            import traceback
+            traceback.print_exc()
             # Return moderate risk as fallback
             return 25.0
+    
+    def _ensure_base_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Ensure all required base columns exist with sensible defaults."""
+        
+        df = df.copy()
+        
+        # Cadastral columns with defaults
+        cadastral_defaults = {
+            'IDADE_CLIENTE': 35,
+            'RENDA_BRUTA': 3000.0,
+            'RENDA_LIQUIDA': 2500.0,
+            'OCUPACAO': 'ASSALARIADO',
+            'ESCOLARIDADE': 'MEDIO',
+            'ESTADO_CIVIL': 'SOLTEIRO',
+            'QT_DEPENDENTES': 0,
+            'TEMPO_RELAC': 12.0,
+            'TIPO_RESIDENCIA': 'ALUGADA',
+            'POSSUI_VEICULO': 'NAO',
+            'PORTABILIDADE': 'NAO PORTADO',
+            'COMP_RENDA': 0.3,
+            'QT_PRODUTOS': 1
+        }
+        
+        # V-columns (behavioral) - all zero means no delinquency
+        v_cols = ['v205', 'v210', 'v220', 'v230', 'v240', 'v245', 
+                  'v250', 'v255', 'v260', 'v270', 'v280', 'v290']
+        
+        # SCR columns with safe defaults (good standing)
+        scr_defaults = {
+            'scr_classificacao_risco': 'A',
+            'scr_dias_atraso': 0,
+            'scr_lim_credito': 5000.0,
+            'scr_lim_utilizado': 1000.0,
+            'scr_valor_vencer': 1000.0,
+            'scr_valor_vencido': 0.0,
+            'scr_valor_prejuizo': 0.0,
+            'scr_qtd_instituicoes': 1,
+            'scr_qtd_operacoes': 2,
+            'scr_modalidade_principal': 'CARTAO',
+            'scr_taxa_utilizacao': 0.2,
+            'scr_score_risco': 1,
+            'scr_tem_prejuizo': 0,
+            'scr_faixa_atraso': '0',
+            'scr_exposicao_total': 2000.0,
+            'scr_ratio_vencido': 0.0
+        }
+        
+        # Apply cadastral defaults
+        for col, default in cadastral_defaults.items():
+            if col not in df.columns:
+                df[col] = default
+            else:
+                df[col] = df[col].fillna(default)
+        
+        # Apply v-column defaults (0 = no delinquency)
+        for col in v_cols:
+            if col not in df.columns:
+                df[col] = 0.0
+            else:
+                df[col] = df[col].fillna(0.0)
+        
+        # Apply SCR defaults
+        for col, default in scr_defaults.items():
+            if col not in df.columns:
+                df[col] = default
+            else:
+                df[col] = df[col].fillna(default)
+        
+        return df
     
     def _get_shap_explanation(self, df: pd.DataFrame, max_features: int = 5) -> List[Dict[str, Any]]:
         """Generate SHAP explanation for the prediction."""
         
-        if self.shap_explainer is None:
-            return []
+        # SHAP is disabled for performance - it adds ~5s latency
+        # TODO: Re-enable with async processing or caching
+        return []
         
         try:
+            # Ensure all required base columns exist
+            df = self._ensure_base_columns(df)
+            
             # Apply feature engineering
             if self.feature_engineer:
                 df_engineered = self.feature_engineer.transform(df)
