@@ -68,3 +68,9 @@ logs/
 # Temporary files
 *.tmp
 *.temp
+
+# Data files (large datasets)
+dados/
+
+# Notification outputs
+propensao/notificacoes/
