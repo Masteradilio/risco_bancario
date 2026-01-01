@@ -41,9 +41,9 @@ class TestLimitOptimizer:
         assert len(acoes) == 0  # Rule not triggered
     
     def test_avaliar_maxdebt_triggered(self, optimizer):
-        """Max-debt rule should trigger at 65%+."""
+        """Max-debt rule should trigger at 69%+."""
         acoes = optimizer.avaliar_cliente_maxdebt(
-            comprometimento=0.68,
+            comprometimento=0.72,  # Above 0.69 threshold
             limites={'consignado': 100000, 'cred_veiculo': 50000},
             utilizacao={'consignado': 0, 'cred_veiculo': 0}
         )
@@ -54,12 +54,12 @@ class TestLimitOptimizer:
     def test_avaliar_maxdebt_cartao_exception(self, optimizer):
         """Credit card should be exception to max-debt rule."""
         acoes = optimizer.avaliar_cliente_maxdebt(
-            comprometimento=0.70,
-            limites={'cartao_credito': 15000, 'consignado': 100000},
-            utilizacao={'cartao_credito': 0, 'consignado': 0}
+            comprometimento=0.72,
+            limites={'cartao_credito_rotativo': 15000, 'consignado': 100000},
+            utilizacao={'cartao_credito_rotativo': 0, 'consignado': 0}
         )
         
-        assert acoes['cartao_credito'][0] == AcaoLimite.MANTER
+        assert acoes['cartao_credito_rotativo'][0] == AcaoLimite.MANTER
         assert acoes['consignado'][0] == AcaoLimite.REDUZIR
     
     def test_avaliar_propensao_prinad_d(self, optimizer):
@@ -123,18 +123,18 @@ class TestLimitOptimizer:
             limites={
                 'consignado': 100000,
                 'banparacard': 30000,
-                'cartao_credito': 15000
+                'cartao_credito_rotativo': 15000
             },
             propensoes={
                 'consignado': 80,
                 'banparacard': 20,
-                'cartao_credito': 60
+                'cartao_credito_rotativo': 60
             },
             prinad=15.0,
             utilizacao_trimestral={
                 'consignado': 0,
                 'banparacard': 2,
-                'cartao_credito': 0
+                'cartao_credito_rotativo': 0
             }
         )
         

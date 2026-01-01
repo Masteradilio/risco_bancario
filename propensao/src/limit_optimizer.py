@@ -113,8 +113,9 @@ class LimitOptimizer:
         
         for produto, limite in limites.items():
             # Credit card is exception (revolving credit)
-            if produto == 'cartao_credito':
-                acoes[produto] = (AcaoLimite.MANTER, "Cartão de crédito rotativo mantido")
+            if produto in ['cartao_credito_rotativo', 'cartao_credito_parcelado', 
+                          'cheque_especial', 'cartao_credito']:
+                acoes[produto] = (AcaoLimite.MANTER, "Crédito rotativo mantido")
                 continue
             
             # Check utilization

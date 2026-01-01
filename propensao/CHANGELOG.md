@@ -2,6 +2,46 @@
 
 Todas as alterações notáveis do módulo de propensão serão documentadas neste arquivo.
 
+## [1.1.0] - 2026-01-01
+
+### ✨ Adicionado
+
+#### Data Consolidation Framework
+- **data_consolidator.py** - Reescrito para criar base unificada:
+  - Mescla dados reais (cadastro, limites, 3040) com sintéticos
+  - Suporte a 9 produtos de crédito
+  - Geração de 352.220 registros (156.891 clientes × produtos)
+  - Regras de distribuição de produtos por cliente
+
+#### Pipeline Runner
+- **pipeline_runner.py** - Novo orquestrador do pipeline completo:
+  - Enriquecimento PRINAD (score + rating)
+  - Enriquecimento de Propensão
+  - Cálculo de ECL
+  - Otimização de limites
+  - Geração de notificações por horizonte (D+0, D+30, D+60)
+
+### 📋 Regras de Negócio Oficiais (v1.0)
+
+| Ação | Condição | Novo Limite |
+|------|----------|-------------|
+| ZERAR | PRINAD = 100 | 0 |
+| REDUZIR 25% | PRINAD 90-99 | 25% do atual |
+| REDUZIR 50% | PRINAD 80-89 OU baixa propensão + baixa utilização | 50% do atual |
+| AUMENTAR | PRINAD < 80 + propensão + margem + comprometimento < 65% | +25% |
+| MANTER | Demais casos | Sem alteração |
+
+### 📚 Documentação
+- `propensao/docs/mysql_ddl.sql` - DDL MySQL para TI
+- `propensao/docs/dicionario_dados.md` - Dicionário de dados
+- `propensao/docs/requisitos_producao.md` - Requisitos de produção
+
+### 🔧 Melhorias
+- Adicionados campos `COMPROMETIMENTO_POR_PRODUTO` e `DISTRIBUICAO_PRODUTOS` em `shared/utils.py`
+- 124 testes passando
+
+---
+
 ## [1.0.0] - 2025-12-30
 
 ### ✨ Adicionado
