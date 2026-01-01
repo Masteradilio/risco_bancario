@@ -52,13 +52,17 @@ class PRINADEnricher:
     """Enriches data with PRINAD scores and ratings."""
     
     RATING_BANDS = [
-        (0, 10, 'A1', 'Risco Mínimo'),
-        (10, 20, 'A2', 'Risco Muito Baixo'),
-        (20, 40, 'B1', 'Risco Baixo'),
-        (40, 60, 'B2', 'Risco Moderado'),
-        (60, 80, 'C1', 'Risco Alto'),
-        (80, 90, 'C2', 'Risco Muito Alto'),
-        (90, 101, 'D', 'Default/Iminente'),
+        (0, 5, 'A1', 'Risco Mínimo'),
+        (5, 15, 'A2', 'Risco Muito Baixo'),
+        (15, 25, 'A3', 'Risco Baixo'),
+        (25, 35, 'B1', 'Risco Baixo-Moderado'),
+        (35, 45, 'B2', 'Risco Moderado'),
+        (45, 55, 'B3', 'Risco Moderado-Alto'),
+        (55, 65, 'C1', 'Risco Alto'),
+        (65, 75, 'C2', 'Risco Muito Alto'),
+        (75, 85, 'C3', 'Risco Crítico'),
+        (85, 95, 'D', 'Pré-Default'),
+        (95, 101, 'DEFAULT', 'Default'),
     ]
     
     def __init__(self):
@@ -411,22 +415,22 @@ class LimitActionCalculator:
         renda = row.get('RENDA_BRUTA', 5000)
         
         # ================================================================
-        # RULE 1: ZERAR - Only for PRINAD = 100 (complete default)
+        # RULE 1: ZERAR - Rating DEFAULT (PRINAD >= 95)
         # ================================================================
-        if prinad >= 100:
+        if prinad >= 95:
             return 'ZERAR', 0, 0
         
         # ================================================================
-        # RULE 2: REDUZIR 25% - PRINAD 90-99 (Rating D - imminent default)
+        # RULE 2: REDUZIR 25% - Rating D (PRINAD 85-94)
         # ================================================================
-        if prinad >= 90:
+        if prinad >= 85:
             return 'REDUZIR', limite_atual * 0.25, 0  # Immediate 75% reduction
         
         # ================================================================
-        # RULE 3: REDUZIR 50% - PRINAD 80-89 (Rating C2)
+        # RULE 3: REDUZIR 50% - Rating C3 (PRINAD 75-84)
         #         OR low propensity + low utilization
         # ================================================================
-        if prinad >= 80:
+        if prinad >= 75:
             return 'REDUZIR', limite_atual * 0.50, 30  # 50% reduction in 30 days
         
         # Low propensity (< 45) AND low utilization (< 30%)
@@ -435,14 +439,14 @@ class LimitActionCalculator:
         
         # ================================================================
         # RULE 4: AUMENTAR - Good credit + propensity + margin + utilization < 65%
-        # - PRINAD < 80 (not high risk)
+        # - PRINAD < 75 (not high risk - ratings A1-C2)
         # - Propensity to consume product (> 55)
         # - Has margin available (> R$500)
         # - Current utilization < 65% of gross salary commitment
         # ================================================================
         comprometimento_atual = limite_atual / renda if renda > 0 else 1.0
         
-        if (prinad < 80 and 
+        if (prinad < 75 and 
             propensao > 55 and 
             margem > 500 and
             comprometimento_atual < 0.65):

@@ -162,15 +162,17 @@ Cliente é "perdoado" após **6 meses consecutivos** sem nenhum evento negativo 
 
 | Rating | Faixa PD | Descrição | Ação |
 |--------|----------|-----------|------|
-| **A1** | 0-2% | Risco Mínimo | Aprovação automática |
-| **A2** | 2-5% | Risco Muito Baixo | Aprovação automática |
-| **A3** | 5-10% | Risco Baixo | Análise simplificada |
-| **B1** | 10-20% | Risco Baixo-Moderado | Análise padrão |
-| **B2** | 20-35% | Risco Moderado | Análise detalhada |
-| **B3** | 35-50% | Risco Moderado-Alto | Análise rigorosa |
-| **C1** | 50-70% | Risco Alto | Exige garantias |
-| **C2** | 70-90% | Risco Muito Alto | Condições especiais |
-| **D** | 90-100% | Default/Iminente | Negação |
+| **A1** | 0-4.99% | Risco Mínimo | Aprovação automática |
+| **A2** | 5-14.99% | Risco Muito Baixo | Aprovação automática |
+| **A3** | 15-24.99% | Risco Baixo | Análise simplificada |
+| **B1** | 25-34.99% | Risco Baixo-Moderado | Análise padrão |
+| **B2** | 35-44.99% | Risco Moderado | Análise detalhada |
+| **B3** | 45-54.99% | Risco Moderado-Alto | Análise rigorosa |
+| **C1** | 55-64.99% | Risco Alto | Exige garantias |
+| **C2** | 65-74.99% | Risco Muito Alto | Condições especiais |
+| **C3** | 75-84.99% | Risco Crítico | Negação ou garantias sólidas |
+| **D** | 85-94.99% | Pré-Default | Negação, monitoramento |
+| **DEFAULT** | 95-100% | Default | Negação, cobrança |
 
 ## 🧪 Testes
 

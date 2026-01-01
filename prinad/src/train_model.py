@@ -53,29 +53,31 @@ class RatingMapper:
     """Maps PRINAD scores to ratings."""
     
     RATING_BANDS = [
-        ('A1', 0, 2, 'Risco Mínimo', 'verde'),
-        ('A2', 2, 5, 'Risco Muito Baixo', 'verde'),
-        ('A3', 5, 10, 'Risco Baixo', 'verde'),
-        ('B1', 10, 20, 'Risco Baixo-Moderado', 'amarelo'),
-        ('B2', 20, 35, 'Risco Moderado', 'amarelo'),
-        ('B3', 35, 50, 'Risco Moderado-Alto', 'laranja'),
-        ('C1', 50, 70, 'Risco Alto', 'vermelho'),
-        ('C2', 70, 90, 'Risco Muito Alto', 'vermelho'),
-        ('D', 90, 100, 'Default/Iminente', 'preto'),
+        ('A1', 0, 5, 'Risco Mínimo', 'verde'),
+        ('A2', 5, 15, 'Risco Muito Baixo', 'verde'),
+        ('A3', 15, 25, 'Risco Baixo', 'verde'),
+        ('B1', 25, 35, 'Risco Baixo-Moderado', 'amarelo'),
+        ('B2', 35, 45, 'Risco Moderado', 'amarelo'),
+        ('B3', 45, 55, 'Risco Moderado-Alto', 'laranja'),
+        ('C1', 55, 65, 'Risco Alto', 'vermelho'),
+        ('C2', 65, 75, 'Risco Muito Alto', 'vermelho'),
+        ('C3', 75, 85, 'Risco Crítico', 'vermelho'),
+        ('D', 85, 95, 'Pré-Default', 'preto'),
+        ('DEFAULT', 95, 100, 'Default', 'preto'),
     ]
     
     @classmethod
     def get_rating(cls, prinad: float) -> Dict[str, str]:
         """Get rating for a given PRINAD score."""
         for rating, lower, upper, desc, color in cls.RATING_BANDS:
-            if lower <= prinad < upper or (rating == 'D' and prinad >= 90):
+            if lower <= prinad < upper or (rating == 'DEFAULT' and prinad >= 95):
                 return {
                     'rating': rating,
                     'descricao': desc,
                     'cor': color,
                     'faixa': f'{lower}% - {upper}%'
                 }
-        return {'rating': 'D', 'descricao': 'Default/Iminente', 'cor': 'preto', 'faixa': '90% - 100%'}
+        return {'rating': 'DEFAULT', 'descricao': 'Default', 'cor': 'preto', 'faixa': '95% - 100%'}
 
 
 class PRINADModelTrainer:

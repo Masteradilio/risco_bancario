@@ -48,15 +48,17 @@ class RatingMapper:
     
     RATING_CONFIG = [
         # (rating, lower, upper, description, color, action)
-        ('A1', 0, 2, 'Risco Mínimo', 'verde', 'Aprovação automática, melhores taxas'),
-        ('A2', 2, 5, 'Risco Muito Baixo', 'verde', 'Aprovação automática'),
-        ('A3', 5, 10, 'Risco Baixo', 'verde', 'Aprovação com análise simplificada'),
-        ('B1', 10, 20, 'Risco Baixo-Moderado', 'amarelo', 'Análise padrão'),
-        ('B2', 20, 35, 'Risco Moderado', 'amarelo', 'Análise detalhada'),
-        ('B3', 35, 50, 'Risco Moderado-Alto', 'laranja', 'Análise rigorosa, possíveis garantias'),
-        ('C1', 50, 70, 'Risco Alto', 'vermelho', 'Exige garantias ou fiador'),
-        ('C2', 70, 90, 'Risco Muito Alto', 'vermelho', 'Negação ou condições especiais'),
-        ('D', 90, 100.01, 'Default/Iminente', 'preto', 'Negação, encaminhar para cobrança'),
+        ('A1', 0, 5, 'Risco Mínimo', 'verde', 'Aprovação automática, melhores taxas'),
+        ('A2', 5, 15, 'Risco Muito Baixo', 'verde', 'Aprovação automática'),
+        ('A3', 15, 25, 'Risco Baixo', 'verde', 'Aprovação com análise simplificada'),
+        ('B1', 25, 35, 'Risco Baixo-Moderado', 'amarelo', 'Análise padrão'),
+        ('B2', 35, 45, 'Risco Moderado', 'amarelo', 'Análise detalhada'),
+        ('B3', 45, 55, 'Risco Moderado-Alto', 'laranja', 'Análise rigorosa, possíveis garantias'),
+        ('C1', 55, 65, 'Risco Alto', 'vermelho', 'Exige garantias ou fiador'),
+        ('C2', 65, 75, 'Risco Muito Alto', 'vermelho', 'Negação ou condições especiais'),
+        ('C3', 75, 85, 'Risco Crítico', 'vermelho', 'Negação, exige garantias sólidas'),
+        ('D', 85, 95, 'Pré-Default', 'preto', 'Negação, monitoramento intensivo'),
+        ('DEFAULT', 95, 100.01, 'Default', 'preto', 'Negação, encaminhar para cobrança'),
     ]
     
     @classmethod

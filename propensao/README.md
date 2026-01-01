@@ -68,17 +68,17 @@ for rec in cliente.recomendacoes:
     print(f"{rec.produto}: {rec.acao.value} → R$ {rec.limite_recomendado:,.2f}")
 ```
 
-## 📋 Regras de Negócio (v1.0)
+## 📋 Regras de Negócio (v1.1)
 
 ### Ações de Limite
 
 | Ação | Condição | Novo Limite | Horizonte |
 |------|----------|-------------|-----------|
-| **ZERAR** | PRINAD = 100 (default completo) | 0 | Imediato |
-| **REDUZIR 25%** | PRINAD 90-99 (Rating D) | 25% do atual | Imediato |
-| **REDUZIR 50%** | PRINAD 80-89 (Rating C2) | 50% do atual | 30 dias |
+| **ZERAR** | Rating DEFAULT (PRINAD ≥ 95%) | 0 | Imediato |
+| **REDUZIR 25%** | Rating D (PRINAD 85-94%) | 25% do atual | Imediato |
+| **REDUZIR 50%** | Rating C3 (PRINAD 75-84%) | 50% do atual | 30 dias |
 | **REDUZIR 50%** | Propensão < 45 E Utilização < 30% | 50% do atual | 60 dias |
-| **AUMENTAR** | PRINAD < 80 + Propensão > 55 + Margem + Comprometimento < 65% | +25% | Imediato |
+| **AUMENTAR** | PRINAD < 75% + Propensão > 55 + Margem + Comprometimento < 65% | +25% | Imediato |
 | **MANTER** | Todos os demais | Sem alteração | - |
 
 ### Parâmetros Gerais

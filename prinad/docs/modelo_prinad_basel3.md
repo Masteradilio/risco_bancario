@@ -24,7 +24,7 @@ O modelo PRINAD atende aos seguintes requisitos regulatórios:
 
 - ✅ **Horizonte de predição**: 12 meses (padrão Basel III)
 - ✅ **Floor de PD**: Mínimo de 0.05% para clientes não-default
-- ✅ **Diferenciação de risco**: 9 níveis de rating (granularidade adequada)
+- ✅ **Diferenciação de risco**: 11 níveis de rating (granularidade adequada)
 - ✅ **Componente histórico**: Considera comportamento passado (24 meses)
 - ✅ **Interpretabilidade**: SHAP values para explicação de decisões
 - ✅ **Documentação**: Metodologia documentada e auditável
@@ -208,15 +208,17 @@ A escala de rating segue as melhores práticas internacionais, com faixas custom
 
 | Rating | Faixa PD | Descrição | Cor | Ação Sugerida |
 |--------|----------|-----------|-----|---------------|
-| **A1** | 0.00% - 2.00% | Risco Mínimo | 🟢 | Aprovação automática, melhores taxas |
-| **A2** | 2.00% - 5.00% | Risco Muito Baixo | 🟢 | Aprovação automática |
-| **A3** | 5.00% - 10.00% | Risco Baixo | 🟢 | Aprovação com análise simplificada |
-| **B1** | 10.00% - 20.00% | Risco Baixo-Moderado | 🟡 | Análise padrão |
-| **B2** | 20.00% - 35.00% | Risco Moderado | 🟡 | Análise detalhada |
-| **B3** | 35.00% - 50.00% | Risco Moderado-Alto | 🟠 | Análise rigorosa, possíveis garantias |
-| **C1** | 50.00% - 70.00% | Risco Alto | 🔴 | Exige garantias ou fiador |
-| **C2** | 70.00% - 90.00% | Risco Muito Alto | 🔴 | Negação ou condições especiais |
-| **D** | 90.00% - 100.00% | Default/Iminente | ⚫ | Negação, encaminhar para cobrança |
+| **A1** | 0.00% - 4.99% | Risco Mínimo | 🟢 | Aprovação automática, melhores taxas |
+| **A2** | 5.00% - 14.99% | Risco Muito Baixo | 🟢 | Aprovação automática |
+| **A3** | 15.00% - 24.99% | Risco Baixo | 🟢 | Aprovação com análise simplificada |
+| **B1** | 25.00% - 34.99% | Risco Baixo-Moderado | 🟡 | Análise padrão |
+| **B2** | 35.00% - 44.99% | Risco Moderado | 🟡 | Análise detalhada |
+| **B3** | 45.00% - 54.99% | Risco Moderado-Alto | 🟠 | Análise rigorosa, possíveis garantias |
+| **C1** | 55.00% - 64.99% | Risco Alto | 🔴 | Exige garantias ou fiador |
+| **C2** | 65.00% - 74.99% | Risco Muito Alto | 🔴 | Negação ou condições especiais |
+| **C3** | 75.00% - 84.99% | Risco Crítico | 🔴 | Negação, exige garantias sólidas |
+| **D** | 85.00% - 94.99% | Pré-Default | ⚫ | Negação, monitoramento intensivo |
+| **DEFAULT** | 95.00% - 100.00% | Default | ⚫ | Negação, encaminhar para cobrança |
 
 ### 3.2 Comparação com Escalas Internacionais
 
@@ -230,7 +232,9 @@ A escala de rating segue as melhores práticas internacionais, com faixas custom
 | B3 | BB+/BB | Ba1/Ba2 | BB+/BB |
 | C1 | BB-/B+ | Ba3/B1 | BB-/B+ |
 | C2 | B/B- | B2/B3 | B/B- |
-| D | CCC/D | Caa/C | CCC/D |
+| C3 | CCC/CCC- | Caa1/Caa2 | CCC/CCC- |
+| D | CC/C | Caa3/Ca | CC/C |
+| DEFAULT | D | C | D |
 
 ---
 

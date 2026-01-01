@@ -27,7 +27,7 @@ incluindo origem, tipo, e regras de negócio associadas.
 | `comprometimento_renda` | DECIMAL(5,4) | ✅ | Calculado | Parcelas / Renda (0-1) |
 | `margem_disponivel` | DECIMAL(15,2) | ✅ | Calculado | (Renda × 70%) - Parcelas |
 | `PRINAD_SCORE` | INT | ✅ | Modelo | Score de risco 0-100 |
-| `RATING` | VARCHAR(5) | ✅ | Modelo | A1/A2/B1/B2/C1/C2/D |
+| `RATING` | VARCHAR(10) | ✅ | Modelo | A1/A2/A3/B1/B2/B3/C1/C2/C3/D/DEFAULT |
 | `RATING_DESC` | VARCHAR(50) | ❌ | Modelo | Descrição do rating |
 | `scr_score_risco` | INT | ❌ | BACEN/Sint. | Score SCR (300-900) |
 | `scr_dias_atraso` | INT | ❌ | BACEN/Sint. | Dias em atraso no SFN |
@@ -89,13 +89,17 @@ incluindo origem, tipo, e regras de negócio associadas.
 
 | Rating | PRINAD | Descrição | Ação Sugerida |
 |--------|--------|-----------|---------------|
-| A1 | 0-10 | Risco Mínimo | Aumento de limite |
-| A2 | 10-20 | Risco Muito Baixo | Aumento moderado |
-| B1 | 20-40 | Risco Baixo | Manter |
-| B2 | 40-60 | Risco Moderado | Manter com monitoramento |
-| C1 | 60-80 | Risco Alto | Reduzir limite |
-| C2 | 80-90 | Risco Muito Alto | Reduzir significativamente |
-| D | 90-100 | Default/Iminente | Zerar limite, cobrança |
+| A1 | 0-4.99% | Risco Mínimo | Aumento de limite |
+| A2 | 5-14.99% | Risco Muito Baixo | Aumento moderado |
+| A3 | 15-24.99% | Risco Baixo | Manter |
+| B1 | 25-34.99% | Risco Baixo-Moderado | Manter |
+| B2 | 35-44.99% | Risco Moderado | Manter com monitoramento |
+| B3 | 45-54.99% | Risco Moderado-Alto | Monitoramento intensivo |
+| C1 | 55-64.99% | Risco Alto | Reduzir limite |
+| C2 | 65-74.99% | Risco Muito Alto | Reduzir significativamente |
+| C3 | 75-84.99% | Risco Crítico | Reduzir 50% |
+| D | 85-94.99% | Pré-Default | Reduzir 75% |
+| DEFAULT | 95-100% | Default | Zerar limite, cobrança |
 
 ---
 
@@ -111,12 +115,14 @@ incluindo origem, tipo, e regras de negócio associadas.
 
 ## Ações de Limite
 
-| Ação | Condição | Horizonte |
-|------|----------|-----------|
-| MANTER | Uso normal, risco adequado | D+0 |
-| AUMENTAR | Alta propensão, baixo risco, margem disponível | D+0 |
-| REDUZIR | Alto risco OU baixa utilização prolongada | D+30, D+60 |
-| ZERAR | 4+ trimestres sem uso OU default iminente | D+60 |
+| Ação | Condição | Novo Limite | Horizonte |
+|------|----------|-------------|-----------|
+| **ZERAR** | Rating DEFAULT (PRINAD ≥ 95%) | 0 | Imediato |
+| **REDUZIR 25%** | Rating D (PRINAD 85-94%) | 25% do atual | Imediato |
+| **REDUZIR 50%** | Rating C3 (PRINAD 75-84%) | 50% do atual | 30 dias |
+| **REDUZIR 50%** | Propensão < 45 E Utilização < 30% | 50% do atual | 60 dias |
+| **AUMENTAR** | PRINAD < 75% + Propensão > 55 + Margem + Comprometimento < 65% | +25% | Imediato |
+| **MANTER** | Todos os demais | Sem alteração | - |
 
 ---
 
