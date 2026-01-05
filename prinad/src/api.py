@@ -1,25 +1,37 @@
 """
-PRINAD - FastAPI Application
-REST API for credit risk classification with persistence and bank system simulation.
+PRINAD - FastAPI Application v2.0
+REST API for credit risk classification - BACEN 4966 Compliant.
+
+Endpoints:
+- /health - Health check
+- /simple_classify - Simple classification (CPF -> PRINAD, pd_12m, pd_lifetime, rating)
+- /explained_classify - Classification with SHAP explanation
+- /multiple_classify - Batch classification (list of CPFs)
+- /multiple_explained_classify - Batch classification with SHAP
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime
-import asyncio
+from pathlib import Path
+from enum import Enum
+import pandas as pd
+import numpy as np
 import logging
 import json
 import sys
+import io
 import csv
-import os
-from pathlib import Path
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent))
+# Add paths
+SRC_DIR = Path(__file__).parent
+sys.path.insert(0, str(SRC_DIR))
+sys.path.insert(0, str(SRC_DIR.parent.parent))
 
-from classifier import PRINADClassifier, ClassificationResult, get_classifier
+from classifier import PRINADClassifier, ClassificationResult
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -27,14 +39,13 @@ logger = logging.getLogger(__name__)
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
-DADOS_DIR = BASE_DIR / "dados"
-AVALIACOES_FILE = DADOS_DIR / "avaliacoes_risco.csv"
+DADOS_DIR = BASE_DIR.parent / "dados"
 
 # Create FastAPI app
 app = FastAPI(
-    title="PRINAD API",
-    description="API para classificação de risco de crédito baseada em Basel III",
-    version="1.0.0",
+    title="PRINAD API v2.0",
+    description="API de Classificação de Risco de Crédito - BACEN 4966 Compliant",
+    version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -48,518 +59,512 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global state
+# =============================================================================
+# GLOBAL STATE
+# =============================================================================
 classifier: Optional[PRINADClassifier] = None
-connected_clients: List[WebSocket] = []
-classification_stats = {
-    "total": 0,
-    "por_rating": {},
-    "por_sistema": {},
-    "por_produto": {},
-    "por_tipo": {},
-    "ultimas_24h": 0,
-    "latencia_media_ms": 0
-}
+df_clientes: Optional[pd.DataFrame] = None
+df_comportamental: Optional[pd.DataFrame] = None
+df_scr: Optional[pd.DataFrame] = None
 
-# CSV Headers
-CSV_HEADERS = [
-    'timestamp', 'cpf', 'pd_base', 'penalidade_historica', 'prinad', 
-    'rating', 'rating_descricao', 'acao_sugerida', 'sistema_origem', 
-    'produto_credito', 'tipo_solicitacao'
-]
+# =============================================================================
+# PYDANTIC MODELS
+# =============================================================================
+
+class OutputFormat(str, Enum):
+    json = "json"
+    csv = "csv"
 
 
-def init_csv_file():
-    """Initialize CSVfile with headers if it doesn't exist."""
-    if not AVALIACOES_FILE.exists():
-        DADOS_DIR.mkdir(parents=True, exist_ok=True)
-        with open(AVALIACOES_FILE, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(CSV_HEADERS)
-        logger.info(f"Created CSV file: {AVALIACOES_FILE}")
+class CPFRequest(BaseModel):
+    """Request with single CPF."""
+    cpf: str = Field(..., description="CPF do cliente (apenas números)")
+    sistema_origem: Optional[str] = Field(None, description="Sistema de origem da requisição")
 
 
-def persist_avaliacao(result: ClassificationResult, sistema_origem: str, 
-                       produto_credito: str, tipo_solicitacao: str):
-    """Persist classification result to CSV file."""
-    try:
-        with open(AVALIACOES_FILE, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                result.timestamp,
-                f"***{result.cpf[-4:]}" if len(result.cpf) >= 4 else result.cpf,
-                round(result.pd_base, 2),
-                round(result.penalidade_historica, 2),
-                round(result.prinad, 2),
-                result.rating,
-                result.rating_descricao,
-                result.acao_sugerida,
-                sistema_origem or 'N/A',
-                produto_credito or 'N/A',
-                tipo_solicitacao or 'N/A'
-            ])
-    except Exception as e:
-        logger.error(f"Error persisting avaliacao: {e}")
+class MultipleCPFRequest(BaseModel):
+    """Request with multiple CPFs."""
+    cpfs: List[str] = Field(..., description="Lista de CPFs")
+    sistema_origem: Optional[str] = Field(None, description="Sistema de origem")
+    output_format: OutputFormat = Field(OutputFormat.json, description="Formato de saída")
 
 
-def load_avaliacoes(limit: int = 100) -> List[Dict[str, Any]]:
-    """Load latest evaluations from CSV file."""
-    avaliacoes = []
-    try:
-        if AVALIACOES_FILE.exists():
-            with open(AVALIACOES_FILE, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                avaliacoes = list(reader)
-            # Return last N records (most recent)
-            avaliacoes = avaliacoes[-limit:] if len(avaliacoes) > limit else avaliacoes
-            # Reverse to show most recent first
-            avaliacoes.reverse()
-    except Exception as e:
-        logger.error(f"Error loading avaliacoes: {e}")
-    return avaliacoes
-
-
-# Pydantic Models
-class DadosCadastrais(BaseModel):
-    idade: Optional[int] = Field(None, alias="IDADE_CLIENTE")
-    renda_bruta: Optional[float] = Field(None, alias="RENDA_BRUTA")
-    renda_liquida: Optional[float] = Field(None, alias="RENDA_LIQUIDA")
-    ocupacao: Optional[str] = Field(None, alias="OCUPACAO")
-    escolaridade: Optional[str] = Field(None, alias="ESCOLARIDADE")
-    estado_civil: Optional[str] = Field(None, alias="ESTADO_CIVIL")
-    qt_dependentes: Optional[int] = Field(None, alias="QT_DEPENDENTES")
-    tempo_relacionamento: Optional[float] = Field(None, alias="TEMPO_RELAC")
-    tipo_residencia: Optional[str] = Field(None, alias="TIPO_RESIDENCIA")
-    possui_veiculo: Optional[str] = Field(None, alias="POSSUI_VEICULO")
-    portabilidade: Optional[str] = Field(None, alias="PORTABILIDADE")
-    comp_renda: Optional[float] = Field(None, alias="COMP_RENDA")
-    
-    class Config:
-        populate_by_name = True
-
-
-class DadosComportamentais(BaseModel):
-    v205: float = 0.0
-    v210: float = 0.0
-    v220: float = 0.0
-    v230: float = 0.0
-    v240: float = 0.0
-    v245: float = 0.0
-    v250: float = 0.0
-    v255: float = 0.0
-    v260: float = 0.0
-    v270: float = 0.0
-    v280: float = 0.0
-    v290: float = 0.0
-
-
-class ClassificationRequest(BaseModel):
+class SimpleClassificationResponse(BaseModel):
+    """Simple classification response - BACEN 4966."""
     cpf: str
-    dados_cadastrais: Dict[str, Any]
-    dados_comportamentais: Dict[str, Any]
-    # New fields for bank system simulation
-    sistema_origem: Optional[str] = None
-    produto_credito: Optional[str] = None
-    tipo_solicitacao: Optional[str] = None
+    prinad: float = Field(..., description="Score PRINAD (0-100)")
+    pd_12m: float = Field(..., description="Probabilidade de Default em 12 meses")
+    pd_lifetime: float = Field(..., description="Probabilidade de Default Lifetime")
+    rating: str = Field(..., description="Rating (A1-DEFAULT)")
+    estagio_pe: int = Field(..., description="Estágio de Perda Esperada / IFRS 9 (1, 2 ou 3)")
+    timestamp: str
 
 
-class BatchRequest(BaseModel):
-    clientes: List[ClassificationRequest]
-
-
-class ClassificationResponse(BaseModel):
-    cpf: str
-    prinad: float
-    rating: str
+class ExplainedClassificationResponse(SimpleClassificationResponse):
+    """Classification with full explanation."""
     rating_descricao: str
     cor: str
+    acao_sugerida: str
+    explicacao_shap: List[Dict[str, Any]] = Field(..., description="Explicação SHAP do modelo ML (50%)")
     pd_base: float
     penalidade_historica: float
-    peso_atual: float
-    peso_historico: float
-    acao_sugerida: str
-    explicacao_shap: List[Dict[str, Any]]
-    timestamp: str
     model_version: str
-    # New fields
-    sistema_origem: Optional[str] = None
-    produto_credito: Optional[str] = None
-    tipo_solicitacao: Optional[str] = None
+    explicacao_completa: Dict[str, Any] = Field(..., description="Explicação completa: composição PRINAD, justificativas de PD e Estágio PE")
 
 
-class BatchResponse(BaseModel):
-    total_processados: int
-    total_sucesso: int
-    total_erro: int
+class MultipleClassificationResponse(BaseModel):
+    """Response for batch classification."""
+    total: int
+    sucesso: int
+    erro: int
     resultados: List[Dict[str, Any]]
     erros: List[Dict[str, Any]]
     timestamp: str
 
 
 class HealthResponse(BaseModel):
+    """Health check response."""
     status: str
     model_loaded: bool
+    database_loaded: bool
+    total_clientes: int
     version: str
     timestamp: str
 
 
-class MetricsResponse(BaseModel):
-    model_version: str
-    total_classificacoes: int
-    distribuicao_ratings: Dict[str, int]
-    distribuicao_sistemas: Dict[str, int]
-    distribuicao_produtos: Dict[str, int]
-    distribuicao_tipos: Dict[str, int]
-    latencia_media_ms: float
-    timestamp: str
+# =============================================================================
+# DATA LOADING
+# =============================================================================
+
+def normalize_cpf(cpf: Any) -> str:
+    """Normalize CPF to 11-digit string."""
+    if pd.isna(cpf):
+        return ""
+    if isinstance(cpf, (int, float)):
+        cpf = str(int(cpf))
+    else:
+        cpf = str(cpf).strip()
+        cpf = ''.join(c for c in cpf if c.isdigit())
+    return cpf.zfill(11)
 
 
-class AvaliacoesResponse(BaseModel):
-    total: int
-    avaliacoes: List[Dict[str, Any]]
-    timestamp: str
+def load_client_database():
+    """Load client database from CSV files."""
+    global df_clientes, df_comportamental, df_scr
+    
+    # Load base_clientes.csv (consolidated data)
+    clientes_path = DADOS_DIR / "base_clientes.csv"
+    if clientes_path.exists():
+        df_clientes = pd.read_csv(clientes_path, sep=';', encoding='latin-1')
+        df_clientes['CPF_NORM'] = df_clientes['CPF'].apply(normalize_cpf)
+        logger.info(f"Loaded {len(df_clientes)} client records from base_clientes.csv")
+    else:
+        # Fallback: load from base_cadastro.csv
+        cadastro_path = DADOS_DIR / "base_cadastro.csv"
+        if cadastro_path.exists():
+            df_clientes = pd.read_csv(cadastro_path, sep=';', encoding='latin-1')
+            df_clientes['CPF_NORM'] = df_clientes['CPF'].apply(normalize_cpf)
+            logger.info(f"Loaded {len(df_clientes)} client records from base_cadastro.csv")
+        else:
+            logger.warning("No client database found!")
+            df_clientes = None
+    
+    # Load behavioral data (base_3040.csv)
+    comportamental_path = DADOS_DIR / "base_3040.csv"
+    if comportamental_path.exists():
+        df_comportamental = pd.read_csv(comportamental_path, sep=';', encoding='latin-1')
+        df_comportamental['CPF_NORM'] = df_comportamental['CPF'].apply(normalize_cpf)
+        # Aggregate by CPF (keep max values for each v-column)
+        v_cols = [c for c in df_comportamental.columns if c.startswith('v')]
+        agg_dict = {c: 'max' for c in v_cols if c in df_comportamental.columns}
+        if 'CLASSE' in df_comportamental.columns:
+            agg_dict['CLASSE'] = 'last'
+        df_comportamental = df_comportamental.groupby('CPF_NORM').agg(agg_dict).reset_index()
+        logger.info(f"Loaded behavioral data for {len(df_comportamental)} clients")
+    else:
+        df_comportamental = None
+        logger.warning("No behavioral data found!")
+    
+    # Load SCR data
+    scr_path = DADOS_DIR / "scr_mock_data.csv"
+    if scr_path.exists():
+        df_scr = pd.read_csv(scr_path)
+        logger.info(f"Loaded SCR data with {len(df_scr)} records")
+    else:
+        df_scr = None
+        logger.warning("No SCR data found!")
 
 
-# Startup event
+def get_client_data(cpf: str) -> Optional[Dict[str, Any]]:
+    """
+    Fetch all data for a client by CPF.
+    
+    Returns dictionary with dados_cadastrais and dados_comportamentais.
+    """
+    cpf_norm = normalize_cpf(cpf)
+    
+    if df_clientes is None:
+        return None
+    
+    # Find client in database
+    client_row = df_clientes[df_clientes['CPF_NORM'] == cpf_norm]
+    if client_row.empty:
+        return None
+    
+    client = client_row.iloc[0].to_dict()
+    
+    # Check if we have a consolidated dataset (contains derived features)
+    # If so, return full dict for both arguments to ensure all features are passed
+    if 'em_idade_ativa' in client:
+        return {
+            'dados_cadastrais': client,
+            'dados_comportamentais': client
+        }
+    
+    # Build dados_cadastrais (Legacy logic)
+    dados_cadastrais = {
+        'IDADE_CLIENTE': client.get('IDADE_CLIENTE'),
+        'RENDA_BRUTA': client.get('RENDA_BRUTA'),
+        'RENDA_LIQUIDA': client.get('RENDA_LIQUIDA', client.get('RENDA_BRUTA', 0) * 0.8),
+        'OCUPACAO': client.get('OCUPACAO', 'ASSALARIADO'),
+        'ESCOLARIDADE': client.get('ESCOLARIDADE'),
+        'ESTADO_CIVIL': client.get('ESTADO_CIVIL'),
+        'QT_DEPENDENTES': client.get('QT_DEPENDENTES', 0),
+        'TEMPO_RELAC': client.get('TEMPO_RELAC'),
+        'TIPO_RESIDENCIA': client.get('TIPO_RESIDENCIA', 'PROPRIA'),
+        'POSSUI_VEICULO': client.get('POSSUI_VEICULO'),
+        'PORTABILIDADE': client.get('PORTABILIDADE', 'NAO'),
+        'COMP_RENDA': client.get('comprometimento_renda', client.get('COMP_RENDA', 0.3)),
+    }
+    
+    # Add SCR data if available in base_clientes
+    if 'scr_score_risco' in client:
+        dados_cadastrais['scr_score_risco'] = client.get('scr_score_risco')
+        dados_cadastrais['scr_dias_atraso'] = client.get('scr_dias_atraso', 0)
+        dados_cadastrais['scr_tem_prejuizo'] = client.get('scr_tem_prejuizo', 0)
+    
+    # Build dados_comportamentais
+    dados_comportamentais = {}
+    v_cols = ['v205', 'v210', 'v220', 'v230', 'v240', 'v245', 
+              'v250', 'v255', 'v260', 'v270', 'v280', 'v290']
+    
+    # First try from base_clientes
+    for v in v_cols:
+        if v in client:
+            dados_comportamentais[v] = float(client.get(v, 0))
+    
+    # If not found, try from df_comportamental
+    if df_comportamental is not None and not dados_comportamentais:
+        comp_row = df_comportamental[df_comportamental['CPF_NORM'] == cpf_norm]
+        if not comp_row.empty:
+            comp = comp_row.iloc[0]
+            for v in v_cols:
+                if v in comp:
+                    dados_comportamentais[v] = float(comp.get(v, 0))
+    
+    # Default to zeros if no behavioral data
+    if not dados_comportamentais:
+        dados_comportamentais = {v: 0.0 for v in v_cols}
+    
+    # Use max_dias_atraso_12m if available
+    if 'max_dias_atraso_12m' in client:
+        dados_comportamentais['dias_atraso'] = int(client.get('max_dias_atraso_12m', 0))
+    
+    return {
+        'cpf': cpf_norm,
+        'dados_cadastrais': dados_cadastrais,
+        'dados_comportamentais': dados_comportamentais
+    }
+
+
+# =============================================================================
+# CLASSIFICATION FUNCTIONS
+# =============================================================================
+
+def classify_cpf(cpf: str, include_shap: bool = False) -> Dict[str, Any]:
+    """
+    Classify a single CPF.
+    
+    Args:
+        cpf: Client CPF
+        include_shap: Whether to include SHAP explanation
+        
+    Returns:
+        Classification result as dictionary
+    """
+    if not classifier or not classifier.is_ready():
+        raise HTTPException(status_code=503, detail="Modelo não carregado")
+    
+    # Get client data
+    client_data = get_client_data(cpf)
+    if client_data is None:
+        raise HTTPException(status_code=404, detail=f"CPF {cpf} não encontrado na base de dados")
+    
+    # Classify (with SHAP if requested)
+    result = classifier.classify(client_data, include_shap=include_shap)
+    
+    # Build response
+    if include_shap:
+        return result.to_dict()
+    else:
+        return {
+            'cpf': result.cpf,
+            'prinad': round(result.prinad, 2),
+            'pd_12m': round(result.pd_12m, 6),
+            'pd_lifetime': round(result.pd_lifetime, 6),
+            'rating': result.rating,
+            'estagio_pe': result.estagio_pe,
+            'timestamp': result.timestamp
+        }
+
+
+def classify_multiple_cpfs(cpfs: List[str], include_shap: bool = False) -> Tuple[List[Dict], List[Dict]]:
+    """
+    Classify multiple CPFs.
+    
+    Returns:
+        Tuple of (results, errors)
+    """
+    results = []
+    errors = []
+    
+    for cpf in cpfs:
+        try:
+            result = classify_cpf(cpf, include_shap)
+            results.append(result)
+        except HTTPException as e:
+            errors.append({'cpf': cpf, 'erro': e.detail})
+        except Exception as e:
+            errors.append({'cpf': cpf, 'erro': str(e)})
+    
+    return results, errors
+
+
+# =============================================================================
+# STARTUP EVENT
+# =============================================================================
+
 @app.on_event("startup")
 async def startup_event():
-    """Load model on startup."""
+    """Load model and database on startup."""
     global classifier
+    
     try:
-        # Initialize CSV file
-        init_csv_file()
+        # Load database
+        logger.info("Loading client database...")
+        load_client_database()
         
+        # Load classifier
+        logger.info("Loading PRINAD classifier...")
         classifier = PRINADClassifier()
+        
         if classifier.is_ready():
             logger.info("PRINAD classifier loaded successfully")
         else:
-            logger.warning("Classifier loaded but model artifacts missing")
+            logger.warning("Classifier loaded but model artifacts missing - using heuristic fallback")
+            
     except Exception as e:
-        logger.error(f"Error loading classifier: {e}")
+        logger.error(f"Error during startup: {e}")
 
 
-# Health check
-@app.get("/health", response_model=HealthResponse, tags=["System"])
+# =============================================================================
+# ENDPOINTS
+# =============================================================================
+
+@app.get("/health", response_model=HealthResponse, tags=["Sistema"])
 async def health_check():
-    """Check API health status."""
+    """Verificar status da API."""
     return HealthResponse(
         status="healthy" if classifier and classifier.is_ready() else "degraded",
         model_loaded=classifier is not None and classifier.is_ready(),
-        version="1.0.0",
+        database_loaded=df_clientes is not None,
+        total_clientes=len(df_clientes) if df_clientes is not None else 0,
+        version="2.0.0",
         timestamp=datetime.now().isoformat()
     )
 
 
-# Single prediction
-@app.post("/predict", response_model=ClassificationResponse, tags=["Classification"])
-async def predict(request: ClassificationRequest):
+@app.post("/simple_classify", response_model=SimpleClassificationResponse, tags=["Classificação"])
+async def simple_classify(request: CPFRequest):
     """
-    Classify a single client.
+    Classificação simples de risco de crédito.
     
-    Returns PRINAD score, rating, and SHAP explanation.
+    Recebe um CPF e retorna:
+    - PRINAD score (0-100)
+    - PD 12 meses
+    - PD Lifetime
+    - Rating (A1 a DEFAULT)
+    - Stage IFRS 9 (1, 2 ou 3)
     """
-    global classification_stats
+    result = classify_cpf(request.cpf, include_shap=False)
+    return SimpleClassificationResponse(**result)
+
+
+@app.post("/explained_classify", response_model=ExplainedClassificationResponse, tags=["Classificação"])
+async def explained_classify(request: CPFRequest):
+    """
+    Classificação com explicabilidade SHAP.
     
-    if not classifier or not classifier.is_ready():
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    Recebe um CPF e retorna a classificação completa incluindo:
+    - Todos os campos da classificação simples
+    - Explicação SHAP (top 5 features que influenciaram a decisão)
+    - Ação sugerida
+    - Descrição do rating
+    """
+    result = classify_cpf(request.cpf, include_shap=True)
+    return ExplainedClassificationResponse(**result)
+
+
+@app.post("/multiple_classify", tags=["Classificação em Lote"])
+async def multiple_classify(request: MultipleCPFRequest):
+    """
+    Classificação em lote (múltiplos CPFs).
     
-    start_time = datetime.now()
+    Recebe uma lista de CPFs e retorna classificações simples.
+    Suporta saída em JSON ou CSV.
+    """
+    results, errors = classify_multiple_cpfs(request.cpfs, include_shap=False)
     
-    try:
-        result = classifier.classify({
-            "cpf": request.cpf,
-            "dados_cadastrais": request.dados_cadastrais,
-            "dados_comportamentais": request.dados_comportamentais
-        })
+    if request.output_format == OutputFormat.csv:
+        # Return as CSV
+        if not results:
+            raise HTTPException(status_code=404, detail="Nenhum CPF encontrado")
         
-        # Update stats
-        classification_stats["total"] += 1
-        rating = result.rating
-        classification_stats["por_rating"][rating] = classification_stats["por_rating"].get(rating, 0) + 1
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=results[0].keys())
+        writer.writeheader()
+        writer.writerows(results)
         
-        # Update bank system stats
-        if request.sistema_origem:
-            classification_stats["por_sistema"][request.sistema_origem] = \
-                classification_stats["por_sistema"].get(request.sistema_origem, 0) + 1
-        if request.produto_credito:
-            classification_stats["por_produto"][request.produto_credito] = \
-                classification_stats["por_produto"].get(request.produto_credito, 0) + 1
-        if request.tipo_solicitacao:
-            classification_stats["por_tipo"][request.tipo_solicitacao] = \
-                classification_stats["por_tipo"].get(request.tipo_solicitacao, 0) + 1
-        
-        # Calculate latency
-        latency = (datetime.now() - start_time).total_seconds() * 1000
-        classification_stats["latencia_media_ms"] = (
-            (classification_stats["latencia_media_ms"] * (classification_stats["total"] - 1) + latency) 
-            / classification_stats["total"]
+        return Response(
+            content=output.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=classificacoes.csv"}
         )
-        
-        # Persist to CSV
-        persist_avaliacao(
-            result, 
-            request.sistema_origem,
-            request.produto_credito,
-            request.tipo_solicitacao
+    else:
+        # Return as JSON
+        return MultipleClassificationResponse(
+            total=len(request.cpfs),
+            sucesso=len(results),
+            erro=len(errors),
+            resultados=results,
+            erros=errors,
+            timestamp=datetime.now().isoformat()
         )
+
+
+@app.post("/multiple_explained_classify", tags=["Classificação em Lote"])
+async def multiple_explained_classify(request: MultipleCPFRequest):
+    """
+    Classificação em lote com explicabilidade SHAP.
+    
+    Recebe uma lista de CPFs e retorna classificações completas com SHAP.
+    Suporta saída em JSON ou CSV.
+    """
+    results, errors = classify_multiple_cpfs(request.cpfs, include_shap=True)
+    
+    if request.output_format == OutputFormat.csv:
+        # For CSV, flatten SHAP explanation
+        if not results:
+            raise HTTPException(status_code=404, detail="Nenhum CPF encontrado")
         
-        # Broadcast to WebSocket clients
-        await broadcast_classification(result, request.sistema_origem, 
-                                        request.produto_credito, request.tipo_solicitacao)
+        # Simplify results for CSV (remove nested structures)
+        csv_results = []
+        for r in results:
+            flat = {k: v for k, v in r.items() if k != 'explicacao_shap'}
+            # Add top 3 SHAP features as columns
+            shap = r.get('explicacao_shap', [])[:3]
+            for i, feat in enumerate(shap, 1):
+                flat[f'shap_{i}_feature'] = feat.get('feature', '')
+                flat[f'shap_{i}_contribuicao'] = feat.get('contribuicao', 0)
+            csv_results.append(flat)
         
-        # Build response
-        response_data = result.to_dict()
-        response_data['sistema_origem'] = request.sistema_origem
-        response_data['produto_credito'] = request.produto_credito
-        response_data['tipo_solicitacao'] = request.tipo_solicitacao
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=csv_results[0].keys())
+        writer.writeheader()
+        writer.writerows(csv_results)
         
-        return response_data
-        
-    except Exception as e:
-        logger.error(f"Error in prediction: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        return Response(
+            content=output.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=classificacoes_explicadas.csv"}
+        )
+    else:
+        return MultipleClassificationResponse(
+            total=len(request.cpfs),
+            sucesso=len(results),
+            erro=len(errors),
+            resultados=results,
+            erros=errors,
+            timestamp=datetime.now().isoformat()
+        )
 
 
-# Batch prediction
-@app.post("/batch", response_model=BatchResponse, tags=["Classification"])
-async def batch_predict(request: BatchRequest):
+@app.get("/clientes", tags=["Dados"])
+async def list_clientes(limit: int = Query(100, le=1000)):
     """
-    Classify multiple clients in batch.
-    """
-    if not classifier or not classifier.is_ready():
-        raise HTTPException(status_code=503, detail="Model not loaded")
+    Listar CPFs disponíveis na base de dados.
     
-    resultados = []
-    erros = []
-    
-    for cliente in request.clientes:
-        try:
-            result = classifier.classify({
-                "cpf": cliente.cpf,
-                "dados_cadastrais": cliente.dados_cadastrais,
-                "dados_comportamentais": cliente.dados_comportamentais
-            })
-            
-            # Persist to CSV
-            persist_avaliacao(
-                result,
-                cliente.sistema_origem,
-                cliente.produto_credito,
-                cliente.tipo_solicitacao
-            )
-            
-            resultados.append({
-                "cpf": result.cpf,
-                "prinad": result.prinad,
-                "rating": result.rating,
-                "sistema_origem": cliente.sistema_origem,
-                "produto_credito": cliente.produto_credito,
-                "tipo_solicitacao": cliente.tipo_solicitacao,
-                "status": "sucesso"
-            })
-        except Exception as e:
-            erros.append({
-                "cpf": cliente.cpf,
-                "erro": str(e),
-                "status": "erro"
-            })
-    
-    return BatchResponse(
-        total_processados=len(request.clientes),
-        total_sucesso=len(resultados),
-        total_erro=len(erros),
-        resultados=resultados,
-        erros=erros,
-        timestamp=datetime.now().isoformat()
-    )
-
-
-# Metrics
-@app.get("/metrics", response_model=MetricsResponse, tags=["System"])
-async def get_metrics():
-    """Get classification metrics."""
-    return MetricsResponse(
-        model_version="1.0.0",
-        total_classificacoes=classification_stats["total"],
-        distribuicao_ratings=classification_stats["por_rating"],
-        distribuicao_sistemas=classification_stats["por_sistema"],
-        distribuicao_produtos=classification_stats["por_produto"],
-        distribuicao_tipos=classification_stats["por_tipo"],
-        latencia_media_ms=round(classification_stats["latencia_media_ms"], 2),
-        timestamp=datetime.now().isoformat()
-    )
-
-
-# Get evaluations - NEW ENDPOINT
-@app.get("/avaliacoes", response_model=AvaliacoesResponse, tags=["Data"])
-async def get_avaliacoes(limit: int = 50):
+    Útil para testes e validação.
     """
-    Get latest evaluations from the CSV file.
+    if df_clientes is None:
+        raise HTTPException(status_code=503, detail="Base de dados não carregada")
     
-    Args:
-        limit: Maximum number of evaluations to return (default: 50)
-    """
-    avaliacoes = load_avaliacoes(limit)
-    return AvaliacoesResponse(
-        total=len(avaliacoes),
-        avaliacoes=avaliacoes,
-        timestamp=datetime.now().isoformat()
-    )
-
-
-# Get statistics - NEW ENDPOINT
-@app.get("/stats", tags=["System"])
-async def get_stats():
-    """
-    Get aggregated statistics by system, product, and type.
-    """
-    avaliacoes = load_avaliacoes(1000)  # Load more for better stats
-    
-    stats = {
-        "total_avaliacoes": len(avaliacoes),
-        "por_sistema": {},
-        "por_produto": {},
-        "por_tipo": {},
-        "por_rating": {},
-        "prinad_medio": 0.0
+    cpfs = df_clientes['CPF_NORM'].head(limit).tolist()
+    return {
+        "total_base": len(df_clientes),
+        "retornados": len(cpfs),
+        "cpfs": cpfs
     }
-    
-    if avaliacoes:
-        prinad_sum = 0
-        for av in avaliacoes:
-            # Sistema
-            sistema = av.get('sistema_origem', 'N/A')
-            stats["por_sistema"][sistema] = stats["por_sistema"].get(sistema, 0) + 1
-            
-            # Produto
-            produto = av.get('produto_credito', 'N/A')
-            stats["por_produto"][produto] = stats["por_produto"].get(produto, 0) + 1
-            
-            # Tipo
-            tipo = av.get('tipo_solicitacao', 'N/A')
-            stats["por_tipo"][tipo] = stats["por_tipo"].get(tipo, 0) + 1
-            
-            # Rating
-            rating = av.get('rating', 'N/A')
-            stats["por_rating"][rating] = stats["por_rating"].get(rating, 0) + 1
-            
-            # PRINAD sum
-            try:
-                prinad_sum += float(av.get('prinad', 0))
-            except:
-                pass
-        
-        stats["prinad_medio"] = round(prinad_sum / len(avaliacoes), 2)
-    
-    stats["timestamp"] = datetime.now().isoformat()
-    return stats
 
 
-# Clear evaluations - Utility endpoint
-@app.delete("/avaliacoes", tags=["Data"])
-async def clear_avaliacoes():
-    """Clear all evaluations (reset CSV file)."""
-    global classification_stats
-    try:
-        init_csv_file()
-        # Also reset in-memory stats
-        classification_stats = {
-            "total": 0,
-            "por_rating": {},
-            "por_sistema": {},
-            "por_produto": {},
-            "por_tipo": {},
-            "ultimas_24h": 0,
-            "latencia_media_ms": 0
-        }
-        # Reinitialize file
-        with open(AVALIACOES_FILE, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(CSV_HEADERS)
-        return {"message": "Evaluations cleared", "timestamp": datetime.now().isoformat()}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-# WebSocket for real-time streaming
-@app.websocket("/ws/stream")
-async def websocket_stream(websocket: WebSocket):
+@app.get("/cliente/{cpf}", tags=["Dados"])
+async def get_cliente(cpf: str):
     """
-    WebSocket endpoint for real-time classification streaming.
+    Obter dados brutos de um cliente pelo CPF.
     """
-    await websocket.accept()
-    connected_clients.append(websocket)
-    logger.info(f"New WebSocket connection. Total clients: {len(connected_clients)}")
+    client_data = get_client_data(cpf)
+    if client_data is None:
+        raise HTTPException(status_code=404, detail=f"CPF {cpf} não encontrado")
+    return client_data
+
+
+# =============================================================================
+# LEGACY ENDPOINTS (backwards compatibility)
+# =============================================================================
+
+class LegacyClassificationRequest(BaseModel):
+    """Legacy request format."""
+    cpf: str
+    dados_cadastrais: Dict[str, Any]
+    dados_comportamentais: Dict[str, Any]
+    sistema_origem: Optional[str] = None
+    produto_credito: Optional[str] = None
+    tipo_solicitacao: Optional[str] = None
+
+
+@app.post("/predict", tags=["Legacy"])
+async def predict_legacy(request: LegacyClassificationRequest):
+    """
+    [LEGACY] Endpoint de predição compatível com versão anterior.
     
-    try:
-        while True:
-            # Receive classification request
-            data = await websocket.receive_text()
-            message = json.loads(data)
-            
-            if message.get("type") == "classify":
-                payload = message.get("payload", {})
-                
-                if classifier and classifier.is_ready():
-                    result = classifier.classify(payload)
-                    
-                    await websocket.send_json({
-                        "type": "classification_result",
-                        "payload": result.to_dict()
-                    })
-                else:
-                    await websocket.send_json({
-                        "type": "error",
-                        "payload": {"message": "Model not ready"}
-                    })
-            
-            elif message.get("type") == "ping":
-                await websocket.send_json({"type": "pong"})
-                
-    except WebSocketDisconnect:
-        connected_clients.remove(websocket)
-        logger.info(f"WebSocket disconnected. Total clients: {len(connected_clients)}")
-
-
-async def broadcast_classification(result: ClassificationResult, sistema_origem: str = None,
-                                    produto_credito: str = None, tipo_solicitacao: str = None):
-    """Broadcast classification result to all connected WebSocket clients."""
-    if connected_clients:
-        message = {
-            "type": "new_classification",
-            "payload": {
-                "cpf": result.cpf[-4:].zfill(4),  # Last 4 digits only for privacy
-                "prinad": result.prinad,
-                "rating": result.rating,
-                "cor": result.cor,
-                "sistema_origem": sistema_origem,
-                "produto_credito": produto_credito,
-                "tipo_solicitacao": tipo_solicitacao,
-                "timestamp": result.timestamp
-            }
-        }
-        
-        for client in connected_clients:
-            try:
-                await client.send_json(message)
-            except:
-                pass  # Client disconnected
-
-
-# Explain endpoint
-@app.get("/explain/{cpf}", tags=["Classification"])
-async def explain_classification(cpf: str):
+    Recebe dados completos do cliente (não busca na base).
+    Use /simple_classify ou /explained_classify para novos desenvolvimentos.
     """
-    Get detailed SHAP explanation for a CPF.
+    if not classifier or not classifier.is_ready():
+        raise HTTPException(status_code=503, detail="Modelo não carregado")
     
-    Note: Requires the client data to be available in the database.
-    """
-    # In production, this would fetch client data from database
-    raise HTTPException(
-        status_code=501, 
-        detail="Not implemented. Use /predict endpoint with full client data."
-    )
+    result = classifier.classify({
+        "cpf": request.cpf,
+        "dados_cadastrais": request.dados_cadastrais,
+        "dados_comportamentais": request.dados_comportamentais
+    })
+    
+    return result.to_dict()
 
+
+# =============================================================================
+# MAIN
+# =============================================================================
 
 if __name__ == "__main__":
     import uvicorn

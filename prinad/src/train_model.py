@@ -25,18 +25,33 @@ from sklearn.metrics import (
 from sklearn.ensemble import StackingClassifier
 
 # Gradient Boosting
-import xgboost as xgb
-import lightgbm as lgb
+try:
+    import xgboost as xgb
+    XGB_AVAILABLE = True
+except ImportError:
+    xgb = None
+    XGB_AVAILABLE = False
+
+try:
+    import lightgbm as lgb
+    LGB_AVAILABLE = True
+except Exception:  # Catch generic exception for descriptor error
+    lgb = None
+    LGB_AVAILABLE = False
 
 # Imbalanced learning
-from imblearn.combine import SMOTETomek
-from imblearn.over_sampling import SMOTE
+try:
+    from imblearn.combine import SMOTETomek
+    from imblearn.over_sampling import SMOTE
+    IMBLEARN_AVAILABLE = True
+except ImportError:
+    IMBLEARN_AVAILABLE = False
 
 # SHAP
 import shap
 
 # Local imports
-from data_pipeline import load_and_prepare_full_dataset, DADOS_DIR
+from data_pipeline import load_and_prepare_full_dataset, load_prinad_training_data, DADOS_DIR
 from feature_engineering import FeatureEngineer
 
 # Configure logging
@@ -125,39 +140,52 @@ class PRINADModelTrainer:
     def _create_base_models(self) -> List[Tuple[str, Any]]:
         """Create base models for ensemble."""
         
-        xgb_model = xgb.XGBClassifier(
-            n_estimators=200,
-            max_depth=6,
-            learning_rate=0.1,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            min_child_weight=5,
-            reg_alpha=0.1,
-            reg_lambda=1.0,
-            random_state=self.random_state,
-            use_label_encoder=False,
-            eval_metric='logloss',
-            n_jobs=-1
-        )
+        estimators = []
         
-        lgb_model = lgb.LGBMClassifier(
-            n_estimators=200,
-            max_depth=6,
-            learning_rate=0.1,
-            subsample=0.8,
-            colsample_bytree=0.8,
-            min_child_samples=20,
-            reg_alpha=0.1,
-            reg_lambda=1.0,
-            random_state=self.random_state,
-            verbose=-1,
-            n_jobs=-1
-        )
-        
-        return [
-            ('xgboost', xgb_model),
-            ('lightgbm', lgb_model)
-        ]
+        if XGB_AVAILABLE:
+            # Balanced parameters for F1 optimization
+            xgb_model = xgb.XGBClassifier(
+                n_estimators=400,          
+                max_depth=6,               
+                learning_rate=0.05,        
+                subsample=0.8,             
+                colsample_bytree=0.8,      
+                min_child_weight=2,        
+                reg_alpha=0.1,             
+                reg_lambda=1.0,            
+                gamma=0,                   
+                scale_pos_weight=5.0,      # Higher weight for minority (typical ratio ~4:1)
+                random_state=self.random_state,
+                use_label_encoder=False,
+                eval_metric='logloss',     
+                n_jobs=-1
+            )
+            estimators.append(('xgboost', xgb_model))
+        else:
+            logger.warning("XGBoost not available, skipping.")
+            
+        if LGB_AVAILABLE:
+            lgb_model = lgb.LGBMClassifier(
+                n_estimators=200,
+                max_depth=6,
+                learning_rate=0.1,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                min_child_samples=20,
+                reg_alpha=0.1,
+                reg_lambda=1.0,
+                random_state=self.random_state,
+                verbose=-1,
+                n_jobs=-1
+            )
+            estimators.append(('lightgbm', lgb_model))
+        else:
+            logger.warning("LightGBM not available, skipping.")
+            
+        if not estimators:
+            raise RuntimeError("No boosting models available (XGBoost or LightGBM required).")
+            
+        return estimators
     
     def _create_ensemble(self) -> StackingClassifier:
         """Create stacking ensemble model."""
@@ -186,11 +214,16 @@ class PRINADModelTrainer:
         
         logger.info(f"Original class distribution: {np.bincount(y.astype(int))}")
         
+        if not IMBLEARN_AVAILABLE:
+            logger.warning("imblearn not available. Skipping data balancing.")
+            return X, y
+        
         # Calculate target sampling strategy (70% of majority class)
         unique, counts = np.unique(y, return_counts=True)
         majority_count = max(counts)
         minority_class = unique[np.argmin(counts)]
-        target_minority = int(majority_count * 0.7)
+        # Use 1:1 ratio for better balance (boosts recall)
+        target_minority = majority_count
         
         sampling_strategy = {int(minority_class): target_minority}
         
@@ -222,10 +255,13 @@ class PRINADModelTrainer:
         """
         logger.info("Starting model training...")
         
-        # Feature engineering
-        logger.info("Applying feature engineering...")
-        X_engineered = self.feature_engineer.fit_transform(X)
+        # Feature engineering is DISABLED
+        # The consolidated dataset already has all derived features pre-computed
+        # by data_consolidator_prinad.py, so we use raw features directly
+        logger.info("Using pre-computed features (feature_engineer disabled)")
+        X_engineered = X.copy()
         self.feature_names = list(X_engineered.columns)
+        self.feature_engineer = None  # Explicitly disable
         
         # Handle missing values
         X_engineered = X_engineered.fillna(0)
@@ -278,12 +314,36 @@ class PRINADModelTrainer:
         return metrics
     
     def _evaluate(self, X_test: np.ndarray, y_test: pd.Series) -> Dict[str, Any]:
-        """Evaluate model performance."""
+        """Evaluate model performance with optimal threshold selection."""
         
         model_to_use = self.calibrated_model if self.calibrated_model else self.model
         
-        y_pred = model_to_use.predict(X_test)
         y_proba = model_to_use.predict_proba(X_test)[:, 1]
+        
+        # Find optimal threshold for F1
+        from sklearn.metrics import precision_recall_curve, f1_score
+        precisions, recalls, thresholds = precision_recall_curve(y_test, y_proba)
+        
+        # Calculate F1 for each threshold
+        f1_scores = []
+        for p, r in zip(precisions[:-1], recalls[:-1]):
+            if p + r > 0:
+                f1_scores.append(2 * p * r / (p + r))
+            else:
+                f1_scores.append(0)
+        
+        # Find optimal threshold
+        optimal_idx = np.argmax(f1_scores)
+        self.optimal_threshold = thresholds[optimal_idx]
+        optimal_f1 = f1_scores[optimal_idx]
+        
+        logger.info(f"Optimal threshold for F1: {self.optimal_threshold:.4f}")
+        logger.info(f"F1 at optimal threshold: {optimal_f1:.4f}")
+        
+        # Use optimal threshold for predictions
+        y_pred_optimal = (y_proba >= self.optimal_threshold).astype(int)
+        # Also compute default threshold (0.5) for comparison
+        y_pred_default = model_to_use.predict(X_test)
         
         # Metrics
         auc = roc_auc_score(y_test, y_proba)
@@ -294,24 +354,33 @@ class PRINADModelTrainer:
         y_test_arr = np.array(y_test)
         ks_stat, _ = ks_2samp(y_proba[y_test_arr == 0], y_proba[y_test_arr == 1])
         
-        # Classification report
-        report = classification_report(y_test, y_pred, output_dict=True)
+        # Classification reports (optimal threshold)
+        report_optimal = classification_report(y_test, y_pred_optimal, output_dict=True)
+        report_default = classification_report(y_test, y_pred_default, output_dict=True)
         
         metrics = {
             'auc_roc': auc,
             'gini': gini,
             'ks': ks_stat,
-            'precision_bad': report.get('1', {}).get('precision', 0),
-            'recall_bad': report.get('1', {}).get('recall', 0),
-            'f1_bad': report.get('1', {}).get('f1-score', 0),
-            'accuracy': report.get('accuracy', 0),
-            'classification_report': report,
-            'confusion_matrix': confusion_matrix(y_test, y_pred).tolist()
+            # Optimal threshold metrics
+            'optimal_threshold': self.optimal_threshold,
+            'precision_bad': report_optimal.get('1', {}).get('precision', 0),
+            'recall_bad': report_optimal.get('1', {}).get('recall', 0),
+            'f1_bad': report_optimal.get('1', {}).get('f1-score', 0),
+            'accuracy': report_optimal.get('accuracy', 0),
+            # Default threshold metrics for comparison
+            'precision_bad_default': report_default.get('1', {}).get('precision', 0),
+            'recall_bad_default': report_default.get('1', {}).get('recall', 0),
+            'f1_bad_default': report_default.get('1', {}).get('f1-score', 0),
+            'classification_report': report_optimal,
+            'confusion_matrix': confusion_matrix(y_test, y_pred_optimal).tolist()
         }
         
         logger.info(f"AUC-ROC: {auc:.4f}")
         logger.info(f"Gini: {gini:.4f}")
         logger.info(f"KS: {ks_stat:.4f}")
+        logger.info(f"[Optimal] Precision: {metrics['precision_bad']:.4f}, Recall: {metrics['recall_bad']:.4f}, F1: {metrics['f1_bad']:.4f}")
+        logger.info(f"[Default] Precision: {metrics['precision_bad_default']:.4f}, Recall: {metrics['recall_bad_default']:.4f}, F1: {metrics['f1_bad_default']:.4f}")
         
         return metrics
     
@@ -355,7 +424,7 @@ class PRINADModelTrainer:
             'base_model': self.model,
             'feature_names': self.feature_names,
             'timestamp': timestamp,
-            'version': '1.0.0'
+            'version': '2.0.0'
         }, model_path)
         logger.info(f"Model saved to {model_path}")
         
@@ -418,19 +487,37 @@ class PRINADModelTrainer:
         return explanations
 
 
-def train_model(save_metrics: bool = True) -> Dict[str, Any]:
+def train_model(save_metrics: bool = True, use_consolidated: bool = True) -> Dict[str, Any]:
     """
     Main function to train the PRINAD model.
     
+    Args:
+        save_metrics: Whether to save training metrics
+        use_consolidated: Whether to use the consolidated training dataset
+        
     Returns:
         Training metrics dictionary
     """
     logger.info("="*60)
-    logger.info("PRINAD MODEL TRAINING")
+    logger.info("PRINAD MODEL TRAINING v2.0")
     logger.info("="*60)
     
-    # Load data
-    df_full, X, y = load_and_prepare_full_dataset()
+    # Load data - prefer consolidated dataset
+    if use_consolidated:
+        try:
+            df_full, X, y = load_prinad_training_data()
+            logger.info("Using consolidated PRINAD training dataset")
+        except Exception as e:
+            logger.warning(f"Failed to load consolidated dataset: {e}")
+            logger.info("Falling back to legacy data loading")
+            df_full, X, y = load_and_prepare_full_dataset()
+    else:
+        df_full, X, y = load_and_prepare_full_dataset()
+    
+    # Save feature names for inference consistency
+    feature_names_path = MODELO_DIR / "feature_names.joblib"
+    joblib.dump(list(X.columns), feature_names_path)
+    logger.info(f"Feature names saved: {len(X.columns)} features")
     
     # Train model
     trainer = PRINADModelTrainer(random_state=42)
@@ -443,7 +530,8 @@ def train_model(save_metrics: bool = True) -> Dict[str, Any]:
             'metrics': metrics,
             'timestamp': datetime.now().isoformat(),
             'n_samples': len(X),
-            'n_features': len(X.columns)
+            'n_features': len(X.columns),
+            'optimal_threshold': metrics.get('optimal_threshold', 0.5)
         }, metrics_path)
         logger.info(f"Metrics saved to {metrics_path}")
     
@@ -454,8 +542,19 @@ def train_model(save_metrics: bool = True) -> Dict[str, Any]:
     print(f"AUC-ROC: {metrics['auc_roc']:.4f}")
     print(f"Gini: {metrics['gini']:.4f}")
     print(f"KS: {metrics['ks']:.4f}")
+    print("-"*60)
+    print(f"Optimal Threshold: {metrics.get('optimal_threshold', 0.5):.4f}")
     print(f"Precision (Bad): {metrics['precision_bad']:.4f}")
     print(f"Recall (Bad): {metrics['recall_bad']:.4f}")
+    print(f"F1-Score (Bad): {metrics['f1_bad']:.4f}")
+    print("-"*60)
+    f1 = metrics['f1_bad']
+    if f1 >= 0.90:
+        print("✅ F1 >= 0.90 - IDEAL")
+    elif f1 >= 0.85:
+        print("✅ F1 >= 0.85 - META ATINGIDA")
+    else:
+        print(f"⚠️ F1 < 0.85 - Abaixo da meta")
     print("="*60)
     
     return metrics

@@ -1,6 +1,7 @@
 """
-PRINAD - Classifier Module
+PRINAD - Classifier Module v2.0
 Complete classification pipeline for credit risk scoring.
+BACEN 4966 / IFRS 9 Compliant.
 """
 
 import pandas as pd
@@ -11,33 +12,61 @@ import logging
 import joblib
 from datetime import datetime
 from dataclasses import dataclass, asdict
+import sys
+
+# Add paths
+BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = BASE_DIR.parent
+SRC_DIR = Path(__file__).parent
+
+# Ensure src is in path for local imports
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+# Ensure project root is in path for shared imports
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
 # Local imports  
 from historical_penalty import HistoricalPenaltyCalculator, HistoricalAnalysis
 
+# BACEN 4966 imports from shared utils
+try:
+    from shared.utils import (
+        get_rating_from_prinad as get_rating_bacen,
+        calcular_pd_por_rating,
+        PD_POR_RATING
+    )
+    BACEN_4966_AVAILABLE = True
+except ImportError:
+    BACEN_4966_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 # Paths
-BASE_DIR = Path(__file__).resolve().parent.parent
 MODELO_DIR = BASE_DIR / "modelo"
 
 
 @dataclass
 class ClassificationResult:
-    """Result of a PRINAD classification."""
+    """Result of a PRINAD classification (BACEN 4966 compliant)."""
     cpf: str
     prinad: float
     rating: str
     rating_descricao: str
     cor: str
     pd_base: float
+    pd_12m: float              # BACEN 4966: 12-month PD
+    pd_lifetime: float         # BACEN 4966: Lifetime PD
     penalidade_historica: float
     peso_atual: float
     peso_historico: float
     acao_sugerida: str
-    explicacao_shap: List[Dict[str, Any]]
+    explicacao_shap: List[Dict[str, Any]]  # SHAP explanation for ML model (50%)
     timestamp: str
     model_version: str
+    estagio_pe: int = 1        # Estágio de Perda Esperada / IFRS 9 Stage (1, 2, or 3)
+    explicacao_completa: Optional[Dict[str, Any]] = None  # Full explanation including penalties
     
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -88,11 +117,12 @@ class RatingMapper:
 
 class PRINADClassifier:
     """
-    Complete PRINAD classification pipeline.
+    Complete PRINAD classification pipeline v2.0.
     Combines ML model prediction with historical penalty.
+    BACEN 4966 / IFRS 9 Compliant.
     """
     
-    MODEL_VERSION = "1.0.0"
+    MODEL_VERSION = "2.0.0"
     PESO_ATUAL = 0.5
     PESO_HISTORICO = 0.5
     
@@ -117,56 +147,79 @@ class PRINADClassifier:
         self._load_artifacts()
     
     def _load_artifacts(self):
-        """Load model artifacts from disk."""
+        """Load model artifacts from disk.
+        
+        Note: If loading fails, classifier will use heuristic fallback.
+        """
         
         # Load model
         model_path = self.modelo_dir / "ensemble_model.joblib"
         if model_path.exists():
-            model_data = joblib.load(model_path)
-            self.model = model_data['model']
-            self.model_version = model_data.get('version', self.MODEL_VERSION)
-            logger.info(f"Model loaded from {model_path}")
+            try:
+                model_data = joblib.load(model_path)
+                self.model = model_data['model']
+                self.model_version = model_data.get('version', self.MODEL_VERSION)
+                logger.info(f"Model loaded from {model_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load model: {e}. Using heuristic mode.")
         else:
             logger.warning(f"Model not found at {model_path}")
         
         # Load preprocessor
         preproc_path = self.modelo_dir / "preprocessor.joblib"
         if preproc_path.exists():
-            preproc_data = joblib.load(preproc_path)
-            self.preprocessor = preproc_data['preprocessor']
-            self.feature_engineer = preproc_data['feature_engineer']
-            logger.info(f"Preprocessor loaded from {preproc_path}")
+            try:
+                preproc_data = joblib.load(preproc_path)
+                self.preprocessor = preproc_data['preprocessor']
+                self.feature_engineer = preproc_data.get('feature_engineer')
+                logger.info(f"Preprocessor loaded from {preproc_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load preprocessor: {e}. Using heuristic mode.")
         else:
             logger.warning(f"Preprocessor not found at {preproc_path}")
         
-        # Load SHAP explainer
+        # Load SHAP explainer (optional)
         shap_path = self.modelo_dir / "shap_explainer.joblib"
         if shap_path.exists():
-            self.shap_explainer = joblib.load(shap_path)
-            logger.info(f"SHAP explainer loaded from {shap_path}")
+            try:
+                self.shap_explainer = joblib.load(shap_path)
+                logger.info(f"SHAP explainer loaded from {shap_path}")
+            except Exception as e:
+                logger.warning(f"Failed to load SHAP explainer: {e}")
+        
+        # Load feature names for consistency
+        feature_names_path = self.modelo_dir / "feature_names.joblib"
+        if feature_names_path.exists():
+            try:
+                self.feature_names = joblib.load(feature_names_path)
+                logger.info(f"Feature names loaded: {len(self.feature_names)} features")
+            except Exception as e:
+                logger.warning(f"Failed to load feature names: {e}")
+                self.feature_names = None
+        else:
+            self.feature_names = None
     
     def is_ready(self) -> bool:
-        """Check if classifier is ready for predictions."""
-        return all([
-            self.model is not None,
-            self.preprocessor is not None
-        ])
-    
-    def classify(self, client_data: Dict[str, Any]) -> ClassificationResult:
+        """Check if classifier is ready for predictions.
+        
+        Note: With BACEN 4966, can work even without ML model using heuristics.
         """
-        Classify a single client.
+        return (self.model is not None and self.preprocessor is not None) or BACEN_4966_AVAILABLE
+    
+    def classify(self, client_data: Dict[str, Any], include_shap: bool = False) -> ClassificationResult:
+        """
+        Classify a single client (BACEN 4966 compliant).
         
         Args:
             client_data: Dictionary with client data
                 Required keys: dados_cadastrais, dados_comportamentais
                 Optional: cpf
+            include_shap: If True, generates SHAP explanation (adds latency)
                 
         Returns:
-            ClassificationResult with full classification details
+            ClassificationResult with full classification details including
+            pd_12m, pd_lifetime, and estagio_pe (IFRS 9)
         """
-        if not self.is_ready():
-            raise RuntimeError("Classifier not ready. Model artifacts missing.")
-        
         cpf = client_data.get('cpf', 'unknown')
         
         # Extract data components
@@ -179,19 +232,123 @@ class PRINADClassifier:
         # Convert to DataFrame for prediction
         df = pd.DataFrame([merged_data])
         
-        # Get PD Base from model
-        pd_base = self._predict_pd_base(df)
+        # Get PD Base from model or heuristic
+        pd_base = self._predict_pd_base(df, dados_comportamentais)
         
         # Calculate historical penalty
         prinad_final, historical_analysis = self.historical_calculator.apply_penalty(
             pd_base, dados_comportamentais
         )
         
+        # Calculate BACEN 4966 calibrated PD (12m and lifetime)
+        if BACEN_4966_AVAILABLE:
+            rating_bacen = get_rating_bacen(prinad_final)
+            pd_result = calcular_pd_por_rating(prinad_final, rating_bacen)
+            pd_12m = pd_result['pd_12m']
+            pd_lifetime = pd_result['pd_lifetime']
+        else:
+            # Simple approximation if BACEN functions not available
+            # PD 12m = PRINAD converted to probability (capped at 100%)
+            pd_12m = min(prinad_final / 100.0, 1.0)
+            
+            # PD Lifetime using survival probability formula: 1 - (1 - PD_12m)^n
+            # Assuming average maturity of 5 years
+            maturity_years = 5
+            pd_lifetime = 1 - ((1 - pd_12m) ** maturity_years)
+            pd_lifetime = min(pd_lifetime, 1.0)  # Cap at 100%
+        
+        # Determine IFRS 9 Stage / Estágio PE
+        dias_atraso = int(dados_comportamentais.get('scr_dias_atraso', 0) or 0)
+        if dias_atraso >= 90 or prinad_final >= 85:
+            estagio_pe = 3
+            estagio_justificativa = f"Stage 3 (Default): dias_atraso={dias_atraso} ou PRINAD={prinad_final:.1f}%>=85%"
+        elif dias_atraso >= 30 or prinad_final >= 50:
+            estagio_pe = 2
+            estagio_justificativa = f"Stage 2 (Risco Aumentado): dias_atraso={dias_atraso}>=30 ou PRINAD={prinad_final:.1f}%>=50%"
+        else:
+            estagio_pe = 1
+            estagio_justificativa = f"Stage 1 (Normal): dias_atraso={dias_atraso}<30 e PRINAD={prinad_final:.1f}%<50%"
+        
         # Get rating
         rating_info = RatingMapper.get_rating(prinad_final)
         
-        # Get SHAP explanation
-        shap_explanation = self._get_shap_explanation(df)
+        # Get SHAP explanation (enabled only when include_shap=True)
+        shap_explanation = self._get_shap_explanation(df, enabled=include_shap)
+        
+        # Build complete explanation
+        explicacao_completa = {
+            # Composição do PRINAD
+            'composicao_prinad': {
+                'pd_modelo_ml': {
+                    'valor': round(pd_base, 2),
+                    'peso': f'{self.PESO_ATUAL*100:.0f}%',
+                    'contribuicao': round(pd_base * self.PESO_ATUAL, 2),
+                    'descricao': 'Probabilidade base calculada pelo modelo ensemble (XGBoost)',
+                    'explicacao_shap': shap_explanation,
+                    'nota_shap': 'Top features que mais influenciaram a predição do modelo ML (valores positivos aumentam o risco, negativos diminuem)'
+                },
+                'penalidade_interna': {
+                    'valor': round(historical_analysis.penalidade_interna * 100, 2),
+                    'peso': '25%',
+                    'contribuicao': round(historical_analysis.penalidade_interna * 100 * 0.25, 2),
+                    'meses_desde_atraso': historical_analysis.meses_desde_ultimo_atraso_interno,
+                    'descricao': 'Penalidade baseada no histórico interno de atrasos (v-columns)',
+                    'detalhes': historical_analysis.detalhes.get('interno', {})
+                },
+                'penalidade_externa': {
+                    'valor': round(historical_analysis.penalidade_externa * 100, 2),
+                    'peso': '25%',
+                    'contribuicao': round(historical_analysis.penalidade_externa * 100 * 0.25, 2),
+                    'meses_desde_atraso': historical_analysis.meses_desde_ultimo_atraso_externo,
+                    'descricao': 'Penalidade baseada no histórico SCR/BACEN',
+                    'detalhes': historical_analysis.detalhes.get('externo', {})
+                },
+                'prinad_final': round(prinad_final, 2),
+                'formula': 'PRINAD = (PD_ML × 50%) + (Pen.Interna × 25%) + (Pen.Externa × 25%)'
+            },
+            # Justificativa do Rating
+            'rating': {
+                'valor': rating_info['rating'],
+                'faixa_prinad': f"{rating_info.get('faixa_min', 0):.0f}% - {rating_info.get('faixa_max', 100):.0f}%",
+                'descricao': rating_info['descricao'],
+                'justificativa': f"PRINAD {prinad_final:.1f}% está na faixa do rating {rating_info['rating']}"
+            },
+            # Justificativa do PD
+            'pd_calibrado': {
+                'pd_12m': {
+                    'valor': round(pd_12m, 6),
+                    'percentual': f'{pd_12m*100:.4f}%',
+                    'uso': 'Cálculo de ECL para Stage 1',
+                    'justificativa': f"PD 12m calibrado para rating {rating_info['rating']} conforme tabela BACEN 4966"
+                },
+                'pd_lifetime': {
+                    'valor': round(pd_lifetime, 6),
+                    'percentual': f'{pd_lifetime*100:.4f}%',
+                    'uso': 'Cálculo de ECL para Stage 2/3',
+                    'justificativa': f"PD Lifetime = PD_12m × multiplicador do rating {rating_info['rating']}"
+                }
+            },
+            # Justificativa do Estágio PE
+            'estagio_pe': {
+                'valor': estagio_pe,
+                'nome': ['', 'Normal', 'Risco Aumentado', 'Default'][estagio_pe],
+                'ecl_horizonte': '12 meses' if estagio_pe == 1 else 'Lifetime',
+                'pd_aplicavel': 'pd_12m' if estagio_pe == 1 else 'pd_lifetime',
+                'justificativa': estagio_justificativa,
+                'criterios': {
+                    'dias_atraso': dias_atraso,
+                    'prinad': round(prinad_final, 2),
+                    'limiar_stage_2': 'dias_atraso>=30 OU prinad>=50%',
+                    'limiar_stage_3': 'dias_atraso>=90 OU prinad>=85%'
+                }
+            },
+            # Elegibilidade para perdão
+            'elegibilidade_perdao': {
+                'elegivel': historical_analysis.elegivel_perdao,
+                'nivel_delinquencia': historical_analysis.nivel_delinquencia.value,
+                'requisitos': 'Ambos (interno E externo) limpos por 6+ meses consecutivos'
+            }
+        }
         
         # Build result
         result = ClassificationResult(
@@ -201,53 +358,149 @@ class PRINADClassifier:
             rating_descricao=rating_info['descricao'],
             cor=rating_info['cor'],
             pd_base=round(pd_base, 2),
+            pd_12m=round(pd_12m, 6),
+            pd_lifetime=round(pd_lifetime, 6),
             penalidade_historica=round(historical_analysis.penalidade_total, 2),
             peso_atual=self.PESO_ATUAL,
             peso_historico=self.PESO_HISTORICO,
             acao_sugerida=rating_info['acao_sugerida'],
             explicacao_shap=shap_explanation,
             timestamp=datetime.now().isoformat(),
-            model_version=self.MODEL_VERSION
+            model_version=self.MODEL_VERSION,
+            estagio_pe=estagio_pe,
+            explicacao_completa=explicacao_completa
         )
         
         return result
     
-    def _predict_pd_base(self, df: pd.DataFrame) -> float:
-        """Get base PD from ML model."""
+    def _predict_pd_base(self, df: pd.DataFrame, dados_comportamentais: Dict[str, Any] = None) -> float:
+        """
+        Get base PD from ML model or heuristic fallback.
         
-        try:
-            # Ensure all required base columns exist with defaults
-            df = self._ensure_base_columns(df)
+        Args:
+            df: DataFrame with client data
+            dados_comportamentais: Behavioral data for heuristic calculation
             
-            # Apply feature engineering
-            if self.feature_engineer:
-                df_engineered = self.feature_engineer.transform(df)
-            else:
-                df_engineered = df
-            
-            # Fill any remaining NaN values
-            df_engineered = df_engineered.fillna(0)
-            
-            # Preprocess
-            X_processed = self.preprocessor.transform(df_engineered)
-            
-            # Predict probability
-            proba = self.model.predict_proba(X_processed)[0, 1]
-            
-            # Convert to percentage
-            pd_base = proba * 100
-            
-            # Apply minimum floor of 0.5% - no client has zero risk
-            pd_base = max(0.5, pd_base)
-            
-            return pd_base
-            
-        except Exception as e:
-            logger.error(f"Error predicting PD base: {e}")
-            import traceback
-            traceback.print_exc()
-            # Return moderate risk as fallback
-            return 25.0
+        Returns:
+            Base PD as percentage (0-100)
+        """
+        # Try ML model first
+        if self.model is not None and self.preprocessor is not None:
+            try:
+                # Ensure all required base columns exist with defaults
+                df_prepared = self._ensure_base_columns(df)
+                
+                # Apply feature engineering
+                if self.feature_engineer:
+                    df_engineered = self.feature_engineer.transform(df_prepared)
+                else:
+                    df_engineered = df_prepared
+                
+                # Fill any remaining NaN values
+                df_engineered = df_engineered.fillna(0)
+                
+                # Preprocess
+                X_processed = self.preprocessor.transform(df_engineered)
+                
+                # Predict probability
+                proba = self.model.predict_proba(X_processed)[0, 1]
+                
+                # Convert to percentage
+                pd_base = proba * 100
+                
+                # Apply minimum floor of 0.5% - no client has zero risk
+                pd_base = max(0.5, pd_base)
+                
+                return pd_base
+                
+            except Exception as e:
+                logger.warning(f"ML model prediction failed, using heuristic: {e}")
+        
+        # Fallback to heuristic if ML model not available
+        return self._calculate_pd_heuristic(df, dados_comportamentais)
+    
+    def _calculate_pd_heuristic(self, df: pd.DataFrame, dados_comportamentais: Dict[str, Any] = None) -> float:
+        """
+        Calculate PD using heuristic when ML model not available.
+        
+        Based on:
+        - SCR score (30% weight)
+        - Days in arrears (30% weight)
+        - Income commitment (20% weight)
+        - Relationship time (10% weight)
+        - Age (10% weight)
+        """
+        pd_base = 5.0  # Start with low risk
+        
+        if dados_comportamentais is None:
+            dados_comportamentais = {}
+        
+        # Extract values from df or dados_comportamentais
+        row = df.iloc[0] if len(df) > 0 else {}
+        
+        # 1. SCR Score contribution (30%)
+        scr_score = int(row.get('scr_score_risco', dados_comportamentais.get('scr_score_risco', 0)) or 0)
+        # SCR score 0-10 where higher = worse
+        scr_contrib = scr_score * 3.0  # 0-30%
+        
+        # 2. Days in arrears contribution (30%)
+        dias_atraso = max(
+            int(row.get('scr_dias_atraso', 0) or 0),
+            int(dados_comportamentais.get('scr_dias_atraso', 0) or 0)
+        )
+        if dias_atraso >= 90:
+            arrears_contrib = 30.0
+        elif dias_atraso >= 60:
+            arrears_contrib = 20.0
+        elif dias_atraso >= 30:
+            arrears_contrib = 10.0
+        elif dias_atraso > 0:
+            arrears_contrib = 5.0
+        else:
+            arrears_contrib = 0.0
+        
+        # 3. Income commitment (20%)
+        comp_renda = float(row.get('COMP_RENDA', row.get('comprometimento_renda', 0.3)) or 0.3)
+        if comp_renda > 0.7:
+            commitment_contrib = 20.0
+        elif comp_renda > 0.5:
+            commitment_contrib = 10.0
+        elif comp_renda > 0.3:
+            commitment_contrib = 5.0
+        else:
+            commitment_contrib = 0.0
+        
+        # 4. Relationship time (10%) - longer = better
+        tempo_relac = float(row.get('TEMPO_RELAC', 12) or 12)
+        if tempo_relac >= 48:
+            relac_contrib = -5.0  # Bonus for long relationship
+        elif tempo_relac >= 24:
+            relac_contrib = 0.0
+        elif tempo_relac >= 12:
+            relac_contrib = 5.0
+        else:
+            relac_contrib = 10.0
+        
+        # 5. Age (10%)
+        idade = int(row.get('IDADE_CLIENTE', 35) or 35)
+        if idade < 25 or idade > 70:
+            age_contrib = 10.0
+        elif idade < 30 or idade > 60:
+            age_contrib = 5.0
+        else:
+            age_contrib = 0.0
+        
+        # 6. Prejudice (adds 20% if present)
+        tem_prejuizo = int(dados_comportamentais.get('scr_tem_prejuizo', 0) or 0)
+        prejuizo_contrib = 20.0 if tem_prejuizo else 0.0
+        
+        # Combine
+        pd_base = pd_base + scr_contrib + arrears_contrib + commitment_contrib + relac_contrib + age_contrib + prejuizo_contrib
+        
+        # Clamp to 0.5-100
+        pd_base = max(0.5, min(100.0, pd_base))
+        
+        return pd_base
     
     def _ensure_base_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         """Ensure all required base columns exist with sensible defaults."""
@@ -318,56 +571,102 @@ class PRINADClassifier:
         
         return df
     
-    def _get_shap_explanation(self, df: pd.DataFrame, max_features: int = 5) -> List[Dict[str, Any]]:
-        """Generate SHAP explanation for the prediction."""
+    def _get_shap_explanation(self, df: pd.DataFrame, max_features: int = 5, enabled: bool = False) -> List[Dict[str, Any]]:
+        """
+        Generate SHAP explanation for the prediction.
         
-        # SHAP is disabled for performance - it adds ~5s latency
-        # TODO: Re-enable with async processing or caching
-        return []
+        Args:
+            df: DataFrame with client data
+            max_features: Number of top features to return
+            enabled: If False, returns empty list for performance (SHAP adds ~5s latency)
+        """
+        
+        # SHAP is disabled by default for performance
+        if not enabled:
+            return []
+        
+        # Check if SHAP explainer is available
+        if self.shap_explainer is None:
+            logger.warning("SHAP explainer not loaded")
+            return []
+        
+        # Check if feature_names is available
+        if self.feature_names is None:
+            logger.warning("Feature names not loaded, cannot generate SHAP")
+            return [{'feature': 'missing_feature_names', 'contribuicao': 0, 'direcao': 'erro'}]
         
         try:
-            # Ensure all required base columns exist
-            df = self._ensure_base_columns(df)
+            # For SHAP, we skip feature engineering since the dataset should already
+            # have all required features pre-computed (from data_consolidator_prinad.py)
+            df_prepared = df.copy()
             
-            # Apply feature engineering
-            if self.feature_engineer:
-                df_engineered = self.feature_engineer.transform(df)
-            else:
-                df_engineered = df
+            # Create a DataFrame with all required features (fill missing with 0)
+            X_data = {}
+            for feature in self.feature_names:
+                if feature in df_prepared.columns:
+                    X_data[feature] = df_prepared[feature].values
+                else:
+                    X_data[feature] = [0] * len(df_prepared)
             
-            df_engineered = df_engineered.fillna(0)
-            X_processed = self.preprocessor.transform(df_engineered)
+            X_features = pd.DataFrame(X_data)[self.feature_names].fillna(0)
+            
+            # Process through preprocessor
+            X_processed = self.preprocessor.transform(X_features)
             
             # Get SHAP values
             shap_values = self.shap_explainer(X_processed)
             
-            # Get feature names
+            # Get feature names from preprocessor
             try:
-                feature_names = self.preprocessor.get_feature_names_out().tolist()
+                transformed_feature_names = self.preprocessor.get_feature_names_out().tolist()
             except:
-                feature_names = [f'feature_{i}' for i in range(X_processed.shape[1])]
+                transformed_feature_names = [f'feature_{i}' for i in range(X_processed.shape[1])]
             
-            # Extract values
-            values = shap_values.values[0] if hasattr(shap_values, 'values') else shap_values[0]
+            # Extract values - handle different SHAP return formats
+            if hasattr(shap_values, 'values'):
+                values = shap_values.values
+            else:
+                values = shap_values
+            
+            # Flatten if needed (take first row for single prediction)
+            if len(values.shape) > 1:
+                values = values[0]
+            
+            # Ensure it's a 1D array
+            values = np.array(values).flatten()
             
             # Sort by importance
-            importance = list(zip(feature_names, values))
-            importance.sort(key=lambda x: abs(x[1]), reverse=True)
+            importance = list(zip(transformed_feature_names, values))
+            importance.sort(key=lambda x: abs(float(x[1])), reverse=True)
             
             # Build explanation
             explanation = []
             for feat, val in importance[:max_features]:
+                # Clean feature name (remove prefixes like 'num__', 'cat__')
+                clean_name = feat
+                for prefix in ['num__', 'cat__', 'bool__']:
+                    if clean_name.startswith(prefix):
+                        clean_name = clean_name[len(prefix):]
+                        break
+                
                 explanation.append({
-                    'feature': feat,
+                    'feature': clean_name,
                     'contribuicao': round(float(val) * 100, 2),  # Convert to percentage points
                     'direcao': 'aumenta_risco' if val > 0 else 'reduz_risco'
                 })
             
+            logger.info(f"SHAP explanation generated with {len(explanation)} features")
             return explanation
             
         except Exception as e:
             logger.warning(f"Could not generate SHAP explanation: {e}")
-            return []
+            # Return a placeholder explanation indicating the failure
+            return [{
+                'feature': 'shap_error',
+                'contribuicao': 0,
+                'direcao': 'erro',
+                'mensagem': f'Erro ao calcular SHAP: {str(e)[:100]}'
+            }]
     
     def classify_batch(self, clients: List[Dict[str, Any]]) -> List[ClassificationResult]:
         """
@@ -394,13 +693,16 @@ class PRINADClassifier:
                     rating_descricao='Erro na classificação',
                     cor='laranja',
                     pd_base=50.0,
+                    pd_12m=0.10,       # 10% annual PD
+                    pd_lifetime=0.30,  # 30% lifetime PD
                     penalidade_historica=0.0,
                     peso_atual=0.5,
                     peso_historico=0.5,
                     acao_sugerida='Reprocessar manualmente',
                     explicacao_shap=[],
                     timestamp=datetime.now().isoformat(),
-                    model_version=self.MODEL_VERSION
+                    model_version=self.MODEL_VERSION,
+                    stage=2  # Conservative middle stage
                 ))
         
         return results

@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-01-02 - BACEN 4966 / IFRS 9
+
+### Added
+
+#### Conformidade BACEN 4966
+- **PD Calibrado por Rating**: Novo cálculo de `pd_12m` e `pd_lifetime` usando tabela calibrada por rating band (A1 → DEFAULT)
+- **Stage IFRS 9**: ClassificationResult agora inclui `stage` (1, 2 ou 3) baseado em dias de atraso e PRINAD
+- **11 Níveis de Rating**: A1, A2, A3, B1, B2, B3, C1, C2, C3, D, DEFAULT com ações e cores específicas
+
+#### Resiliência e Fallback
+- **Fallback Heurístico**: Classifier agora funciona mesmo sem modelo ML treinado usando cálculo heurístico de PD
+- **_calculate_pd_heuristic()**: Método que calcula PD baseado em SCR, dias de atraso, comprometimento de renda, tempo de relacionamento e idade
+- **Carregamento Robusto**: _load_artifacts() agora captura exceções individualmente, permitindo operação parcial
+
+#### Historical Penalty v2.0
+- **Penalidades Separadas**: Split em `penalidade_interna` (25%) e `penalidade_externa` (25%)
+- **Período de Cura**: Reduzido de 12 para 6 meses
+- **Requisito de Cura**: Agora requer AMBOS (interno E externo) limpos por 6+ meses
+
+### Changed
+
+#### ClassificationResult
+- **Novos Campos**: `pd_12m`, `pd_lifetime`, `stage`
+- **Model Version**: Atualizada para 2.0.0
+
+#### RatingMapper
+- **Faixas Atualizadas**: 11 ratings com faixas mais granulares (ex: A1 0-5%, A2 5-15%, etc.)
+- **Rating DEFAULT**: Separado do D para clientes com PRINAD >= 95%
+
+#### Testes
+- **85 testes passando**, 16 skipped (API)
+- **Novos fixtures**: sample_behavioral_data_external_only no conftest.py
+- **Testes atualizados** para nova API do HistoricalPenaltyCalculator
+
+### Integration
+
+- **Imports BACEN 4966**: classifier.py agora importa funções de `shared.utils` para cálculos calibrados
+- **Compatibilidade**: Funciona de forma independente do módulo PROPENSAO
+
 ## [1.2.0] - 2025-12-26
 
 ### Fixed

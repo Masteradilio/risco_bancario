@@ -1,39 +1,64 @@
-# 📊 PROLIMITE - Propensão a Crédito e Alocação Dinâmica de Limites
+# 📊 PROLIMITE v2.0 - Propensão a Crédito e Alocação Dinâmica de Limites
+
+**BACEN 4966 / IFRS 9 Compliant**
 
 Módulo de propensão a crédito para otimização de limites e minimização de ECL (Expected Credit Loss).
 
 ## 🎯 Objetivo
 
 Identificar clientes com propensão a consumir crédito por produto e realocar dinamicamente os limites para:
-- **Reduzir ECL** para limites não utilizados
+- **Reduzir ECL** para limites não utilizados (modelo de 3 stages IFRS 9)
 - **Aumentar limites** para clientes com alta propensão e baixo risco
+- **Realocar limites** entre produtos baseado em propensão
 - **Notificar clientes** sobre mudanças com antecedência
+
+## 🏛️ Conformidade BACEN 4966 (v2.0)
+
+- **ECL = PD × LGD × EAD** (fórmula central)
+- **3 Stages IFRS 9**: Stage 1 (12m), Stage 2 (lifetime), Stage 3 (lifetime + max LGD)
+- **PD Calibrado** por rating band (A1 → DEFAULT)
+- **EAD com CCF** (Credit Conversion Factor) por produto
+- **Regra de Arrasto**: Todos produtos migram para Stage 3 juntos
+- **Critérios de Cura**: Reversão de stage após período de observação
 
 ## 📁 Estrutura
 
 ```
 propensao/
 ├── src/
-│   ├── data_consolidator.py    # Integração 3040 + limites
+│   ├── data_consolidator.py    # Integração + geração ECL/propensão
+│   ├── stage_classifier.py     # 🆕 Classificação IFRS 9 (3 stages)
+│   ├── ecl_engine.py           # 🔄 ECL v2.0 (BACEN 4966)
 │   ├── lgd_calculator.py       # LGD por produto (Basel III)
-│   ├── ecl_engine.py           # Cálculo ECL = PD × LGD × EAD
+│   ├── limit_reallocation.py   # 🆕 Realocação por propensão
 │   ├── propensity_model.py     # Modelo multi-produto
+│   ├── pipeline_runner.py      # 🔄 Pipeline v2.0 completo
 │   ├── limit_optimizer.py      # Otimização com regras
-│   ├── limit_predictor.py      # Previsão 60/30/0 dias
 │   └── notification_engine.py  # Push/SMS/Banner
 ├── app/
 │   └── dashboard_propensao.py  # Interface visual
 ├── tests/
-│   └── test_*.py               # Testes unitários
+│   └── test_*.py               # 137 testes unitários
 ├── modelo/
 │   └── *.joblib                # Modelos treinados
 └── docs/
-    └── walkthrough.md          # Documentação técnica
+    ├── task_revamp.md          # 🆕 Plano de implementação BACEN 4966
+    └── implementation_plan.md  # Documentação técnica
 ```
 
 ## 🚀 Uso Rápido
 
-### Calcular ECL
+### Pipeline Completo (v2.0)
+
+```python
+from propensao.src.pipeline_runner import run_pipeline
+
+# Executa pipeline completo BACEN 4966
+df = run_pipeline()
+# Gera: base_clientes_processada.csv com colunas ECL/propensão
+```
+
+### Calcular ECL (v2.0)
 
 ```python
 from propensao.src.ecl_engine import ECLEngine
@@ -42,11 +67,16 @@ engine = ECLEngine()
 result = engine.calcular_ecl_individual(
     cliente_id="12345678901",
     produto="consignado",
-    prinad=15.0,  # PRINAD %
-    ead=50000     # Limite
+    prinad=15.0,           # PRINAD %
+    limite_total=50000,    # Limite total
+    saldo_utilizado=40000, # Saldo usado
+    dias_atraso=0          # Dias de atraso
 )
+print(f"Stage: {result.stage}")
+print(f"Rating: {result.rating}")
 print(f"ECL: R$ {result.ecl:,.2f}")
 ```
+
 
 ### Otimizar Limites
 

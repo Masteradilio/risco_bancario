@@ -20,12 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 class DelinquencyLevel(Enum):
-    """Delinquency severity levels."""
-    NONE = "sem_atraso"
-    SHORT_TERM = "curto_prazo"      # <= 120 days
-    LONG_TERM = "longo_prazo"        # 121-180 days
-    SEVERE = "severo"                # > 180 days
-    DEFAULT = "inadimplente"         # Bank's internal default definition
+    """Credit risk situation levels (professional terminology)."""
+    NONE = "clean"              # No issues
+    SHORT_TERM = "leve"         # <= 120 days - Minor concern
+    LONG_TERM = "moderado"      # 121-180 days - Moderate risk
+    SEVERE = "severo"           # > 180 days - Elevated risk
+    DEFAULT = "critico"         # Bank's internal default definition
 
 
 @dataclass

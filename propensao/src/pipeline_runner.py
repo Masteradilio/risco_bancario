@@ -26,6 +26,15 @@ from shared.utils import (
     DADOS_DIR,
     PRODUTOS_CREDITO,
     COMPROMETIMENTO_POR_PRODUTO,
+    PD_POR_RATING,
+    CRITERIOS_STAGE,
+    PROPENSAO_CLASSIFICACAO,
+    PROPENSAO_MINIMA_PARA_AUMENTO,
+    PROPENSAO_MAXIMA_PARA_REDUCAO,
+    get_rating_from_prinad,
+    calcular_pd_por_rating,
+    get_stage_from_criteria,
+    calcular_limite_global_fixo,
     setup_logging
 )
 
@@ -303,66 +312,139 @@ class PropensityEnricher:
 
 
 class ECLCalculator:
-    """Calculates Expected Credit Loss."""
+    """Calculates Expected Credit Loss using BACEN 4966 methodology.
+    
+    REVAMP v2.0:
+    - Uses calibrated PD (pd_12m and pd_lifetime) based on rating
+    - Calculates EAD with CCF (Credit Conversion Factor)
+    - Uses Stage classification (1, 2, 3) for ECL horizon
+    - Integrates with StageClassifier for drag effect
+    """
     
     def __init__(self):
         try:
-            from propensao.src.lgd_calculator import get_lgd_calculator
-            self.lgd_calc = get_lgd_calculator()
-            logger.info("LGD Calculator loaded")
+            from propensao.src.ecl_engine import ECLEngine, get_ecl_engine
+            self.ecl_engine = get_ecl_engine()
+            self.engine_loaded = True
+            logger.info("ECL Engine v2.0 loaded (BACEN 4966 compliant)")
         except Exception as e:
-            logger.warning(f"Could not load LGD Calculator: {e}")
-            self.lgd_calc = None
+            logger.warning(f"Could not load ECL Engine: {e}")
+            self.ecl_engine = None
+            self.engine_loaded = False
+        
+        try:
+            from propensao.src.stage_classifier import StageClassifier, classificar_stage_simples
+            self.stage_classifier = StageClassifier()
+            self.classificar_stage_simples = classificar_stage_simples
+            logger.info("Stage Classifier loaded")
+        except Exception as e:
+            logger.warning(f"Could not load Stage Classifier: {e}")
+            self.stage_classifier = None
+            self.classificar_stage_simples = None
     
-    def calculate_ecl(self, row: pd.Series) -> float:
+    def calculate_ecl(self, row: pd.Series) -> dict:
         """
-        Calculate ECL = PD × LGD × EAD
+        Calculate ECL using BACEN 4966 methodology.
+        
+        Returns dict with: ecl, pd_12m, pd_lifetime, lgd, ead, stage, rating
         """
-        # PD from PRINAD (convert from 0-100 to 0-1)
-        pd_value = row.get('PRINAD_SCORE', 30) / 100.0
-        
-        # EAD = limit utilized + some of available (credit risk)
-        limite_utilizado = row.get('limite_utilizado', 0)
-        limite_disponivel = row.get('limite_disponivel', 0)
-        ead = limite_utilizado + limite_disponivel * 0.5  # CCF = 50%
-        
-        # LGD based on product/guarantee
+        cliente_id = str(row.get('CLIT', row.get('cliente_id', 'UNKNOWN')))
         produto = row.get('produto', 'consignado')
-        tipo_garantia = row.get('tipo_garantia', 'nenhuma')
-        ltv = row.get('ltv', 1.0)
+        prinad = row.get('PRINAD_SCORE', 30)
+        dias_atraso = int(row.get('dias_atraso', row.get('scr_dias_atraso', 0)))
         
-        # Simple LGD logic
-        if tipo_garantia in ['imovel_residencial', 'consignacao']:
-            lgd = 0.25
-        elif tipo_garantia in ['veiculo', 'equipamento']:
-            lgd = 0.40
+        # EAD calculation
+        limite_total = row.get('limite_total', row.get('limite_disponivel', 0) + row.get('limite_utilizado', 0))
+        saldo_utilizado = row.get('limite_utilizado', row.get('saldo_utilizado', limite_total * 0.5))
+        
+        if self.engine_loaded and self.ecl_engine:
+            # Use ECL Engine v2.0
+            result = self.ecl_engine.calcular_ecl_individual(
+                cliente_id=cliente_id,
+                produto=produto,
+                prinad=prinad,
+                limite_total=limite_total,
+                saldo_utilizado=saldo_utilizado,
+                dias_atraso=dias_atraso
+            )
+            return {
+                'ecl': result.ecl,
+                'pd_12m': result.pd_12m,
+                'pd_lifetime': result.pd_lifetime,
+                'lgd': result.lgd,
+                'ead': result.ead,
+                'stage': result.stage,
+                'rating': result.rating,
+                'ecl_horizonte': result.ecl_horizonte
+            }
         else:
-            lgd = 0.60  # Unsecured
-        
-        # Adjust for LTV
-        lgd = lgd * (1 + max(0, ltv - 0.80))  # Higher LTV = higher LGD
-        lgd = min(1.0, lgd)
-        
-        # ECL
-        ecl = pd_value * lgd * ead
-        
-        return ecl
+            # Fallback to simple calculation
+            rating = get_rating_from_prinad(prinad)
+            pd_result = calcular_pd_por_rating(prinad, rating)
+            stage = self.classificar_stage_simples(dias_atraso, prinad) if self.classificar_stage_simples else 1
+            
+            # Simple LGD
+            tipo_garantia = row.get('tipo_garantia', 'nenhuma')
+            if tipo_garantia in ['imovel_residencial', 'consignacao']:
+                lgd = 0.25
+            elif tipo_garantia in ['veiculo', 'equipamento']:
+                lgd = 0.40
+            else:
+                lgd = 0.60
+            
+            # EAD with CCF
+            limite_disponivel = max(0, limite_total - saldo_utilizado)
+            ccf = 0.75 if produto in ['cartao_credito_rotativo', 'banparacard', 'cheque_especial'] else 1.0
+            ead = saldo_utilizado + limite_disponivel * ccf
+            
+            # ECL based on stage
+            if stage == 1:
+                ecl = pd_result['pd_12m'] * lgd * ead
+                horizonte = '12_meses'
+            else:
+                ecl = pd_result['pd_lifetime'] * lgd * ead
+                horizonte = 'lifetime'
+            
+            return {
+                'ecl': round(ecl, 2),
+                'pd_12m': pd_result['pd_12m'],
+                'pd_lifetime': pd_result['pd_lifetime'],
+                'lgd': lgd,
+                'ead': ead,
+                'stage': stage,
+                'rating': rating,
+                'ecl_horizonte': horizonte
+            }
     
     def enrich(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add ECL column to DataFrame."""
-        logger.info(f"Calculating ECL for {len(df)} rows...")
+        """Add ECL and related columns to DataFrame."""
+        logger.info(f"Calculating ECL v2.0 for {len(df)} rows...")
         
-        df['lgd'] = df.apply(
-            lambda row: 0.25 if row.get('tipo_garantia') in ['imovel_residencial', 'consignacao']
-                        else 0.40 if row.get('tipo_garantia') in ['veiculo', 'equipamento']
-                        else 0.60,
-            axis=1
-        )
+        # Calculate ECL for each row
+        ecl_results = df.apply(self.calculate_ecl, axis=1)
         
-        df['ecl'] = df.apply(self.calculate_ecl, axis=1)
+        # Extract individual fields
+        df['ecl'] = ecl_results.apply(lambda x: x['ecl'])
+        df['pd_12m'] = ecl_results.apply(lambda x: x['pd_12m'])
+        df['pd_lifetime'] = ecl_results.apply(lambda x: x['pd_lifetime'])
+        df['lgd'] = ecl_results.apply(lambda x: x['lgd'])
+        df['ead'] = ecl_results.apply(lambda x: x['ead'])
+        df['stage'] = ecl_results.apply(lambda x: x['stage'])
+        df['ecl_horizonte'] = ecl_results.apply(lambda x: x['ecl_horizonte'])
         
-        logger.info(f"Total ECL: R$ {df['ecl'].sum():,.2f}")
-        logger.info(f"Average ECL: R$ {df['ecl'].mean():,.2f}")
+        # Update rating if not already present
+        if 'RATING' not in df.columns:
+            df['RATING'] = ecl_results.apply(lambda x: x['rating'])
+        
+        # Summary statistics
+        total_ecl = df['ecl'].sum()
+        total_ead = df['ead'].sum()
+        cobertura = (total_ecl / total_ead * 100) if total_ead > 0 else 0
+        
+        logger.info(f"Total EAD: R$ {total_ead:,.2f}")
+        logger.info(f"Total ECL: R$ {total_ecl:,.2f}")
+        logger.info(f"ECL Coverage: {cobertura:.2f}%")
+        logger.info(f"Stage distribution: {df['stage'].value_counts().to_dict()}")
         
         return df
 
@@ -502,6 +584,105 @@ class LimitActionCalculator:
         return df
 
 
+class LimitReallocationEnricher:
+    """Applies propensity-based limit reallocation.
+    
+    REVAMP v2.0:
+    - Calculates global limit based on income
+    - Reallocates limits between products based on propensity
+    - Products with low propensity have limits reduced
+    - Freed space goes to high propensity products
+    """
+    
+    def __init__(self):
+        self.reallocation_engine = None
+        self._load_engine()
+    
+    def _load_engine(self):
+        """Load limit reallocation engine."""
+        try:
+            from propensao.src.limit_reallocation import LimitReallocation
+            self.reallocation_engine = LimitReallocation()
+            logger.info("Limit Reallocation engine loaded")
+        except Exception as e:
+            logger.warning(f"Could not load Limit Reallocation engine: {e}")
+            self.reallocation_engine = None
+    
+    def enrich(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add reallocation fields to DataFrame."""
+        logger.info(f"Calculating limit reallocations for {len(df)} rows...")
+        
+        if not self.reallocation_engine:
+            logger.warning("Reallocation engine not available, skipping")
+            return df
+        
+        # Calculate global limit if not present
+        if 'limite_global' not in df.columns:
+            def calc_lg(renda):
+                if pd.isna(renda) or renda <= 0:
+                    return 0
+                result = calcular_limite_global_fixo(renda)
+                return result['limite_global']
+            
+            unique_clients = df[['CLIT', 'RENDA_BRUTA']].drop_duplicates()
+            unique_clients['limite_global'] = unique_clients['RENDA_BRUTA'].apply(calc_lg)
+            df = df.merge(unique_clients[['CLIT', 'limite_global']], on='CLIT', how='left')
+        
+        # Apply propensity-based reallocation per client
+        df['limite_realocado'] = df['limite_total'].copy()
+        df['variacao_propensao'] = 0.0
+        
+        stats = {'reducoes': 0, 'aumentos': 0, 'limite_liberado': 0, 'limite_alocado': 0}
+        
+        for cliente_id in df['CLIT'].unique():
+            cliente_df = df[df['CLIT'] == cliente_id]
+            
+            if len(cliente_df) < 2:
+                continue  # Need at least 2 products for reallocation
+            
+            # Get current limits and propensities
+            limites = dict(zip(cliente_df['produto'], cliente_df['limite_total']))
+            propensoes = dict(zip(cliente_df['produto'], cliente_df['propensao_score']))
+            renda = cliente_df['RENDA_BRUTA'].iloc[0]
+            
+            if pd.isna(renda) or renda <= 0:
+                continue
+            
+            try:
+                resultado = self.reallocation_engine.realocar_por_propensao(
+                    cliente_id=str(cliente_id),
+                    renda_bruta=renda,
+                    limites_atuais=limites,
+                    propensoes=propensoes
+                )
+                
+                # Update limits
+                for produto, novo_limite in resultado.limites_depois.items():
+                    mask = (df['CLIT'] == cliente_id) & (df['produto'] == produto)
+                    df.loc[mask, 'limite_realocado'] = novo_limite
+                    
+                    variacao = resultado.variacoes.get(produto, 0)
+                    df.loc[mask, 'variacao_propensao'] = variacao
+                    
+                    if variacao < 0:
+                        stats['reducoes'] += 1
+                        stats['limite_liberado'] += abs(variacao)
+                    elif variacao > 0:
+                        stats['aumentos'] += 1
+                        stats['limite_alocado'] += variacao
+                        
+            except Exception as e:
+                logger.debug(f"Reallocation error for {cliente_id}: {e}")
+        
+        logger.info("=== REALLOCATION SUMMARY ===")
+        logger.info(f"  Reductions: {stats['reducoes']:,}")
+        logger.info(f"  Increases: {stats['aumentos']:,}")
+        logger.info(f"  Limit freed: R$ {stats['limite_liberado']:,.2f}")
+        logger.info(f"  Limit allocated: R$ {stats['limite_alocado']:,.2f}")
+        
+        return df
+
+
 class PipelineRunner:
     """Main pipeline orchestrator."""
     
@@ -513,9 +694,10 @@ class PipelineRunner:
         self.prinad_enricher = PRINADEnricher()
         self.propensity_enricher = PropensityEnricher()
         self.ecl_calculator = ECLCalculator()
+        self.reallocation_enricher = LimitReallocationEnricher()
         self.action_calculator = LimitActionCalculator()
         
-        logger.info("PipelineRunner initialized")
+        logger.info("PipelineRunner v2.0 initialized (BACEN 4966 compliant)")
     
     def load_base(self) -> pd.DataFrame:
         """Load consolidated base."""
@@ -551,8 +733,14 @@ class PipelineRunner:
         # Step 4: ECL calculation
         df = self.ecl_calculator.enrich(df)
         
-        # Step 5: Limit actions
+        # Step 5: Limit reallocation based on propensity
+        df = self.reallocation_enricher.enrich(df)
+        
+        # Step 6: Limit actions
         df = self.action_calculator.enrich(df)
+        
+        # Step 7: Generate summary report
+        self._log_summary_report(df)
         
         # Step 6: Save output
         output_path = self.dados_dir / self.config.output_file
@@ -604,6 +792,66 @@ class PipelineRunner:
                 )
                 
                 logger.info(f"Notifications D+{horizon}: {len(horizon_df)} -> {output_file}")
+    
+    def _log_summary_report(self, df: pd.DataFrame):
+        """Generate comprehensive summary report."""
+        logger.info("=" * 60)
+        logger.info("BACEN 4966 COMPLIANCE REPORT")
+        logger.info("=" * 60)
+        
+        # ECL Summary
+        total_ead = df['ead'].sum() if 'ead' in df.columns else 0
+        total_ecl = df['ecl'].sum() if 'ecl' in df.columns else 0
+        cobertura = (total_ecl / total_ead * 100) if total_ead > 0 else 0
+        
+        logger.info(f"EAD Total: R$ {total_ead:,.2f}")
+        logger.info(f"ECL Total: R$ {total_ecl:,.2f}")
+        logger.info(f"ECL Coverage: {cobertura:.2f}%")
+        
+        # Stage Distribution
+        if 'stage' in df.columns:
+            stage_dist = df['stage'].value_counts().sort_index()
+            logger.info("\nStage Distribution:")
+            for stage, count in stage_dist.items():
+                pct = count / len(df) * 100
+                ecl_stage = df[df['stage'] == stage]['ecl'].sum() if 'ecl' in df.columns else 0
+                logger.info(f"  Stage {stage}: {count:,} ({pct:.1f}%) - ECL: R$ {ecl_stage:,.2f}")
+        
+        # Rating Distribution
+        if 'RATING' in df.columns:
+            rating_dist = df['RATING'].value_counts()
+            logger.info("\nRating Distribution (Top 5):")
+            for rating, count in rating_dist.head(5).items():
+                pct = count / len(df) * 100
+                logger.info(f"  {rating}: {count:,} ({pct:.1f}%)")
+        
+        # Propensity Distribution
+        if 'propensao_classificacao' in df.columns:
+            prop_dist = df['propensao_classificacao'].value_counts()
+            logger.info("\nPropensity Distribution:")
+            for classe, count in prop_dist.items():
+                pct = count / len(df) * 100
+                logger.info(f"  {classe}: {count:,} ({pct:.1f}%)")
+        
+        # Action Distribution
+        if 'acao_limite' in df.columns:
+            action_dist = df['acao_limite'].value_counts()
+            logger.info("\nLimit Actions:")
+            for action, count in action_dist.items():
+                pct = count / len(df) * 100
+                logger.info(f"  {action}: {count:,} ({pct:.1f}%)")
+        
+        # Reallocation Impact
+        if 'variacao_propensao' in df.columns:
+            reducoes = (df['variacao_propensao'] < 0).sum()
+            aumentos = (df['variacao_propensao'] > 0).sum()
+            total_variacao = df['variacao_propensao'].sum()
+            logger.info(f"\nReallocation Impact:")
+            logger.info(f"  Reductions: {reducoes:,}")
+            logger.info(f"  Increases: {aumentos:,}")
+            logger.info(f"  Net limit change: R$ {total_variacao:,.2f}")
+        
+        logger.info("=" * 60)
 
 
 def run_pipeline() -> pd.DataFrame:

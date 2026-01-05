@@ -1,4 +1,6 @@
-# 🏦 PRINAD - Sistema de Risco de Crédito Bancário
+# 🏦 PRINAD v2.0 - Sistema de Risco de Crédito Bancário
+
+**BACEN 4966 / IFRS 9 Compliant**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -6,7 +8,14 @@
 [![Precision: 0.95](https://img.shields.io/badge/Precision-0.95-brightgreen.svg)]()
 [![Recall: 0.97](https://img.shields.io/badge/Recall-0.97-brightgreen.svg)]()
 
-Sistema de **Probabilidade de Inadimplência (PRINAD)** para instituições financeiras, em conformidade com as diretrizes **Basel III** e integração com o **SCR do Banco Central**.
+Sistema de **Probabilidade de Inadimplência (PRINAD)** para instituições financeiras, em conformidade com as diretrizes **Basel III**, **BACEN 4966** e **IFRS 9**.
+
+## 🆕 Novidades v2.0
+
+- **PD Calibrado**: `pd_12m` (12 meses) e `pd_lifetime` (vida inteira) por rating
+- **Stage IFRS 9**: Classificação em Stage 1, 2 ou 3
+- **Ratings BACEN**: 11 níveis (A1 → DEFAULT)
+- **Fallback Heurístico**: Funciona mesmo sem modelo ML treinado
 
 ## 📊 Métricas do Modelo
 
@@ -23,6 +32,7 @@ Sistema de **Probabilidade de Inadimplência (PRINAD)** para instituições fina
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      PIPELINE PRINAD v2.0                           │
+│                    (BACEN 4966 / IFRS 9)                            │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
 │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │
@@ -33,14 +43,15 @@ Sistema de **Probabilidade de Inadimplência (PRINAD)** para instituições fina
 │        └───────┬───────┴───────┬───────┴───────┬───────┘           │
 │                ▼               ▼               ▼                    │
 │        ┌───────────────────────────────────────────────────┐       │
-│        │              Ensemble ML (XGBoost + LightGBM)     │       │
-│        │              + Penalidades Históricas             │       │
-│        │              50% ML | 25% Interno | 25% SCR       │       │
+│        │      Ensemble ML (XGBoost + LightGBM)             │       │
+│        │      + Penalidades Históricas (Int + Ext)         │       │
+│        │      50% ML | 25% Interno | 25% SCR               │       │
 │        └──────────────────────┬────────────────────────────┘       │
 │                               ▼                                     │
 │        ┌───────────────────────────────────────────────────┐       │
-│        │              PRINAD + Rating (A1 → D)             │       │
-│        │              + Explicação SHAP                    │       │
+│        │      PRINAD + Rating (A1 → DEFAULT)               │       │
+│        │      + pd_12m + pd_lifetime + Stage (1/2/3)       │       │
+│        │      + Explicação SHAP                            │       │
 │        └───────────────────────────────────────────────────┘       │
 └─────────────────────────────────────────────────────────────────────┘
 ```

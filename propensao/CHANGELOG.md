@@ -2,7 +2,104 @@
 
 Todas as alterações notáveis do módulo de propensão serão documentadas neste arquivo.
 
+## [2.0.0] - 2026-01-02 (REVAMP BACEN 4966)
+
+### 🏛️ Conformidade Regulatória
+
+#### ECL / IFRS 9 / Resolução BACEN 4966
+- **Fórmula Central**: `ECL = PD × LGD × EAD`
+- **3 Estágios IFRS 9**:
+  - Stage 1: ECL horizonte 12 meses (usa PD_12m)
+  - Stage 2: ECL horizonte lifetime (usa PD_lifetime)
+  - Stage 3: ECL lifetime com LGD máxima (LGD × 1.5)
+- **Regra de Arrasto** (Drag Effect): Se um produto vai para Stage 3, TODOS os produtos do cliente migram
+- **Critérios de Cura**: Reversão de stage após período de observação
+
+### ✨ Novos Módulos
+
+#### StageClassifier (`stage_classifier.py`)
+- Classificação automática de exposições nos 3 stages IFRS 9
+- Múltiplos gatilhos: dias_atraso, downgrade, evento_judicial, insolvência
+- Regra de arrasto implementada (todos produtos migram juntos)
+- Critérios de cura (Stage 2→1 requer 6 meses, Stage 3→2 requer 12 meses)
+
+#### LimitReallocation (`limit_reallocation.py`)
+- Cálculo do Limite Global FIXO (só muda quando renda muda)
+- Grupos de produtos: A (35%), B (30%), C (5%)
+- Realocação por propensão:
+  - Produtos com propensão < 45% têm limite reduzido
+  - Espaço liberado é redistribuído para produtos com propensão > 55%
+- Limite legal do consignado (35%) nunca é reduzido
+
+### 🔧 Refatorações
+
+#### ECL Engine v2.0 (`ecl_engine.py`)
+- **PD Calibrado**: Usa tabela PD_POR_RATING com PD_12m e PD_lifetime
+- **EAD com CCF**: `EAD = saldo + (limite_disponível × CCF)`
+- **Stage Integration**: Integração com StageClassifier
+- **Drag Effect**: Suporte a arrasto no cálculo de portfólio
+- Métodos:
+  - `calcular_ecl_individual()` - Cálculo completo com todos parâmetros
+  - `calcular_ecl_individual_simples()` - Retrocompatibilidade
+  - `calcular_ecl_cliente()` - Múltiplos produtos com arrasto
+  - `calcular_ecl_portfolio()` - Portfólio completo
+
+#### Shared Utils (`shared/utils.py`) - +262 linhas
+- `PD_POR_RATING`: 11 ratings calibrados (A1 → DEFAULT)
+- `CCF_POR_PRODUTO`: 10 produtos com Credit Conversion Factor
+- `PARAMS_LIMITE_GLOBAL`: Grupos A/B/C para limite global
+- `CRITERIOS_STAGE`: Critérios de migração IFRS 9
+- `CRITERIOS_CURA`: Critérios de reversão de stage
+- Funções:
+  - `get_rating_from_prinad()`
+  - `calcular_pd_por_rating()`
+  - `calcular_ead()`
+  - `calcular_limite_global_fixo()`
+  - `get_stage_from_criteria()`
+  - `calcular_ecl_por_stage()`
+
+#### Pipeline Runner
+- `ECLCalculator` atualizado para usar ECL Engine v2.0
+- Novas colunas de saída: pd_12m, pd_lifetime, stage, ecl_horizonte
+
+### 📊 Valores Calibrados
+
+#### PDs por Rating (12 meses)
+
+| Rating | PD_min | PD_max | Mult. Lifetime |
+|--------|--------|--------|----------------|
+| A1 | 0.03% | 0.50% | 2.5x |
+| A2 | 0.50% | 1.00% | 2.5x |
+| A3 | 1.00% | 2.00% | 3.0x |
+| B1 | 2.00% | 3.50% | 3.5x |
+| B2 | 3.50% | 5.00% | 4.0x |
+| B3 | 5.00% | 7.00% | 4.5x |
+| C1 | 7.00% | 10.00% | 5.0x |
+| C2 | 10.00% | 15.00% | 5.5x |
+| C3 | 15.00% | 25.00% | 6.0x |
+| D | 25.00% | 50.00% | 6.5x |
+| DEFAULT | 50.00% | 100% | 7.0x |
+
+#### CCF por Produto
+
+| Produto | CCF |
+|---------|-----|
+| Consignado | 100% |
+| Imobiliário | 100% |
+| Veículo | 100% |
+| Cartão Rotativo | 75% |
+| Banparacard | 75% |
+| Cheque Especial | 70% |
+| Crédito Sazonal | 50% |
+
+### ✅ Testes
+- **27 novos testes** para ECL Engine v2.0
+- Cobertura de todos os cenários: stages, arrasto, calibração PD
+
+---
+
 ## [1.1.0] - 2026-01-01
+
 
 ### ✨ Adicionado
 
