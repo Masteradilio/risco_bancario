@@ -1,0 +1,69 @@
+
+================================================================================
+                     RELATORIO DE IMPACTO FINANCEIRO
+                     Sistema PROLIMITE - Simulacao 2025
+================================================================================
+
+Data da Simulacao: 2026-01-06 09:40:32
+
+--------------------------------------------------------------------------------
+DADOS DE BENCHMARK (Banpara 2025)
+--------------------------------------------------------------------------------
+
+  Carteira de Credito Total:      R$ 15,330 milhoes
+  - Consignado:                   R$ 11,090 milhoes
+  - Banparacard:                  R$ 1,239 milhoes
+  - Imobiliario:                  R$ 1,359 milhoes
+  
+  Provisao para PCLD:             R$ 558 milhoes (3.61%)
+  Indice de Inadimplencia:        2.51%
+  
+  Lucro Liquido 9M2025:           R$ 150 milhoes
+  - 1T2025:                       R$ 58 milhoes
+  - 2T2025:                       R$ 68 milhoes
+  - 3T2025:                       R$ 24 milhoes
+
+--------------------------------------------------------------------------------
+IMPACTO DA IMPLEMENTACAO DO PROLIMITE
+--------------------------------------------------------------------------------
+
+  1. ECONOMIA COM REDUCAO DE ECL
+     ---------------------------------------------------------------------------
+     Limite nao utilizado estimado:     R$ 4,599 milhoes
+     Limite elegivel para reducao (16%): R$ 736 milhoes
+     Reducao efetiva de limite (35%):   R$ 258 milhoes
+     
+     >> ECONOMIA ANUAL DE ECL:          R$ 3.4 milhoes
+     >> Reducao de Provisao:            0.61%
+
+  2. RECEITA ADICIONAL COM AUMENTO DE LIMITES
+     ---------------------------------------------------------------------------
+     Clientes com alta propensao (14%): R$ 1,553 milhoes
+     Aumento de limite proposto (25%):  R$ 388 milhoes
+     Novo credito efetivo (40% conv.):  R$ 155 milhoes
+     
+     >> RECEITA ADICIONAL ANUAL:        R$ 36.5 milhoes
+     >> Novos Negocios Estimados:       R$ 155 milhoes
+
+  3. IMPACTO LIQUIDO CONSOLIDADO
+     ---------------------------------------------------------------------------
+     Economia de ECL:                   R$ 3.4 milhoes
+     Receita Adicional:                 R$ 36.5 milhoes
+     Custo Operacional (10%):           R$ -4.0 milhoes
+     
+     >> IMPACTO LIQUIDO ANUAL:          R$ 35.9 milhoes
+     >> IMPACTO % DO LUCRO:             17.9%
+
+================================================================================
+                              CONCLUSAO
+================================================================================
+
+  A implementacao do sistema PROLIMITE pode gerar um impacto positivo 
+  estimado de R$ 35.9 milhoes anuais, representando um 
+  aumento de 17.9% no lucro liquido anualizado do banco.
+  
+  Este impacto vem de:
+  - Reducao de provisao para perdas esperadas (ECL) em limites nao utilizados
+  - Geracao de novos negocios com clientes de alta propensao e baixo risco
+
+================================================================================

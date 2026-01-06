@@ -1,0 +1,40 @@
+# Risco Bancario - Unified Requirements
+# Python 3.10+
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Machine Learning
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+lightgbm>=4.0.0
+imbalanced-learn>=0.11.0
+joblib>=1.3.0
+
+# SHAP for Model Interpretability
+shap>=0.43.0
+
+# API and Web Framework
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.0.0
+websockets>=12.0
+python-multipart>=0.0.6
+
+# Dashboard and Visualization
+streamlit>=1.28.0
+plotly>=5.18.0
+matplotlib>=3.8.0
+
+# HTTP Client
+requests>=2.31.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0
+
+# Utilities
+python-dotenv>=1.0.0

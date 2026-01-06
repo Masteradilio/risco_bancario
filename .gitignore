@@ -58,8 +58,17 @@ Thumbs.db
 modelo_antigo/
 
 # Environment files with secrets (keep .env.example)
-.env
 *.local
+.env
+.env.*
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+node_modules/
+.next/
 
 # Logs
 *.log

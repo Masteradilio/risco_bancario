@@ -1,0 +1,76 @@
+﻿.\venv\Scripts\python.exe : C:\Users\adili\projetos_offline\risco_banc
+ario\venv\Lib\site-packages\sklearn\utils\validation.py:2691: 
+UserWarning: X does not have valid feature names, but LGBMClassifier 
+was fitted with feature names
+No linha:1 caractere:1
++ .\venv\Scripts\python.exe test_diagnosis.py 2>&1 | Out-File 
+test_resu ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\adili\...h feat 
+   ure names:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+C:\Users\adili\projetos_offline\risco_bancario\venv\Lib\site-packages\
+sklearn\utils\validation.py:2691: UserWarning: X does not have valid 
+feature names, but LGBMClassifier was fitted with feature names
+  warnings.warn(
+============================================================
+TESTE DE VARIAÃ├O DE PRINAD E LAT╩NCIA
+============================================================
+Bom: PRINAD=0.5% Rating=A1 PD_Base=0.5% Pen=0.0 Tempo=59ms
+Medio: PRINAD=60.93% Rating=C1 PD_Base=60.93% Pen=0.0 Tempo=49ms
+Alto: PRINAD=78.9% Rating=C2 PD_Base=78.9% Pen=0.0 Tempo=47ms
+============================================================

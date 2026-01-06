@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Backend APIs
+  # =============================================================================
+  prinad-api:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.prinad
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./dados:/app/dados:ro
+      - ./backend/prinad/modelo:/app/modelo:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - risco-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ecl-api:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.ecl
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./dados:/app/dados:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      prinad-api:
+        condition: service_healthy
+    networks:
+      - risco-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  propensao-api:
+    build:
+      context: ./backend
+      dockerfile: ../docker/Dockerfile.propensao
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./dados:/app/dados:ro
+      - ./backend/propensao/modelo:/app/propensao_modelo:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      prinad-api:
+        condition: service_healthy
+    networks:
+      - risco-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Frontend
+  # =============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_PRINAD_API_URL=http://prinad-api:8001
+      - NEXT_PUBLIC_ECL_API_URL=http://ecl-api:8002
+      - NEXT_PUBLIC_PROPENSAO_API_URL=http://propensao-api:8003
+    depends_on:
+      - prinad-api
+      - ecl-api
+      - propensao-api
+    networks:
+      - risco-network
+
+networks:
+  risco-network:
+    name: risco-bancario-network
+    driver: bridge

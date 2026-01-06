@@ -1,1 +1,0 @@
-"""PROPENSAO tests module."""

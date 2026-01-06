@@ -1,0 +1,1 @@
+﻿FAILED: columns are missing: {'v280', 'v255', 'POSSUI_VEICULO', 'comp_renda_faixa', 'scr_score_risco', 'v230', 'PORTABILIDADE', 'scr_exposicao_total', 'scr_lim_credito', 'score_residencia', 'faixa_relacioname
