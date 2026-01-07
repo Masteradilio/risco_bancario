@@ -13,9 +13,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, date
 import logging
 import sys
+import base64
 from pathlib import Path
 
 # Setup path
@@ -23,6 +24,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from perda_esperada.src.pipeline_ecl import ECLPipeline, ECLCompleteResult
 from prinad.src.classifier import PRINADClassifier
+from perda_esperada.src.modulo_exportacao_bacen import (
+    ExportadorBACEN, 
+    ConfigExportacao, 
+    ResponsavelInfo, 
+    OperacaoECL,
+    ValidadorXSD,
+    MetodologiaApuracao,
+    ClassificacaoAtivoFinanceiro
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,7 +42,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="ECL API",
     description="API de Perda Esperada (ECL) - BACEN 4966 Compliant",
-    version="1.0.0",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
 )
@@ -131,6 +141,59 @@ class GruposHomogeneosResponse(BaseModel):
 
 
 # =============================================================================
+# PYDANTIC MODELS - EXPORTACAO BACEN
+# =============================================================================
+
+class ResponsavelRequest(BaseModel):
+    """Dados do responsável pelo envio."""
+    nome: str = Field(..., description="Nome do responsável")
+    email: str = Field(..., description="Email do responsável")
+    telefone: str = Field(..., description="Telefone (formato: DDNNNNNNNN)")
+
+
+class ExportacaoRequest(BaseModel):
+    """Request para exportação BACEN Doc3040."""
+    data_base: str = Field(..., description="Data-base no formato AAAA-MM")
+    cnpj: str = Field(..., description="CNPJ da instituição (8 dígitos)")
+    responsavel: ResponsavelRequest
+    metodologia: str = Field("C", description="C=Completa, S=Simplificada")
+    usar_dados_mock: bool = Field(True, description="Usar dados mockados para teste")
+
+
+class ErroValidacaoResponse(BaseModel):
+    """Erro de validação."""
+    codigo: str
+    mensagem: str
+    linha: Optional[int] = None
+    campo: Optional[str] = None
+
+
+class ValidacaoResponse(BaseModel):
+    """Resultado de validação."""
+    status: str  # SUCESSO, ERRO, REJEITADO
+    valido: bool
+    erros: List[ErroValidacaoResponse]
+    criticas: List[ErroValidacaoResponse]
+    timestamp: str
+
+
+class ExportacaoResponse(BaseModel):
+    """Response da exportação BACEN."""
+    sucesso: bool
+    arquivo_nome: str
+    arquivo_base64: str  # ZIP compactado
+    xml_content_base64: str  # XML puro para download direto
+    validacao: ValidacaoResponse
+    estatisticas: Dict[str, Any]
+    timestamp: str
+
+
+class ValidarXMLRequest(BaseModel):
+    """Request para validar XML BACEN."""
+    xml_content: str = Field(..., description="Conteúdo XML em base64")
+
+
+# =============================================================================
 # STARTUP
 # =============================================================================
 
@@ -163,7 +226,7 @@ async def health_check():
         status="healthy" if pipeline and classifier else "degraded",
         pipeline_loaded=pipeline is not None,
         classifier_loaded=classifier is not None,
-        version="1.0.0",
+        version="1.1.0",
         timestamp=datetime.now().isoformat()
     )
 
@@ -355,6 +418,273 @@ async def obter_grupos_homogeneos():
         grupos=grupos,
         total_clientes=0  # Seria preenchido com dados reais
     )
+
+
+# =============================================================================
+# ENDPOINTS - EXPORTACAO BACEN
+# =============================================================================
+
+def _gerar_operacoes_mock() -> List[OperacaoECL]:
+    """
+    Gera 50 operações mockadas para teste de exportação.
+    Inclui diversidade de produtos, stages e perfis de risco.
+    """
+    import random
+    random.seed(42)  # Para reprodutibilidade
+    
+    # Configurações base por produto
+    produtos_config = {
+        "consignado": {
+            "taxa_base": 18.5, "lgd_base": 0.35, "modalidade": "0304",
+            "saldo_min": 5000, "saldo_max": 100000
+        },
+        "cartao_credito_rotativo": {
+            "taxa_base": 350.0, "lgd_base": 0.80, "modalidade": "0401",
+            "saldo_min": 1000, "saldo_max": 50000
+        },
+        "imobiliario": {
+            "taxa_base": 9.5, "lgd_base": 0.10, "modalidade": "0201",
+            "saldo_min": 100000, "saldo_max": 800000
+        },
+        "veiculo": {
+            "taxa_base": 24.0, "lgd_base": 0.40, "modalidade": "0501",
+            "saldo_min": 20000, "saldo_max": 150000
+        },
+        "pessoal": {
+            "taxa_base": 45.0, "lgd_base": 0.70, "modalidade": "0203",
+            "saldo_min": 2000, "saldo_max": 30000
+        },
+        "cheque_especial": {
+            "taxa_base": 150.0, "lgd_base": 0.85, "modalidade": "0402",
+            "saldo_min": 500, "saldo_max": 15000
+        },
+    }
+    
+    # Ratings e suas PDs base
+    ratings_pd = {
+        "A1": 0.005, "A2": 0.01, "A3": 0.02,
+        "B1": 0.03, "B2": 0.05, "B3": 0.08,
+        "C1": 0.12, "C2": 0.18, "C3": 0.25,
+        "D": 0.35, "E": 0.50, "F": 0.70, "G": 0.85, "H": 0.95
+    }
+    
+    operacoes = []
+    
+    # Gerar 50 operações
+    for i in range(50):
+        # CPF fictício
+        cpf = str(10000000000 + i * 123456789 % 90000000000).zfill(11)
+        
+        # Selecionar produto
+        produto = random.choice(list(produtos_config.keys()))
+        config_prod = produtos_config[produto]
+        
+        # Gerar contrato
+        contrato = f"{produto[:4].upper()}{2024}{str(i+1).zfill(5)}"
+        
+        # Valores
+        saldo = round(random.uniform(config_prod["saldo_min"], config_prod["saldo_max"]), 2)
+        limite = round(saldo * random.uniform(1.0, 1.5), 2)
+        
+        # Determinar stage e dias de atraso
+        stage_choice = random.choices([1, 2, 3], weights=[70, 20, 10])[0]
+        if stage_choice == 1:
+            dias_atraso = random.randint(0, 15)
+            rating = random.choice(["A1", "A2", "A3", "B1"])
+        elif stage_choice == 2:
+            dias_atraso = random.randint(16, 90)
+            rating = random.choice(["B2", "B3", "C1", "C2"])
+        else:
+            dias_atraso = random.randint(91, 365)
+            rating = random.choice(["C3", "D", "E", "F", "G", "H"])
+        
+        # Calcular PD e ECL
+        pd_base = ratings_pd[rating]
+        pd_ajustado = min(pd_base * (1 + dias_atraso * 0.005), 1.0)
+        lgd = config_prod["lgd_base"]
+        ead = saldo * random.uniform(1.0, 1.2)
+        ecl = round(pd_ajustado * lgd * ead, 2)
+        
+        # Datas
+        anos_antes = random.randint(1, 5)
+        data_contratacao = date(2024 - anos_antes, random.randint(1, 12), random.randint(1, 28))
+        prazo_anos = random.randint(1, 20) if produto == "imobiliario" else random.randint(1, 5)
+        data_vencimento = date(2024 + prazo_anos, random.randint(1, 12), random.randint(1, 28))
+        
+        operacoes.append(OperacaoECL(
+            cliente_id=cpf,
+            contrato=contrato,
+            produto=produto,
+            saldo_utilizado=saldo,
+            limite_total=limite,
+            pd_ajustado=round(pd_ajustado, 4),
+            lgd_final=lgd,
+            ead=round(ead, 2),
+            ecl_final=ecl,
+            estagio_ifrs9=stage_choice,
+            rating=rating,
+            dias_atraso=dias_atraso,
+            data_contratacao=data_contratacao,
+            data_vencimento=data_vencimento,
+            taxa_juros_efetiva=config_prod["taxa_base"] * random.uniform(0.9, 1.1)
+        ))
+    
+    return operacoes
+
+
+@app.post("/exportar_bacen", response_model=ExportacaoResponse, tags=["Regulatório BACEN"])
+async def exportar_bacen(request: ExportacaoRequest):
+    """
+    Gera arquivo XML Doc3040 para exportação ao BACEN.
+    
+    O arquivo é gerado conforme Resolução CMN 4966/2021 com a tag
+    ContInstFinRes4966 para dados de ECL.
+    
+    Returns:
+        ZIP contendo XML Doc3040 em base64
+    """
+    try:
+        # Parse data-base
+        ano, mes = request.data_base.split("-")
+        data_base = date(int(ano), int(mes), 1)
+        # Ajustar para último dia do mês
+        if mes == "12":
+            data_base = date(int(ano), 12, 31)
+        else:
+            data_base = date(int(ano), int(mes) + 1, 1) 
+            from datetime import timedelta
+            data_base = data_base - timedelta(days=1)
+        
+        # Configuração
+        config = ConfigExportacao(
+            cnpj=request.cnpj.zfill(8)[:8],
+            responsavel=ResponsavelInfo(
+                nome=request.responsavel.nome,
+                email=request.responsavel.email,
+                telefone=request.responsavel.telefone
+            ),
+            metodologia=MetodologiaApuracao.COMPLETA if request.metodologia == "C" else MetodologiaApuracao.SIMPLIFICADA
+        )
+        
+        # Obter operações (mock ou reais)
+        if request.usar_dados_mock:
+            operacoes = _gerar_operacoes_mock()
+        else:
+            # TODO: Integrar com dados reais do sistema
+            operacoes = _gerar_operacoes_mock()
+        
+        # Gerar exportação
+        exportador = ExportadorBACEN(config)
+        result = exportador.exportar(
+            operacoes=operacoes,
+            data_base=data_base
+        )
+        
+        # Converter ZIP para base64
+        arquivo_base64 = base64.b64encode(result.arquivo_conteudo).decode('utf-8')
+        
+        # Converter erros para response
+        erros = [
+            ErroValidacaoResponse(
+                codigo=e.codigo,
+                mensagem=e.mensagem,
+                linha=e.linha,
+                campo=e.campo
+            )
+            for e in result.validacao.erros
+        ]
+        
+        criticas = [
+            ErroValidacaoResponse(
+                codigo=c.codigo,
+                mensagem=c.mensagem,
+                linha=c.linha,
+                campo=c.campo
+            )
+            for c in result.validacao.criticas
+        ]
+        
+        # Converter XML para base64 para download direto
+        xml_base64 = base64.b64encode(result.xml_content.encode('utf-8')).decode('utf-8')
+        
+        return ExportacaoResponse(
+            sucesso=result.sucesso,
+            arquivo_nome=result.arquivo_nome,
+            arquivo_base64=arquivo_base64,
+            xml_content_base64=xml_base64,
+            validacao=ValidacaoResponse(
+                status=result.validacao.status,
+                valido=result.validacao.valido,
+                erros=erros,
+                criticas=criticas,
+                timestamp=result.validacao.timestamp.isoformat()
+            ),
+            estatisticas={
+                "total_clientes": result.total_clientes,
+                "total_operacoes": result.total_operacoes,
+                "ecl_total": result.ecl_total,
+                "data_base": data_base.isoformat(),
+                "metodologia": request.metodologia
+            },
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro na exportação BACEN: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/validar_bacen", response_model=ValidacaoResponse, tags=["Regulatório BACEN"])
+async def validar_xml_bacen(request: ValidarXMLRequest):
+    """
+    Valida arquivo XML Doc3040 contra schema e regras BACEN.
+    
+    Args:
+        xml_content: Conteúdo XML codificado em base64
+        
+    Returns:
+        Resultado da validação com status e erros
+    """
+    try:
+        # Decodificar base64
+        xml_content = base64.b64decode(request.xml_content).decode('utf-8')
+        
+        # Validar
+        validador = ValidadorXSD()
+        result = validador.validar(xml_content)
+        
+        # Converter erros
+        erros = [
+            ErroValidacaoResponse(
+                codigo=e.codigo,
+                mensagem=e.mensagem,
+                linha=e.linha,
+                campo=e.campo
+            )
+            for e in result.erros
+        ]
+        
+        criticas = [
+            ErroValidacaoResponse(
+                codigo=c.codigo,
+                mensagem=c.mensagem,
+                linha=c.linha,
+                campo=c.campo
+            )
+            for c in result.criticas
+        ]
+        
+        return ValidacaoResponse(
+            status=result.status,
+            valido=result.valido,
+            erros=erros,
+            criticas=criticas,
+            timestamp=result.timestamp.isoformat()
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro na validação BACEN: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # =============================================================================

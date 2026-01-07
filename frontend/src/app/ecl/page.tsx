@@ -11,6 +11,7 @@ import { useSettings } from "@/stores/useSettings"
 import { eclApi } from "@/services/api"
 import { toast } from "sonner"
 import { ECLByGroupChart, StageDistributionChart } from "@/components/charts/Charts"
+import { ExportacaoBACEN } from "@/components/ecl/ExportacaoBACEN"
 
 const produtos = [
     { value: "consignado", label: "Crédito Consignado" },
@@ -89,6 +90,7 @@ export default function ECLPage() {
                 <TabsList>
                     <TabsTrigger value="calculo">Cálculo ECL</TabsTrigger>
                     <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                    <TabsTrigger value="exportacao">Exportação BACEN</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="calculo" className="space-y-4">
@@ -334,6 +336,10 @@ export default function ECLPage() {
                             </div>
                         </CardContent>
                     </Card>
+                </TabsContent>
+
+                <TabsContent value="exportacao" className="space-y-4">
+                    <ExportacaoBACEN />
                 </TabsContent>
             </Tabs>
         </div>

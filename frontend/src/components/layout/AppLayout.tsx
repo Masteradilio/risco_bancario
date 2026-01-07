@@ -12,22 +12,56 @@ import {
     Moon,
     Sun,
     Menu,
+    FileText,
+    ClipboardList,
+    Home,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 import { useTheme, applyTheme } from "@/stores/useTheme"
+import { useAuth } from "@/stores/useAuth"
+import { LoginForm } from "@/components/auth/LoginForm"
+import { UserMenu } from "@/components/auth/UserMenu"
 
-const navigation = [
+interface NavItemConfig {
+    name: string
+    href: string
+    icon: any
+    description: string
+    permission?: string
+}
+
+const navigation: NavItemConfig[] = [
+    { name: "Início", href: "/", icon: Home, description: "Dashboard Principal" },
     { name: "PRINAD", href: "/prinad", icon: ChartPie, description: "Probabilidade de Inadimplência" },
     { name: "ECL", href: "/ecl", icon: Calculator, description: "Perda Esperada" },
     { name: "Propensão", href: "/propensao", icon: TrendingUp, description: "Otimização de Limites" },
     { name: "Assistente IA", href: "/ai", icon: Bot, description: "Agente Inteligente" },
+    { name: "Relatórios", href: "/relatorios", icon: FileText, description: "Laudos e Exportações", permission: "export:pdf" },
+    { name: "Auditoria", href: "/auditoria", icon: ClipboardList, description: "Logs de Auditoria", permission: "view:audit" },
     { name: "Configurações", href: "/settings", icon: Settings, description: "Configurações do Sistema" },
 ]
 
-function NavItem({ item, pathname, mobile = false }: { item: typeof navigation[0], pathname: string, mobile?: boolean }) {
-    const isActive = pathname.startsWith(item.href)
+function NavItem({
+    item,
+    pathname,
+    mobile = false,
+    checkPermission
+}: {
+    item: NavItemConfig
+    pathname: string
+    mobile?: boolean
+    checkPermission: (permission: string) => boolean
+}) {
+    // Verificar permissão se necessário
+    if (item.permission && !checkPermission(item.permission)) {
+        return null
+    }
+
+    const isActive = item.href === "/"
+        ? pathname === "/"
+        : pathname.startsWith(item.href)
 
     return (
         <Link
@@ -49,6 +83,7 @@ function NavItem({ item, pathname, mobile = false }: { item: typeof navigation[0
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const { theme, setTheme } = useTheme()
+    const { isAuthenticated, user, checkPermission, addAuditLog } = useAuth()
     const [mounted, setMounted] = React.useState(false)
 
     React.useEffect(() => {
@@ -56,10 +91,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         applyTheme(theme)
     }, [theme])
 
+    // Registrar navegação no audit log
+    React.useEffect(() => {
+        if (isAuthenticated && user) {
+            addAuditLog('VIEW', pathname.toUpperCase().replace(/\//g, '') || 'HOME', `Navegou para ${pathname}`)
+        }
+    }, [pathname, isAuthenticated])
+
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : theme === 'light' ? 'system' : 'dark'
         setTheme(next)
         applyTheme(next)
+    }
+
+    // Evitar hydration mismatch - aguardar montagem no cliente
+    if (!mounted) {
+        return null
+    }
+
+    // Se não autenticado, mostrar tela de login
+    if (!isAuthenticated) {
+        return <LoginForm />
     }
 
     return (
@@ -72,11 +124,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 </div>
                 <nav className="flex-1 space-y-1 p-4">
                     {navigation.map((item) => (
-                        <NavItem key={item.name} item={item} pathname={pathname} />
+                        <NavItem
+                            key={item.name}
+                            item={item}
+                            pathname={pathname}
+                            checkPermission={checkPermission}
+                        />
                     ))}
                 </nav>
                 <div className="border-t p-4">
-                    <p className="text-xs text-muted-foreground">Sistema v2.0 - BACEN 4966</p>
+                    <p className="text-xs text-muted-foreground">Sistema v2.1 - BACEN 4966</p>
+                    <p className="text-xs text-muted-foreground mt-1">Logado como: {user?.role}</p>
                 </div>
             </aside>
 
@@ -98,7 +156,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             </div>
                             <nav className="space-y-1 p-4">
                                 {navigation.map((item) => (
-                                    <NavItem key={item.name} item={item} pathname={pathname} mobile />
+                                    <NavItem
+                                        key={item.name}
+                                        item={item}
+                                        pathname={pathname}
+                                        mobile
+                                        checkPermission={checkPermission}
+                                    />
                                 ))}
                             </nav>
                         </SheetContent>
@@ -118,6 +182,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                             )}
                         </Button>
                     )}
+
+                    {/* User Menu */}
+                    <UserMenu />
                 </header>
 
                 {/* Page Content */}
