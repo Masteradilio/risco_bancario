@@ -35,7 +35,7 @@ interface NavItemConfig {
 const navigation: NavItemConfig[] = [
     { name: "Início", href: "/", icon: Home, description: "Dashboard Principal" },
     { name: "PRINAD", href: "/prinad", icon: ChartPie, description: "Probabilidade de Inadimplência" },
-    { name: "ECL", href: "/ecl", icon: Calculator, description: "Perda Esperada" },
+    { name: "Perda Esperada", href: "/perda-esperada", icon: Calculator, description: "ECL - BACEN 4966" },
     { name: "Propensão", href: "/propensao", icon: TrendingUp, description: "Otimização de Limites" },
     { name: "Assistente IA", href: "/ai", icon: Bot, description: "Agente Inteligente" },
     { name: "Relatórios", href: "/relatorios", icon: FileText, description: "Laudos e Exportações", permission: "export:pdf" },

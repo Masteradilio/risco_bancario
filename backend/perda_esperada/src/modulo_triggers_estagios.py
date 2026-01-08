@@ -1,11 +1,23 @@
 """
 Módulo para implementar a lógica de triggers para migração de estágios de risco.
 Baseado na documentação técnica e requisitos da Resolução CMN nº 4.966.
+
+Inclui integração com Sistema de Cura (Art. 41 CMN 4966) para avaliação
+de elegibilidade de reversão de estágio.
 """
 import pandas as pd
 import numpy as np
 import logging
 from typing import Dict, Any, Optional
+from datetime import datetime, timedelta
+
+# Importar Sistema de Cura (CMN 4966 Art. 41)
+try:
+    from .sistema_cura import SistemaCura, MotivoMigracao, StatusCura
+    SISTEMA_CURA_DISPONIVEL = True
+except ImportError:
+    SISTEMA_CURA_DISPONIVEL = False
+    SistemaCura = None
 
 # Adicionar o caminho do diretório raiz do projeto ao sys.path, se necessário
 # import sys
@@ -455,6 +467,228 @@ def aplicar_todos_triggers_estagios(
     # Mas a ordem de aplicação acima tenta lidar com isso.
 
     logging.info("Aplicação de todos os triggers de estágio concluída.")
+    return df_processado
+
+
+def aplicar_avaliacao_cura(
+    df: pd.DataFrame,
+    col_contrato: str = 'ID_Contrato',
+    col_estagio: str = 'estagio',
+    col_dias_atraso: str = 'Dias Atraso',
+    col_pd: str = 'pd_behavior_atual',
+    col_amortizacao: str = 'percentual_amortizacao',
+    col_reestruturacao: str = 'flag_reestruturacao',
+    aplicar_cura: bool = False,
+    sistema_cura: 'SistemaCura' = None
+) -> pd.DataFrame:
+    """
+    Aplica avaliação de cura aos contratos conforme Art. 41 CMN 4966.
+    
+    Deve ser chamada ANTES da determinação final do estágio para avaliar
+    se contratos em Stage 2 ou 3 são elegíveis para reversão.
+    
+    Args:
+        df: DataFrame com dados dos contratos
+        col_contrato: Nome da coluna de ID do contrato
+        col_estagio: Nome da coluna de estágio
+        col_dias_atraso: Nome da coluna de dias em atraso
+        col_pd: Nome da coluna de PD atual
+        col_amortizacao: Nome da coluna de percentual amortização
+        col_reestruturacao: Nome da coluna de flag reestruturação
+        aplicar_cura: Se True, aplica a cura e atualiza o estágio
+        sistema_cura: Instância do SistemaCura (se None, cria nova)
+        
+    Returns:
+        DataFrame com colunas de cura adicionadas e estágio possivelmente atualizado
+    """
+    if not SISTEMA_CURA_DISPONIVEL:
+        logging.warning("Sistema de Cura não disponível. Pulando avaliação de cura.")
+        df['cura_avaliada'] = False
+        df['cura_aplicada'] = False
+        return df
+    
+    if sistema_cura is None:
+        sistema_cura = SistemaCura()
+    
+    logging.info(f"Iniciando avaliação de cura para {len(df)} contratos...")
+    
+    df_resultado = df.copy()
+    
+    # Adicionar colunas de resultado
+    df_resultado['cura_avaliada'] = False
+    df_resultado['cura_status'] = StatusCura.NAO_APLICAVEL.value
+    df_resultado['cura_elegivel'] = False
+    df_resultado['cura_meses_observacao'] = 0
+    df_resultado['cura_aplicada'] = False
+    df_resultado['estagio_pre_cura'] = df_resultado[col_estagio].copy()
+    
+    # Valores default para colunas opcionais
+    if col_amortizacao not in df_resultado.columns:
+        df_resultado[col_amortizacao] = 0.0
+    if col_reestruturacao not in df_resultado.columns:
+        df_resultado[col_reestruturacao] = False
+    
+    contratos_stage_2_3 = df_resultado[df_resultado[col_estagio] > 1]
+    
+    for idx, row in contratos_stage_2_3.iterrows():
+        contrato_id = str(row[col_contrato])
+        estagio = int(row[col_estagio])
+        dias_atraso = int(row.get(col_dias_atraso, 0))
+        pd_atual = float(row.get(col_pd, 0.0))
+        amortizacao = float(row.get(col_amortizacao, 0.0))
+        eh_reestr = bool(row.get(col_reestruturacao, False))
+        
+        # Avaliar elegibilidade de cura
+        resultado = sistema_cura.avaliar_elegibilidade_cura(
+            contrato_id=contrato_id,
+            estagio_atual=estagio,
+            dias_atraso=dias_atraso,
+            pd_atual=pd_atual,
+            percentual_amortizacao=amortizacao,
+            eh_reestruturacao_flag=eh_reestr
+        )
+        
+        df_resultado.at[idx, 'cura_avaliada'] = True
+        df_resultado.at[idx, 'cura_status'] = resultado.status.value
+        df_resultado.at[idx, 'cura_elegivel'] = resultado.elegivel_cura
+        df_resultado.at[idx, 'cura_meses_observacao'] = resultado.meses_em_observacao
+        
+        # Aplicar cura se solicitado e elegível
+        if aplicar_cura and resultado.elegivel_cura:
+            sucesso, novo_estagio, _ = sistema_cura.aplicar_cura(
+                contrato_id=contrato_id,
+                estagio_atual=estagio,
+                dias_atraso=dias_atraso,
+                pd_atual=pd_atual,
+                percentual_amortizacao=amortizacao
+            )
+            if sucesso:
+                df_resultado.at[idx, col_estagio] = novo_estagio
+                df_resultado.at[idx, 'cura_aplicada'] = True
+                logging.info(
+                    f"Cura aplicada: {contrato_id} Stage {estagio} → {novo_estagio}"
+                )
+    
+    # Estatísticas
+    total_avaliados = df_resultado['cura_avaliada'].sum()
+    total_elegiveis = df_resultado['cura_elegivel'].sum()
+    total_aplicados = df_resultado['cura_aplicada'].sum()
+    
+    logging.info(
+        f"Avaliação de cura concluída: {total_avaliados} avaliados, "
+        f"{total_elegiveis} elegíveis, {total_aplicados} aplicados"
+    )
+    
+    return df_resultado
+
+
+def aplicar_todos_triggers_com_cura(
+    df_original: pd.DataFrame,
+    col_pd_concessao: str,
+    col_pd_behavior: str,
+    col_dias_atraso: str,
+    col_id_contraparte: Optional[str] = None,
+    aplicar_arrasto_flag: bool = False,
+    aplicar_cura_flag: bool = True,
+    col_modalidade_operacao_param: str = 'Modalidade Oper.',
+    col_linha_credito_param: str = 'Linha de Crédito',
+    col_amortizacao: str = 'percentual_amortizacao',
+    col_reestruturacao: str = 'flag_reestruturacao'
+) -> pd.DataFrame:
+    """
+    Orquestra aplicação de triggers COM avaliação de cura (CMN 4966 Art. 41).
+    
+    Esta função é a versão aprimorada de `aplicar_todos_triggers_estagios`
+    que inclui avaliação de cura antes da determinação final do estágio.
+    
+    Ordem de aplicação:
+    1. Avaliação de Cura (reverte estágio se elegível)
+    2. Triggers de Atraso
+    3. Triggers Qualitativos
+    4. Aumento Significativo de Risco
+    5. Arrasto de Contraparte
+    
+    Args:
+        df_original: DataFrame de entrada
+        col_pd_concessao: Nome da coluna com PD da concessão
+        col_pd_behavior: Nome da coluna com PD behavior atual
+        col_dias_atraso: Nome da coluna com dias em atraso
+        col_id_contraparte: Nome da coluna com ID da contraparte
+        aplicar_arrasto_flag: Se True, aplica regra de arrasto
+        aplicar_cura_flag: Se True, avalia e aplica cura
+        col_modalidade_operacao_param: Coluna de modalidade
+        col_linha_credito_param: Coluna de linha de crédito
+        col_amortizacao: Coluna de percentual amortização
+        col_reestruturacao: Coluna de flag reestruturação
+        
+    Returns:
+        DataFrame com estágios finais e flags de cura
+    """
+    if df_original.empty:
+        logging.warning("DataFrame de entrada vazio.")
+        return df_original
+    
+    df_processado = df_original.copy()
+    
+    # Inicializar estágio se não existir
+    if 'estagio' not in df_processado.columns:
+        logging.warning("Coluna 'estagio' não encontrada. Inicializando com 1.")
+        df_processado['estagio'] = 1
+    
+    logging.info("Iniciando aplicação de triggers com cura (CMN 4966)...")
+    
+    # 0. Avaliação de Cura ANTES dos triggers
+    if aplicar_cura_flag and SISTEMA_CURA_DISPONIVEL:
+        df_processado = aplicar_avaliacao_cura(
+            df_processado,
+            col_contrato='ID_Contrato',
+            col_estagio='estagio',
+            col_dias_atraso=col_dias_atraso,
+            col_pd=col_pd_behavior,
+            col_amortizacao=col_amortizacao,
+            col_reestruturacao=col_reestruturacao,
+            aplicar_cura=True  # Aplica a cura se elegível
+        )
+    
+    # 1. Triggers de Atraso
+    df_processado = aplicar_triggers_atraso(
+        df_processado,
+        col_dias_atraso=col_dias_atraso,
+        col_estagio_atual='estagio',
+        col_id_contrato='ID_Contrato'
+    )
+    
+    # 2. Triggers Qualitativos
+    df_processado = aplicar_triggers_qualitativos(
+        df_processado,
+        col_linha_credito=col_linha_credito_param,
+        col_estagio_atual='estagio',
+        col_id_contrato='ID_Contrato'
+    )
+    
+    # 3. Aumento Significativo de Risco
+    df_processado = avaliar_aumento_significativo_risco(
+        df_processado,
+        col_pd_concessao_inicial=col_pd_concessao,
+        col_pd_behavior_atual=col_pd_behavior,
+        col_estagio_atual='estagio',
+        col_id_contrato='ID_Contrato',
+        col_modalidade_operacao=col_modalidade_operacao_param,
+        col_linha_credito=col_linha_credito_param
+    )
+    
+    # 4. Arrasto de Contraparte
+    if aplicar_arrasto_flag:
+        if col_id_contraparte and col_id_contraparte in df_processado.columns:
+            df_processado = aplicar_arrasto_contraparte(
+                df_processado,
+                col_id_contraparte=col_id_contraparte,
+                col_estagio_atual='estagio',
+                col_id_contrato='ID_Contrato',
+                aplicar_arrasto=True
+            )
+    
+    logging.info("Aplicação de triggers com cura concluída.")
     return df_processado
 
 # Exemplo de como poderia ser usado (requer DataFrame com as colunas corretas):

@@ -145,12 +145,12 @@ export default function PropensaoPage() {
                 </p>
             </div>
 
-            <Tabs defaultValue="recomendar">
+            <Tabs defaultValue="dashboard">
                 <TabsList>
+                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                     <TabsTrigger value="recomendar">Recomendar Limite</TabsTrigger>
                     <TabsTrigger value="score">Score de Propensão</TabsTrigger>
                     <TabsTrigger value="simular">Simulador de Impacto</TabsTrigger>
-                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="recomendar" className="space-y-4">

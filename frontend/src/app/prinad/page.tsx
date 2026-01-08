@@ -173,11 +173,11 @@ export default function PRINADPage() {
                 </p>
             </div>
 
-            <Tabs defaultValue="individual">
+            <Tabs defaultValue="dashboard">
                 <TabsList>
+                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                     <TabsTrigger value="individual">Classificação Individual</TabsTrigger>
                     <TabsTrigger value="lote">Classificação em Lote</TabsTrigger>
-                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="individual" className="space-y-4">

@@ -52,6 +52,8 @@ from .modulo_forward_looking import (
     WOE_SCORES,
     EQUACOES_FL
 )
+# Forward Looking Multi-Cenário (CMN 4966 Art. 36 §5º)
+from .cenarios_forward_looking import GerenciadorCenarios, TipoCenario
 from .modulo_lgd_segmentado import LGDSegmentado
 from .modulo_ead_ccf_especifico import EADCCFEspecifico
 from .pisos_minimos import aplicar_piso_minimo, obter_carteira_produto
@@ -79,6 +81,10 @@ class ECLCompleteResult:
     woe_score: float
     k_pd_fl: float
     pd_ajustado: float
+    
+    # Forward Looking Multi-Cenário
+    usar_multi_cenario: bool = False
+    cenarios_detalhes: dict = None  # Detalhes dos cenários aplicados
     
     # LGD
     lgd_base: float
@@ -124,7 +130,8 @@ class ECLPipeline:
         usar_forward_looking: bool = True,
         usar_lgd_segmentado: bool = True,
         usar_ccf_especifico: bool = True,
-        aplicar_pisos: bool = True
+        aplicar_pisos: bool = True,
+        usar_multi_cenario: bool = True  # Novo: Multi-Cenário CMN 4966
     ):
         """
         Inicializa o pipeline.
@@ -134,11 +141,13 @@ class ECLPipeline:
             usar_lgd_segmentado: Usar LGD por árvore de decisão
             usar_ccf_especifico: Usar CCF específico por produto
             aplicar_pisos: Aplicar pisos mínimos para Stage 3
+            usar_multi_cenario: Usar cenários ponderados (CMN 4966 Art. 36 §5º)
         """
         self.usar_forward_looking = usar_forward_looking
         self.usar_lgd_segmentado = usar_lgd_segmentado
         self.usar_ccf_especifico = usar_ccf_especifico
         self.aplicar_pisos = aplicar_pisos
+        self.usar_multi_cenario = usar_multi_cenario
         
         # Inicializar componentes
         self.grupos_homogeneos = GruposHomogeneosConsolidado()
@@ -154,7 +163,10 @@ class ECLPipeline:
         self.lgd_segmentado = LGDSegmentado()
         self.ead_ccf = EADCCFEspecifico()
         
-        logger.info("ECLPipeline inicializado")
+        # Forward Looking Multi-Cenário (CMN 4966 Art. 36 §5º)
+        self.gerenciador_cenarios = GerenciadorCenarios() if usar_multi_cenario else None
+        
+        logger.info(f"ECLPipeline inicializado (multi_cenario={usar_multi_cenario})")
     
     def _mapear_produto_para_tipo_fl(self, produto: str) -> str:
         """Mapeia produto para tipo usado no Forward Looking."""
@@ -191,19 +203,51 @@ class ECLPipeline:
         tipo_produto: str,
         grupo_homogeneo: int,
         dados_macro: Dict[str, float] = None
-    ) -> float:
+    ) -> Dict[str, Any]:
         """
         Calcula fator K_PD_FL (Forward Looking).
         
-        K_PD_FL = PD_FL / PD_base
+        Se usar_multi_cenario=True, calcula usando cenários ponderados (CMN 4966 Art. 36 §5º):
+        K_PD_FL = Σ(peso_i × K_cenario_i)
         
-        Limitado a variação de ±10% conforme documentação.
+        Caso contrário, usa cálculo simples com trava de ±10%.
+        
+        Returns:
+            Dict com k_pd_fl, k_lgd_fl e detalhes dos cenários
         """
         if not self.usar_forward_looking:
-            return 1.0
+            return {'k_pd_fl': 1.0, 'k_lgd_fl': 1.0, 'cenarios_detalhes': None}
         
+        # ========== MULTI-CENÁRIO (CMN 4966 Art. 36 §5º) ==========
+        if self.usar_multi_cenario and self.gerenciador_cenarios:
+            try:
+                cenarios = self.gerenciador_cenarios.criar_cenarios()
+                
+                # Calcular K_PD_FL ponderado
+                k_pd_fl, detalhes_pd = self.gerenciador_cenarios.calcular_k_pd_fl_ponderado(0.10, cenarios)
+                
+                # Calcular K_LGD_FL ponderado
+                k_lgd_fl, detalhes_lgd = self.gerenciador_cenarios.calcular_k_lgd_fl_ponderado(0.45, cenarios)
+                
+                cenarios_detalhes = {
+                    'cenarios': [c.to_dict() for c in cenarios],
+                    'k_pd_detalhes': detalhes_pd,
+                    'k_lgd_detalhes': detalhes_lgd
+                }
+                
+                logger.debug(f"Multi-cenário: K_PD_FL={k_pd_fl:.4f}, K_LGD_FL={k_lgd_fl:.4f}")
+                
+                return {
+                    'k_pd_fl': k_pd_fl,
+                    'k_lgd_fl': k_lgd_fl,
+                    'cenarios_detalhes': cenarios_detalhes
+                }
+            except Exception as e:
+                logger.warning(f"Erro no multi-cenário: {e}. Usando cálculo simples.")
+        
+        # ========== CÁLCULO SIMPLES (fallback) ==========
         if tipo_produto not in self.modelos_fl:
-            return 1.0
+            return {'k_pd_fl': 1.0, 'k_lgd_fl': 1.0, 'cenarios_detalhes': None}
         
         modelo = self.modelos_fl[tipo_produto]
         
@@ -233,10 +277,10 @@ class ECLPipeline:
             # Aplicar trava de ±10%
             k_pd_fl = max(0.90, min(1.10, k_raw))
             
-            return k_pd_fl
+            return {'k_pd_fl': k_pd_fl, 'k_lgd_fl': 1.0, 'cenarios_detalhes': None}
         except Exception as e:
             logger.warning(f"Erro ao calcular K_PD_FL: {e}. Retornando 1.0")
-            return 1.0
+            return {'k_pd_fl': 1.0, 'k_lgd_fl': 1.0, 'cenarios_detalhes': None}
     
     def _calcular_lgd(
         self,
@@ -381,8 +425,11 @@ class ECLPipeline:
         # 3. Obter WOE score
         woe_score = WOE_SCORES.get(tipo_produto_fl, {}).get(grupo_homogeneo, 0.0)
         
-        # 4. Calcular K_PD_FL (Forward Looking)
-        k_pd_fl = self._calcular_k_pd_fl(tipo_produto_fl, grupo_homogeneo, dados_macro)
+        # 4. Calcular K_PD_FL e K_LGD_FL (Forward Looking Multi-Cenário)
+        fl_result = self._calcular_k_pd_fl(tipo_produto_fl, grupo_homogeneo, dados_macro)
+        k_pd_fl = fl_result['k_pd_fl']
+        k_lgd_fl_from_cenario = fl_result.get('k_lgd_fl', 1.0)
+        cenarios_detalhes = fl_result.get('cenarios_detalhes')
         
         # 5. Selecionar PD base conforme stage (usa valores do PRINAD!)
         if stage == 1:
@@ -452,11 +499,15 @@ class ECLPipeline:
             k_pd_fl=k_pd_fl,
             pd_ajustado=pd_ajustado,
             
+            # Forward Looking Multi-Cenário
+            usar_multi_cenario=self.usar_multi_cenario,
+            cenarios_detalhes=cenarios_detalhes,
+            
             # LGD
             lgd_base=lgd_result['lgd_base'],
             lgd_segmentado=lgd_result['lgd_segmentado'],
-            k_lgd_fl=lgd_result['k_lgd_fl'],
-            lgd_final=lgd_result['lgd_final'],
+            k_lgd_fl=lgd_result['k_lgd_fl'] if not self.usar_multi_cenario else k_lgd_fl_from_cenario,
+            lgd_final=lgd_result['lgd_final'] * (k_lgd_fl_from_cenario if self.usar_multi_cenario else 1.0),
             
             # EAD
             saldo_utilizado=ead_result['saldo_utilizado'],

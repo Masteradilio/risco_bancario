@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useAuth } from "@/stores/useAuth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -63,7 +63,7 @@ export default function AuditoriaPage() {
     }
 
     // Registrar acesso à página de auditoria
-    useMemo(() => {
+    useEffect(() => {
         addAuditLog('VIEW', 'AUDITORIA', 'Acessou logs de auditoria')
     }, [])
 

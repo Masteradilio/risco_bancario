@@ -2,36 +2,221 @@
 
 Este documento lista as funcionalidades e melhorias pendentes para atingir 100% da implementação do sistema de Risco Bancário.
 
-## ✅ Concluído (2026-01-07)
+---
+
+## ✅ Concluído
 
 ### 📊 Analytics e Relatórios
 - [x] Geração de **PDFs de laudo técnico de crédito** via `@react-pdf/renderer`.
 - [x] Formulário completo para preenchimento dos dados do laudo.
-- [x] **Exportação regulatória BACEN Doc3040** (XML conforme Resolução CMN 4966/2021) - ✅ Concluído.
-- [ ] Dashboard de performance do modelo (Monitoramento de Drift e Acurácia) - *Pendente*.
+- [x] **Exportação regulatória BACEN Doc3040** (XML conforme Resolução CMN 4966/2021).
 
 ### 🔒 Segurança e Autenticação
 - [x] Sistema de autenticação com tela de login moderna.
 - [x] Controle de acesso baseado em perfis (RBAC): Analista, Gestor, Auditor, Admin.
 - [x] Auditoria de logs (registro de ações do usuário no frontend).
-- [ ] Implementação de **Windows NTLM/SSO** para ambiente corporativo - *Pendente backend*.
-- [ ] Integração de logs de auditoria com backend (API) - *Pendente*.
+
+### 🏛️ Conformidade Regulatória (BACEN 4966 / IFRS 9)
+- [x] **PRINAD v2.0** - PD Calibrado (pd_12m, pd_lifetime), 11 Ratings (A1 → DEFAULT), Stage IFRS 9.
+- [x] **ECL Engine v2.0** - Fórmula `ECL = PD × LGD × EAD` com 3 Estágios.
+- [x] **StageClassifier** - Classificação automática em stages com triggers.
+- [x] **Regra de Arrasto** - Quando um produto vai para Stage 3, todos migram.
+- [x] **Critérios de Cura** - Reversão de stage após período de observação.
+- [x] **Pisos Mínimos** - Pisos de provisão para Stage 3 conforme BCB 352.
+- [x] **Grupos Homogêneos** - Agrupamento por PD com WOE.
+- [x] **Forward Looking** - Integração com dados macroeconômicos (SGS BACEN).
+- [x] **LGD Segmentado** - LGD por produto, atraso, valor, prazo.
+- [x] **EAD + CCF** - Credit Conversion Factor por produto.
+- [x] **Triggers de Migração** - Gatilhos para mudança de estágio.
+- [x] **Historical Penalty v2.0** - Penalidades separadas (interna 25% + externa 25%), cura 6 meses.
+
+### 📦 Infraestrutura
+- [x] **Dockerização completa** - Dockerfiles para frontend e 3 backends.
+- [x] **Docker Compose** - Orquestração unificada.
+- [x] Reorganização da estrutura de pastas (`/backend`, `/frontend`).
+
+### 📝 Documentação
+- [x] README unificado na raiz do projeto.
+- [x] CHANGELOG unificado com toda a história de desenvolvimento.
+- [x] Documentação técnica ECL em `/backend/perda_esperada/docs/`.
 
 ---
 
-## 🤖 Agente de IA (Prioridade)
+## ✅ Concluído Recentemente
+
+### 🏛️ Conformidade Regulatória BACEN 4966 (Janeiro 2026)
+
+#### ✅ Forward Looking Multi-Cenário (Art. 36 §5º CMN 4966)
+> **Concluído em:** 08/01/2026
+
+- [x] **Criar módulo `cenarios_forward_looking.py`**
+  - [x] Definir estrutura de dados para cenários (otimista, base, pessimista)
+  - [x] Implementar ponderações padrão (15% otimista, 70% base, 15% pessimista)
+  - [x] Criar função para calcular K_PD_FL ponderado por cenário
+  - [x] Criar função para calcular K_LGD_FL ponderado por cenário
+- [x] **Integrar com API SGS do BACEN**
+  - [x] Implementar projeções macroeconômicas por cenário (SELIC, PIB, IPCA)
+  - [x] Criar configuração para ajuste de spreads por cenário
+- [x] **Atualizar pipeline ECL**
+  - [x] Classe `GerenciadorCenarios` para consumir cenários ponderados
+  - [x] Adicionar campo `cenario_aplicado` no resultado ECL
+  - [x] Calcular ECL final como média ponderada dos 3 cenários
+- [x] **Testes e validação**
+  - [x] Criar testes unitários para cada cenário (28 testes - 100% passando)
+  - [x] Validar que ECL_final = Σ(peso_i × ECL_i) para i em {otimista, base, pessimista}
+
+#### ✅ Sistema de Cura Formal (Art. 41 CMN 4966)
+> **Concluído em:** 08/01/2026
+
+- [x] **Criar módulo `sistema_cura.py`**
+  - [x] Implementar classe `SistemaCura` com regras de reversão
+  - [x] Definir períodos mínimos: Stage 2→1 (6 meses), Stage 3→2 (12 meses)
+  - [x] Criar flag `em_periodo_cura` para contratos em observação
+  - [x] Implementar contador de meses em adimplência
+- [x] **Critérios de elegibilidade para cura**
+  - [x] Stage 2→1: 6 meses consecutivos sem atraso > 30 dias + PD atual < PD na migração
+  - [x] Stage 3→2: 12 meses consecutivos + amortização ≥ 30% + sem novos eventos de crédito
+  - [x] Validar que reestruturações exigem critérios mais rigorosos (24 meses, 50% amortização)
+- [x] **Integração com triggers de estágio**
+  - [x] Implementar lógica de avaliação de cura antes de migração
+  - [x] Adicionar histórico de estágios por contrato
+- [x] **Testes e validação**
+  - [x] Criar testes unitários para cada cenário de cura (31 testes - 100% passando)
+  - [x] Testar que contratos em cura não migram prematuramente
+
+---
+
+
+## ✅ Concluído Recentemente (Sessão 2)
+
+### 🏛️ Integração de Conformidade BACEN (08/01/2026)
+
+#### ✅ Integrar Forward Looking com Pipeline ECL
+> **Concluído em:** 08/01/2026
+
+- [x] **Atualizado `pipeline_ecl.py`**
+  - [x] Importar e instanciar `GerenciadorCenarios`
+  - [x] Substituir cálculo de K_PD_FL/K_LGD_FL simples pelo ponderado multi-cenário
+  - [x] Adicionar campos `usar_multi_cenario` e `cenarios_detalhes` no resultado ECL
+  - [x] Flag `usar_multi_cenario=True` por padrão
+- [x] **Testes de integração**
+  - [x] Validar que pipeline usa cenários corretamente
+  - [x] K_PD_FL calculado como Σ(peso × K_cenário)
+
+#### ✅ Integrar Sistema de Cura com Triggers de Estágio
+> **Concluído em:** 08/01/2026
+
+- [x] **Atualizado `modulo_triggers_estagios.py`**
+  - [x] Importar e instanciar `SistemaCura`
+  - [x] Nova função `aplicar_avaliacao_cura()` para avaliar elegibilidade
+  - [x] Nova função `aplicar_todos_triggers_com_cura()` orquestrando cura + triggers
+  - [x] Flags `cura_avaliada`, `cura_aplicada`, `estagio_pre_cura` no resultado
+- [x] **Testes de integração**
+  - [x] Validar que contratos elegíveis para cura são revertidos
+  - [x] Validar que contratos em observação mantêm estágio atual
+
+#### ✅ Sistema de Rastreamento de Write-off (Art. 49 CMN 4966)
+> **Concluído em:** 08/01/2026
+
+- [x] **Criado módulo `rastreamento_writeoff.py`**
+  - [x] Classe `RastreadorWriteOff` com registro de baixas
+  - [x] Acompanhamento de recuperações pós-baixa por 5 anos (1825 dias)
+  - [x] Cálculo de taxa de recuperação histórica (média e ponderada)
+  - [x] Relatório regulatório para envio ao BACEN
+- [x] **Testes e validação**
+  - [x] Testes de integração completos
+  - [x] Validar cálculo de recuperação
+
+---
+
+## 🔶 Pendente
+
+### 🏗️ Sistema de Persistência e Frontend Perda Esperada (Em Andamento)
+> **Objetivo:** Infraestrutura de banco de dados MySQL + Frontend completo para demonstração POC
+
+#### ✅ Fase 1: Banco de Dados MySQL (Concluída 08/01/2026)
+- [x] Criar estrutura `/backend/bancos_de_dados/`
+- [x] Esquema `ecl`: 4 tabelas (resultados, cenarios, parametros_fl, grupos_homogeneos)
+- [x] Esquema `estagio`: 3 tabelas (historico, cura, triggers)
+- [x] Esquema `writeoff`: 2 tabelas (baixas, recuperacoes)
+- [x] Esquema `auditoria`: 2 tabelas (envios_bacen, validacoes)
+- [x] Scripts DDL de referência para equipe TI
+- [x] Script consolidado `esquema_completo.sql`
+
+#### ✅ Fase 2: API Write-off (Concluída 08/01/2026)
+- [x] Endpoint `POST /writeoff/registrar-baixa`
+- [x] Endpoint `POST /writeoff/registrar-recuperacao`
+- [x] Endpoint `GET /writeoff/relatorio/{contrato_id}`
+- [x] Endpoint `GET /writeoff/relatorio-consolidado`
+- [x] Endpoint `POST /writeoff/taxa-recuperacao`
+
+#### ✅ Fase 3: Frontend Perda Esperada (Concluída 08/01/2026)
+- [x] Renomear menu "ECL" → "Perda Esperada"
+- [x] Dashboard Principal (KPIs + Gráficos)
+- [x] Cálculo ECL (Individual + Portfólio)
+- [x] Classificação de Estágios (Simulador triggers)
+- [x] Grupos Homogêneos (Configuração + Análise)
+- [x] Forward Looking (Cenários + Ponderações)
+- [x] LGD Segmentado (Tabela + Radar)
+- [x] Sistema de Cura (Contratos em observação)
+- [x] Write-off e Recuperações (Dashboard 5 anos)
+- [x] Exportação BACEN (Gerador + Download)
+- [x] Pipeline Completo (Execução full + Relatório)
+
+#### Fase 4: Testes e Validação
+- [ ] Testes scripts DDL
+- [ ] Testes endpoints write-off
+- [ ] Testes frontend - navegação e gráficos
+- [ ] Validação POC para stakeholders
+
+---
+
+### 📊 Analytics e Relatórios
+- [ ] Dashboard de performance do modelo (Monitoramento de Drift e Acurácia) - *Pendente*.
+
+
+### 🔒 Segurança e Autenticação
+- [ ] Implementação de **Windows NTLM/SSO** para ambiente corporativo - *Pendente backend*.
+- [ ] Integração de logs de auditoria com backend (API) - *Pendente*.
+
+### 🤖 Agente de IA (Prioridade)
 - [ ] Integração com **LangGraph.js** no frontend.
 - [ ] Implementação de ferramentas (tools) para o Agente consultar scores PRINAD, ECL e Propensão.
 - [ ] Sistema de **RAG (Retrieval-Augmented Generation)** consumindo PDF/Markdown de regulamentações BACEN.
 - [ ] Interface de chat persistente e proativa.
 
-## 🧪 Qualidade e Testes
+### 🧪 Qualidade e Testes
 - [ ] Implementação de testes de ponta a ponta (E2E) com **Playwright**.
 - [ ] Testes de carga nas APIs para suportar grandes volumes de classificação em lote.
 - [ ] Cobertura de testes unitários no frontend.
 
-## 🚀 Deploy e Infraestrutura
+### 🚀 Deploy e Infraestrutura
 - [ ] Pipeline CI/CD automatizado no GitHub Actions/GitLab.
 - [ ] Configuração de monitoramento e alertas (Prometheus/Grafana).
-- [ ] Documentação completa da arquitetura técnica em Português.
 
+---
+
+## 📋 Backlog Técnico
+
+### Melhorias de Performance
+- [ ] Cache de resultados de classificação (Redis).
+- [ ] Implementação de filas para processamento em lote (Celery/RabbitMQ).
+- [ ] Otimização de consultas ao SCR (batch queries).
+
+### Melhorias de UX
+- [ ] Modo offline para classificação individual.
+- [ ] Exportação de dashboards em PDF.
+- [ ] Comparativo temporal de métricas.
+
+### Integrações
+- [ ] Integração real com API SCR BACEN (substituir mock).
+- [ ] Webhook para notificações externas.
+- [ ] API GraphQL (alternativa ao REST).
+
+---
+
+## 📌 Notas
+
+- **Data da última atualização**: 2026-01-08
+- **Versão atual**: v2.1
+- Para detalhes das mudanças, consulte o [CHANGELOG.md](CHANGELOG.md)

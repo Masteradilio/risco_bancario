@@ -33,10 +33,19 @@ from perda_esperada.src.modulo_exportacao_bacen import (
     MetodologiaApuracao,
     ClassificacaoAtivoFinanceiro
 )
+from perda_esperada.src.rastreamento_writeoff import (
+    RastreadorWriteOff,
+    MotivoBaixa,
+    StatusRecuperacao,
+    RegistroBaixa,
+    RegistroRecuperacao,
+    ResumoContratoBaixado
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 # Create FastAPI app
 app = FastAPI(
@@ -59,6 +68,8 @@ app.add_middleware(
 # Global instances
 pipeline: Optional[ECLPipeline] = None
 classifier: Optional[PRINADClassifier] = None
+rastreador_writeoff: Optional[RastreadorWriteOff] = None
+
 
 
 # =============================================================================
@@ -194,13 +205,105 @@ class ValidarXMLRequest(BaseModel):
 
 
 # =============================================================================
+# PYDANTIC MODELS - WRITE-OFF (Art. 49 CMN 4966)
+# =============================================================================
+
+class WriteoffBaixaRequest(BaseModel):
+    """Request para registrar baixa contábil."""
+    contrato_id: str = Field(..., description="ID do contrato")
+    valor_baixado: float = Field(..., description="Valor a ser baixado")
+    motivo: str = Field(..., description="Motivo da baixa (inadimplencia_prolongada, falencia_rj, obito, prescricao, acordo_judicial, cessao, outro)")
+    provisao_constituida: float = Field(..., description="Valor da provisão constituída")
+    estagio_na_baixa: int = Field(3, description="Estágio IFRS 9 na baixa (1, 2 ou 3)")
+    cliente_id: str = Field("", description="ID do cliente")
+    produto: str = Field("", description="Produto do contrato")
+    observacoes: str = Field("", description="Observações adicionais")
+
+
+class WriteoffRecuperacaoRequest(BaseModel):
+    """Request para registrar recuperação pós-baixa."""
+    contrato_id: str = Field(..., description="ID do contrato")
+    valor_recuperado: float = Field(..., description="Valor recuperado")
+    tipo: str = Field("pagamento", description="Tipo de recuperação (pagamento, acordo, acordo_judicial, leilao_garantia, seguro, outro)")
+    observacoes: str = Field("", description="Observações")
+
+
+class WriteoffBaixaResponse(BaseModel):
+    """Response do registro de baixa."""
+    sucesso: bool
+    contrato_id: str
+    valor_baixado: float
+    motivo: str
+    data_baixa: str
+    data_fim_acompanhamento: str
+    timestamp: str
+
+
+class WriteoffRecuperacaoResponse(BaseModel):
+    """Response do registro de recuperação."""
+    sucesso: bool
+    contrato_id: str
+    valor_recuperado: float
+    total_recuperado: float
+    taxa_recuperacao: float
+    timestamp: str
+
+
+class WriteoffResumoResponse(BaseModel):
+    """Response do resumo de um contrato baixado."""
+    contrato_id: str
+    data_baixa: str
+    valor_baixado: float
+    total_recuperado: float
+    taxa_recuperacao: float
+    status: str
+    dias_desde_baixa: int
+    tempo_restante_dias: int
+    quantidade_recuperacoes: int
+
+
+class WriteoffConsolidadoResponse(BaseModel):
+    """Response do relatório consolidado de write-offs."""
+    quantidade_contratos: int
+    contratos_em_acompanhamento: int
+    valor_total_baixado: float
+    valor_total_recuperado: float
+    taxa_recuperacao_media: float
+    taxa_recuperacao_ponderada: float
+    distribuicao_status: Dict[str, int]
+    contratos: List[Dict[str, Any]]
+    timestamp: str
+
+
+class WriteoffTaxaRecuperacaoRequest(BaseModel):
+    """Request para filtrar taxa de recuperação."""
+    produto: Optional[str] = Field(None, description="Filtrar por produto")
+    motivo: Optional[str] = Field(None, description="Filtrar por motivo de baixa")
+    periodo_inicial: Optional[str] = Field(None, description="Data inicial (YYYY-MM-DD)")
+    periodo_final: Optional[str] = Field(None, description="Data final (YYYY-MM-DD)")
+
+
+class WriteoffTaxaRecuperacaoResponse(BaseModel):
+    """Response da taxa de recuperação histórica."""
+    quantidade_contratos: int
+    valor_total_baixado: float
+    valor_total_recuperado: float
+    taxa_recuperacao_media: float
+    taxa_recuperacao_ponderada: float
+    filtros_aplicados: Dict[str, Any]
+    timestamp: str
+
+
+
+
+# =============================================================================
 # STARTUP
 # =============================================================================
 
 @app.on_event("startup")
 async def startup_event():
     """Load pipeline and classifier on startup."""
-    global pipeline, classifier
+    global pipeline, classifier, rastreador_writeoff
     
     try:
         pipeline = ECLPipeline()
@@ -213,6 +316,13 @@ async def startup_event():
         logger.info("PRINAD Classifier loaded successfully")
     except Exception as e:
         logger.error(f"Failed to load PRINAD Classifier: {e}")
+    
+    try:
+        rastreador_writeoff = RastreadorWriteOff()
+        logger.info("RastreadorWriteOff loaded successfully")
+    except Exception as e:
+        logger.error(f"Failed to load RastreadorWriteOff: {e}")
+
 
 
 # =============================================================================
@@ -688,9 +798,229 @@ async def validar_xml_bacen(request: ValidarXMLRequest):
 
 
 # =============================================================================
+# ENDPOINTS - WRITE-OFF (Art. 49 CMN 4966)
+# =============================================================================
+
+@app.post("/writeoff/registrar-baixa", response_model=WriteoffBaixaResponse, tags=["Write-off"])
+async def registrar_baixa(request: WriteoffBaixaRequest):
+    """
+    Registra uma baixa contábil (write-off).
+    
+    Inicia o acompanhamento de 5 anos conforme Art. 49 CMN 4966.
+    """
+    if not rastreador_writeoff:
+        raise HTTPException(status_code=503, detail="RastreadorWriteOff não carregado")
+    
+    try:
+        # Converter motivo
+        motivo_map = {
+            'inadimplencia_prolongada': MotivoBaixa.INADIMPLENCIA_PROLONGADA,
+            'falencia_rj': MotivoBaixa.FALENCIA_RECUPERACAO_JUDICIAL,
+            'obito': MotivoBaixa.OBITO_SEM_ESPÓLIO,
+            'prescricao': MotivoBaixa.PRESCRICAO,
+            'acordo_judicial': MotivoBaixa.ACORDO_JUDICIAL,
+            'cessao': MotivoBaixa.CESSAO_CREDITO,
+            'outro': MotivoBaixa.OUTRO
+        }
+        motivo = motivo_map.get(request.motivo, MotivoBaixa.OUTRO)
+        
+        registro = rastreador_writeoff.registrar_baixa(
+            contrato_id=request.contrato_id,
+            valor_baixado=request.valor_baixado,
+            motivo=motivo,
+            provisao_constituida=request.provisao_constituida,
+            estagio_na_baixa=request.estagio_na_baixa,
+            cliente_id=request.cliente_id,
+            produto=request.produto,
+            observacoes=request.observacoes
+        )
+        
+        from datetime import timedelta
+        data_fim = registro.data_baixa + timedelta(days=5*365)
+        
+        return WriteoffBaixaResponse(
+            sucesso=True,
+            contrato_id=registro.contrato_id,
+            valor_baixado=registro.valor_baixado,
+            motivo=registro.motivo.value,
+            data_baixa=registro.data_baixa.isoformat(),
+            data_fim_acompanhamento=data_fim.isoformat(),
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro ao registrar baixa: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/writeoff/registrar-recuperacao", response_model=WriteoffRecuperacaoResponse, tags=["Write-off"])
+async def registrar_recuperacao(request: WriteoffRecuperacaoRequest):
+    """
+    Registra uma recuperação pós-baixa.
+    
+    Acumula valores recuperados no período de 5 anos.
+    """
+    if not rastreador_writeoff:
+        raise HTTPException(status_code=503, detail="RastreadorWriteOff não carregado")
+    
+    try:
+        recuperacao = rastreador_writeoff.registrar_recuperacao(
+            contrato_id=request.contrato_id,
+            valor_recuperado=request.valor_recuperado,
+            tipo=request.tipo,
+            observacoes=request.observacoes
+        )
+        
+        if not recuperacao:
+            raise HTTPException(status_code=404, detail=f"Contrato {request.contrato_id} não possui baixa registrada")
+        
+        resumo = rastreador_writeoff.obter_resumo_contrato(request.contrato_id)
+        
+        return WriteoffRecuperacaoResponse(
+            sucesso=True,
+            contrato_id=request.contrato_id,
+            valor_recuperado=request.valor_recuperado,
+            total_recuperado=resumo.total_recuperado if resumo else request.valor_recuperado,
+            taxa_recuperacao=resumo.taxa_recuperacao if resumo else 0,
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao registrar recuperação: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/writeoff/relatorio/{contrato_id}", response_model=WriteoffResumoResponse, tags=["Write-off"])
+async def obter_relatorio_contrato(contrato_id: str):
+    """
+    Obtém relatório de acompanhamento de um contrato baixado.
+    """
+    if not rastreador_writeoff:
+        raise HTTPException(status_code=503, detail="RastreadorWriteOff não carregado")
+    
+    try:
+        resumo = rastreador_writeoff.obter_resumo_contrato(contrato_id)
+        
+        if not resumo:
+            raise HTTPException(status_code=404, detail=f"Contrato {contrato_id} não encontrado")
+        
+        return WriteoffResumoResponse(
+            contrato_id=resumo.contrato_id,
+            data_baixa=resumo.data_baixa.isoformat(),
+            valor_baixado=resumo.valor_baixado,
+            total_recuperado=resumo.total_recuperado,
+            taxa_recuperacao=resumo.taxa_recuperacao,
+            status=resumo.status.value,
+            dias_desde_baixa=resumo.dias_desde_baixa,
+            tempo_restante_dias=resumo.tempo_restante_dias,
+            quantidade_recuperacoes=len(resumo.recuperacoes)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro ao obter relatório: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/writeoff/relatorio-consolidado", response_model=WriteoffConsolidadoResponse, tags=["Write-off"])
+async def obter_relatorio_consolidado():
+    """
+    Obtém relatório consolidado de todos os write-offs.
+    
+    Inclui contratos em acompanhamento (últimos 5 anos).
+    """
+    if not rastreador_writeoff:
+        raise HTTPException(status_code=503, detail="RastreadorWriteOff não carregado")
+    
+    try:
+        estatisticas = rastreador_writeoff.calcular_taxa_recuperacao_historica()
+        contratos_ativos = rastreador_writeoff.obter_contratos_em_acompanhamento()
+        
+        return WriteoffConsolidadoResponse(
+            quantidade_contratos=estatisticas.get('quantidade_contratos', 0),
+            contratos_em_acompanhamento=len(contratos_ativos),
+            valor_total_baixado=estatisticas.get('valor_total_baixado', 0),
+            valor_total_recuperado=estatisticas.get('valor_total_recuperado', 0),
+            taxa_recuperacao_media=estatisticas.get('taxa_recuperacao_media', 0),
+            taxa_recuperacao_ponderada=estatisticas.get('taxa_recuperacao_ponderada', 0),
+            distribuicao_status=estatisticas.get('distribuicao_status', {}),
+            contratos=[c.to_dict() for c in contratos_ativos[:50]],  # Top 50
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro ao obter relatório consolidado: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/writeoff/taxa-recuperacao", response_model=WriteoffTaxaRecuperacaoResponse, tags=["Write-off"])
+async def calcular_taxa_recuperacao(request: WriteoffTaxaRecuperacaoRequest):
+    """
+    Calcula taxa de recuperação histórica com filtros opcionais.
+    
+    Permite filtrar por produto, motivo e período.
+    """
+    if not rastreador_writeoff:
+        raise HTTPException(status_code=503, detail="RastreadorWriteOff não carregado")
+    
+    try:
+        # Converter motivo se fornecido
+        motivo = None
+        if request.motivo:
+            motivo_map = {
+                'inadimplencia_prolongada': MotivoBaixa.INADIMPLENCIA_PROLONGADA,
+                'falencia_rj': MotivoBaixa.FALENCIA_RECUPERACAO_JUDICIAL,
+                'obito': MotivoBaixa.OBITO_SEM_ESPÓLIO,
+                'prescricao': MotivoBaixa.PRESCRICAO,
+                'acordo_judicial': MotivoBaixa.ACORDO_JUDICIAL,
+                'cessao': MotivoBaixa.CESSAO_CREDITO,
+                'outro': MotivoBaixa.OUTRO
+            }
+            motivo = motivo_map.get(request.motivo)
+        
+        # Converter datas se fornecidas
+        periodo_inicial = None
+        periodo_final = None
+        if request.periodo_inicial:
+            periodo_inicial = datetime.fromisoformat(request.periodo_inicial)
+        if request.periodo_final:
+            periodo_final = datetime.fromisoformat(request.periodo_final)
+        
+        estatisticas = rastreador_writeoff.calcular_taxa_recuperacao_historica(
+            produto=request.produto,
+            motivo=motivo,
+            periodo_inicial=periodo_inicial,
+            periodo_final=periodo_final
+        )
+        
+        return WriteoffTaxaRecuperacaoResponse(
+            quantidade_contratos=estatisticas.get('quantidade_contratos', 0),
+            valor_total_baixado=estatisticas.get('valor_total_baixado', 0),
+            valor_total_recuperado=estatisticas.get('valor_total_recuperado', 0),
+            taxa_recuperacao_media=estatisticas.get('taxa_recuperacao_media', 0),
+            taxa_recuperacao_ponderada=estatisticas.get('taxa_recuperacao_ponderada', 0),
+            filtros_aplicados={
+                'produto': request.produto,
+                'motivo': request.motivo,
+                'periodo_inicial': request.periodo_inicial,
+                'periodo_final': request.periodo_final
+            },
+            timestamp=datetime.now().isoformat()
+        )
+        
+    except Exception as e:
+        logger.error(f"Erro ao calcular taxa de recuperação: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002)
+

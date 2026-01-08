@@ -98,24 +98,24 @@ export function LoginForm() {
                     </form>
 
                     {/* Demo credentials */}
-                    <div className="mt-8 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                        <p className="text-xs text-slate-400 mb-3 font-medium">Credenciais de demonstração:</p>
-                        <div className="space-y-2 text-xs text-slate-500">
+                    <div className="mt-8 p-4 bg-slate-900 rounded-lg border border-slate-600">
+                        <p className="text-sm text-white mb-3 font-semibold">Credenciais de demonstração:</p>
+                        <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                                <span>Analista:</span>
-                                <code className="text-slate-400">analista@banco.com / analista123</code>
+                                <span className="text-slate-300 font-medium">Analista:</span>
+                                <code className="text-cyan-400 font-mono">analista@banco.com / analista123</code>
                             </div>
                             <div className="flex justify-between">
-                                <span>Gestor:</span>
-                                <code className="text-slate-400">gestor@banco.com / gestor123</code>
+                                <span className="text-slate-300 font-medium">Gestor:</span>
+                                <code className="text-cyan-400 font-mono">gestor@banco.com / gestor123</code>
                             </div>
                             <div className="flex justify-between">
-                                <span>Auditor:</span>
-                                <code className="text-slate-400">auditor@banco.com / auditor123</code>
+                                <span className="text-slate-300 font-medium">Auditor:</span>
+                                <code className="text-cyan-400 font-mono">auditor@banco.com / auditor123</code>
                             </div>
                             <div className="flex justify-between">
-                                <span>Admin:</span>
-                                <code className="text-slate-400">admin@banco.com / admin123</code>
+                                <span className="text-slate-300 font-medium">Admin:</span>
+                                <code className="text-cyan-400 font-mono">admin@banco.com / admin123</code>
                             </div>
                         </div>
                     </div>
