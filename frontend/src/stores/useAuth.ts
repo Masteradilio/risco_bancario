@@ -18,9 +18,13 @@ export interface User {
     nome: string
     email: string
     matricula: string
+    loginWindows?: string  // Login do Windows AD
     role: UserRole
     departamento: string
+    cargo?: string
     avatar?: string
+    isExterno?: boolean    // Auditor externo BACEN
+    expiresAt?: string     // Data de expiração (externos)
     lastLogin: string
 }
 
@@ -63,26 +67,31 @@ const PERMISSIONS: Record<UserRole, string[]> = {
         'view:ecl',
         'view:propensao',
         'view:dashboard',
+        'view:analytics',
         'classify:individual',
         'classify:batch',
         'calculate:ecl',
         'export:pdf',
         'export:csv',
         'export:bacen',
-        'view:analytics',
+        'generate:xml',
     ],
     AUDITOR: [
         'view:prinad',
         'view:ecl',
         'view:propensao',
-        'classify:individual',
-        'calculate:ecl',
+        'view:dashboard',
         'view:audit',
-        'export:audit',
-        'view:logs',
+        'view:user_activity_logs',
+        'export:audit_reports',
+        'export:compliance_reports',
+        // Auditor é READ-ONLY - não pode classify ou calculate
     ],
     ADMIN: [
         '*', // Acesso total
+        'manage:users',
+        'view:system_errors',
+        'manage:system_config',
     ],
 }
 

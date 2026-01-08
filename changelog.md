@@ -8,6 +8,98 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [2.5.0] - 2026-01-08
+
+### Sistema de Perfis de Acesso (RBAC Aprimorado)
+
+#### Backend - Infraestrutura de Usuários
+- **Nova estrutura `/backend/bancos_de_dados/usuarios/`**: Scripts DDL para gerenciamento de usuários
+  - Tabela `usuarios`: Dados do usuário integrados com Windows AD
+  - Tabela `usuarios_sessoes`: Controle de sessões com timeout de 30 minutos
+  - Tabela `auditoria_atividades`: Log de todas as ações de usuários
+  - Tabela `sistema_erros`: Log de erros visível apenas para Admin
+  - Tabela `permissoes_perfil`: Mapeamento configurável de permissões
+- **Novo módulo `/backend/shared/auth_api.py`**: Autenticação e RBAC
+  - Integração preparada para Windows NTLM/SSO
+  - JWT tokens com refresh token (30min / 7 dias)
+  - Funções: `authenticate_windows_user`, `get_current_user`, `require_permission`, `require_roles`
+  - Gerenciamento de usuários: `create_user`, `list_users`, `update_user`, `delete_user`
+  - Auditoria: `log_activity`, `log_error`, `get_audit_logs`, `get_system_errors`
+- **Novo router `/backend/shared/auth_router.py`**: Endpoints FastAPI
+  - `POST /auth/login`, `POST /auth/logout`, `POST /auth/refresh`, `GET /auth/me`
+  - CRUD `/usuarios` (Admin only)
+  - `GET /auditoria/logs` (Auditor, Admin)
+  - `GET /sistema/erros` (Admin only)
+
+#### Frontend - Componentes RBAC
+- **Novo componente `PermissionGate.tsx`**: Controle de exibição por permissão
+  - `PermissionGate`: Renderiza conteúdo se usuário tem permissão
+  - `RoleGate`: Renderiza conteúdo se usuário tem perfil específico
+  - `ReadOnlyGate`: Desabilita interações para perfil Auditor (somente leitura)
+- **Atualizado `useAuth.ts`**: Enhanced User interface
+  - Novos campos: `loginWindows`, `cargo`, `isExterno`, `expiresAt`
+  - Permissões refinadas por perfil:
+    - ANALISTA: Operações diárias (classify, calculate)
+    - GESTOR: Analista + Exportações BACEN + Analytics
+    - AUDITOR: Leitura completa + Logs + Relatórios (READ-ONLY)
+    - ADMIN: Acesso total + CRUD usuários + Erros sistema
+
+#### Matriz de Perfis
+| Perfil | Operações | Exportações | Logs | Usuários |
+|--------|-----------|-------------|------|----------|
+| ANALISTA | ✅ | ❌ | ❌ | ❌ |
+| GESTOR | ✅ | ✅ BACEN | ❌ | ❌ |
+| AUDITOR | 👁️ Leitura | ✅ Auditoria | ✅ | ❌ |
+| ADMIN | ✅ | ✅ | ✅ | ✅ |
+
+#### Auditores Externos BACEN
+- Flag `isExterno` para distinguir auditores internos e externos
+- Contas temporárias com `expiresAt` (padrão 30 dias)
+- Admin pode criar usuários temporários para auditoria externa
+
+#### Dashboard de Administração (`/admin`) - NOVO
+- **Gerenciamento de Usuários**: CRUD completo com modal interativo
+  - Criar, editar e desativar usuários do sistema
+  - Campos: Nome, Email, Matrícula, Login Windows, Perfil, Departamento, Cargo
+  - Toggle para marcar como Auditor Externo (expiração automática em 30 dias)
+  - Filtros por perfil e busca por nome/email/matrícula
+- **Logs de Erros do Sistema**: Visualização de erros com níveis
+  - Cards coloridos por severidade (CRITICAL, ERROR, WARNING, INFO)
+  - Exibição de módulo, timestamp e mensagem de erro
+- **Configurações do Sistema**:
+  - Timeout de sessão (15/30/60 minutos)
+  - Validade de usuários externos (7/15/30/60 dias)
+  - Retenção de logs de auditoria (30/60/90/365 dias)
+
+#### Dashboard de Auditoria Aprimorado (`/auditoria`) - MELHORADO
+- **Trilha de Auditoria Completa**:
+  - Filtros avançados por período (1/7/30/90 dias), ação e usuário
+  - Exportação para CSV com todos os campos
+  - Estatísticas: Total de logs, atividades hoje, usuários ativos, exportações
+- **Relatórios de Conformidade** (nova aba):
+  - Relatório de Provisionamento ECL (CMN 4966 - Art. 36)
+  - Relatório de Migração de Estágios (IFRS 9)
+  - Relatório de Write-off e Recuperações (CMN 4966 - Art. 49)
+  - Relatório Forward Looking (CMN 4966 - Art. 36 §5º)
+  - Status de cada relatório (completo/pendente) com opção de exportação
+- **Histórico de Envios BACEN** (nova aba):
+  - Tabela com todas as remessas Doc3040 enviadas
+  - Colunas: Código, Documento, Data Base, Data Envio, Status, Protocolo
+
+#### Navegação Condicional
+- Link "Admin" visível apenas para perfil ADMIN (permissão `manage:users`)
+- Atualização de versão no rodapé do sidebar: `v2.5 - RBAC Admin`
+
+#### Novos Componentes UI
+- **Dialog** (`/components/ui/dialog.tsx`): Modal Radix UI para formulários
+- **Switch** (`/components/ui/switch.tsx`): Toggle para opções booleanas
+
+#### Dependências Adicionadas
+- `@radix-ui/react-dialog` - Componente de modal acessível
+- `@radix-ui/react-switch` - Componente de toggle acessível
+
+---
+
 ## [2.4.0] - 2026-01-08
 
 ### Otimização e Usabilidade - Frontend Perda Esperada

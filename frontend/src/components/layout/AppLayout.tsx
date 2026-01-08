@@ -15,6 +15,7 @@ import {
     FileText,
     ClipboardList,
     Home,
+    Shield,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -40,6 +41,7 @@ const navigation: NavItemConfig[] = [
     { name: "Assistente IA", href: "/ai", icon: Bot, description: "Agente Inteligente" },
     { name: "Relatórios", href: "/relatorios", icon: FileText, description: "Laudos e Exportações", permission: "export:pdf" },
     { name: "Auditoria", href: "/auditoria", icon: ClipboardList, description: "Logs de Auditoria", permission: "view:audit" },
+    { name: "Admin", href: "/admin", icon: Shield, description: "Administração do Sistema", permission: "manage:users" },
     { name: "Configurações", href: "/settings", icon: Settings, description: "Configurações do Sistema" },
 ]
 
@@ -133,7 +135,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     ))}
                 </nav>
                 <div className="border-t p-4">
-                    <p className="text-xs text-muted-foreground">Sistema v2.1 - BACEN 4966</p>
+                    <p className="text-xs text-muted-foreground">Sistema v2.5 - RBAC Admin</p>
                     <p className="text-xs text-muted-foreground mt-1">Logado como: {user?.role}</p>
                 </div>
             </aside>

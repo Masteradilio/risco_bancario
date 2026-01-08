@@ -30,6 +30,8 @@ CREATE SCHEMA IF NOT EXISTS writeoff;
 
 CREATE SCHEMA IF NOT EXISTS auditoria;
 
+CREATE SCHEMA IF NOT EXISTS usuarios;
+
 -- ============================================================================
 -- ESQUEMA ECL - CÁLCULOS DE PERDA ESPERADA
 -- ============================================================================

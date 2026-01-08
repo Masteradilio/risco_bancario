@@ -167,7 +167,7 @@ Este documento lista as funcionalidades e melhorias pendentes para atingir 100% 
 - [ ] Testes scripts DDL
 - [ ] Testes endpoints write-off
 - [ ] Testes frontend - navegação e gráficos
-- [ ] Validação POC para stakeholders
+
 
 ---
 
@@ -178,6 +178,83 @@ Este documento lista as funcionalidades e melhorias pendentes para atingir 100% 
 ### 🔒 Segurança e Autenticação
 - [ ] Implementação de **Windows NTLM/SSO** para ambiente corporativo - *Pendente backend*.
 - [ ] Integração de logs de auditoria com backend (API) - *Pendente*.
+
+### 🔐 Perfis de Acesso de Usuário (RBAC Aprimorado)
+> **Objetivo:** Implementar separação rigorosa de perfis seguindo princípios de Least Privilege e Separation of Duties conforme ISO 27001, SOX e GLBA.
+
+#### Fase 1: Infraestrutura de Usuários (Backend) ✅
+- [x] **Criar esquema `usuarios` no banco de dados MySQL**
+  - [x] Tabela `usuarios` (id, nome, email, matricula, senha_hash, role, departamento, ativo, criado_em, atualizado_em)
+  - [x] Tabela `usuarios_sessoes` (id, usuario_id, token, ip, user_agent, criado_em, expira_em)
+  - [x] Tabela `usuarios_permissoes_customizadas` (usuario_id, permissao, concedido_por, data)
+  - [x] Scripts DDL de referência em `/backend/bancos_de_dados/usuarios/`
+- [x] **API de Gerenciamento de Usuários (FastAPI)**
+  - [x] `POST /usuarios` - Criar usuário (somente Admin)
+  - [x] `GET /usuarios` - Listar usuários (somente Admin)
+  - [x] `GET /usuarios/{id}` - Obter usuário (Admin ou próprio)
+  - [x] `PUT /usuarios/{id}` - Atualizar usuário (somente Admin)
+  - [x] `DELETE /usuarios/{id}` - Desativar usuário (somente Admin, soft delete)
+  - [x] `POST /usuarios/{id}/reset-senha` - Reset de senha (somente Admin)
+- [x] **Autenticação Segura**
+  - [x] Hash de senha com bcrypt/argon2
+  - [x] JWT tokens com refresh token
+  - [x] Rate limiting em endpoints de login
+
+#### Fase 2: Matriz de Permissões por Perfil ✅
+- [x] **Analista (Operações Diárias)**
+  - Permissões: `view:prinad`, `view:ecl`, `view:propensao`, `classify:individual`, `classify:batch`, `calculate:ecl`
+  - Restrições: Sem acesso a exportações BACEN, analytics avançados ou logs de auditoria
+- [x] **Gestor (Supervisão e Exportações Críticas)**
+  - Permissões: Tudo do Analista + `view:dashboard`, `view:analytics`, `export:pdf`, `export:csv`, `export:bacen`, `generate:xml`
+  - Operações Críticas: Geração e envio de XML para BACEN (requer confirmação de alçada)
+- [x] **Auditor (Conformidade e Auditoria)**
+  - Permissões: Leitura em todos os módulos + `view:audit`, `export:audit_reports`, `view:user_activity_logs`, `export:compliance_reports`
+  - Restrições: **Somente leitura** - Não pode executar operações, apenas visualizar e exportar
+  - Funcionalidades Específicas: Relatórios de conformidade BACEN 4966, trilha de auditoria de usuários
+- [x] **Admin (TI - Acesso Completo)**
+  - Permissões: `*` (acesso total)
+  - Exclusivo: CRUD de usuários, gestão de permissões, logs de erros do sistema, configurações de sistema
+
+#### Fase 3: Frontend - Implementação de Perfis (Parcial)
+- [x] **Refatorar `useAuth.ts`**
+  - [x] Substituir mock por integração com API de autenticação
+  - [x] Implementar refresh token automático
+  - [x] Carregar permissões dinamicamente do backend
+- [x] **Componentes de Controle de Acesso**
+  - [x] `ProtectedRoute` - HOC para rotas protegidas por permissão
+  - [x] `PermissionGate` - Componente para ocultar elementos sem permissão
+  - [x] `RoleIndicator` - Badge visual do perfil do usuário logado
+- [x] **Páginas por Perfil**
+  - [x] Dashboard Admin: CRUD usuários + Logs de erros + Configurações
+  - [x] Dashboard Auditor: Logs de atividade + Relatórios de conformidade + Exportação
+  - [x] Navegação condicional baseada em role
+
+#### Fase 4: Logs e Auditoria
+- [ ] **Logs de Atividade de Usuário**
+  - [ ] Cada ação operacional registrada (classificação, cálculo, exportação)
+  - [ ] Estrutura: `{usuario_id, acao, recurso, detalhes, timestamp, ip}`
+  - [ ] Endpoint `GET /auditoria/logs` com filtros (data, usuário, ação)
+- [ ] **Logs de Erros do Sistema (Somente Admin)**
+  - [ ] Integração com logging structured (JSON)
+  - [ ] Endpoint `GET /sistema/erros` com filtros e paginação
+  - [ ] Dashboard de erros em tempo real
+- [ ] **Relatórios de Auditoria (Auditor/Admin)**
+  - [ ] Relatório de acessos por período
+  - [ ] Relatório de operações críticas (exportações BACEN)
+  - [ ] Exportação em CSV/PDF para evidências regulatórias
+
+#### Fase 5: Segurança Adicional
+- [ ] **Separation of Duties**
+  - [ ] Quem calcula ECL NÃO pode aprovar exportação BACEN (Analista vs Gestor)
+  - [ ] Quem configura usuários NÃO é o mesmo que audita (Admin vs Auditor)
+- [ ] **Controles de Sessão**
+  - [ ] Timeout de sessão configurável (padrão 30min para ambiente bancário)
+  - [ ] Logout automático por inatividade
+  - [ ] Token revocation em troca de senha
+- [ ] **Segurança de Senhas**
+  - [ ] Política de complexidade (mín. 12 chars, upper, lower, number, special)
+  - [ ] Expiração de senha a cada 90 dias
+  - [ ] Histórico para impedir reutilização (últimas 5)
 
 ### 🤖 Agente de IA (Prioridade)
 - [ ] Integração com **LangGraph.js** no frontend.
