@@ -5,6 +5,58 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+---
+
+## [2.6.0] - 2026-01-13
+
+### Migração Frontend: Next.js → Electron + Vite + React
+
+#### Nova Arquitetura Desktop
+- **Electron + Vite**: Migração completa do frontend de Next.js 15 para aplicação desktop
+- **React 18 + TypeScript**: Mantida a base React com tipagem forte
+- **Vite como bundler**: Build otimizado e HMR ultra-rápido
+- **TailwindCSS**: Sistema de estilos mantido e adaptado
+
+#### Sistema de 5 Temas
+- **dark-ocean**: Tema escuro com tons de oceano (azul profundo)
+- **dark-midnight**: Tema escuro meia-noite (roxo/violeta)
+- **light-snow**: Tema claro neve (branco clean)
+- **light-cream**: Tema claro creme (tons bege)
+- **system**: Segue preferência do sistema operacional
+- **Seletor de temas no Header**: Dropdown posicionado abaixo do botão com z-index elevado
+
+#### Navegação por Abas Horizontais
+- **PRINAD**: 3 abas (📊 Dashboard, 👤 Classificação Individual, 📁 Classificação em Lote)
+- **Propensão**: 4 abas (📊 Dashboard, 💰 Recomendar Limite, 📈 Score de Propensão, 🎯 Simulador de Impacto)
+- **Perda Esperada**: 10 abas horizontais (Dashboard, Cálculo ECL, Estágios, Grupos, Forward Looking, LGD, Cura, Write-off, Pipeline, Exportação)
+- **Design premium**: Abas maiores, emojis, bordas destacadas, efeito hover e scale
+
+#### Dashboard Principal Reformulado
+- **Visão consolidada**: KPIs dos 3 módulos principais (PRINAD, Propensão, Perda Esperada)
+- **Métricas destacadas**:
+  - Classificações PRINAD: 14.720 clientes
+  - Propensão Média: 72.4%
+  - ECL Total (IFRS 9): R$ 2.9M
+  - Limites Otimizados: R$ 4.2M
+- **3 gráficos por módulo**: Distribuição de Rating, Evolução de Propensão, ECL por Estágio
+- **Ações Rápidas**: Links diretos para Classificar Cliente, Recomendar Limite, Calcular ECL, Gerar Relatório
+- **Métricas secundárias**: AUC-ROC PRINAD (0.9986), Clientes Impactados (1.247), PD Médio (12.4%), Taxa Conversão (34.8%)
+
+#### Melhorias de UX
+- **Sidebar simplificada**: Perda Esperada como link direto (navegação interna via abas)
+- **Z-index corrigido**: Dropdown de temas com z-index 9999 para sobreposição correta
+- **Login funcional**: Autenticação com admin@banco.com / admin123
+- **Animações suaves**: fade-in, slide-in para transições de conteúdo
+
+#### Arquivos Criados/Modificados
+- `frontend/src/components/layout/ECLLayout.tsx` - Layout com abas horizontais para ECL
+- `frontend/src/components/layout/Header.tsx` - Seletor de temas melhorado
+- `frontend/src/components/layout/Sidebar.tsx` - Navegação simplificada
+- `frontend/src/pages/DashboardPage.tsx` - Dashboard consolidado dos 3 módulos
+- `frontend/src/pages/prinad/PrinadPage.tsx` - Abas internas restauradas
+- `frontend/src/pages/propensao/PropensaoPage.tsx` - Abas internas restauradas
+- `frontend/vite.browser.config.ts` - Config Vite para teste em browser
+- `frontend/package.json` - Script `dev:browser` adicionado
 
 ---
 

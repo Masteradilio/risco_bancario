@@ -5,11 +5,14 @@
 [![BACEN 4966](https://img.shields.io/badge/Compliance-BACEN%204966-blue.svg)]()
 [![IFRS 9](https://img.shields.io/badge/Standard-IFRS%209-green.svg)]()
 [![Basel III](https://img.shields.io/badge/Standard-Basel%20III-orange.svg)]()
-[![Next.js](https://img.shields.io/badge/Frontend-Next.js%2015-black.svg)]()
+[![Electron](https://img.shields.io/badge/Desktop-Electron-47848F.svg)]()
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF.svg)]()
+[![React 18](https://img.shields.io/badge/Frontend-React%2018-61DAFB.svg)]()
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)]()
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
 
 Este projeto é uma plataforma integrada de gestão de risco de crédito, desenvolvida para instituições financeiras brasileiras, focada em conformidade regulatória, automação de decisões e otimização de rentabilidade.
+
 
 ---
 
@@ -173,7 +176,9 @@ O sistema utiliza uma arquitetura de microserviços containerizados:
 ```
 
 **Stack Tecnológico:**
-- **Frontend**: Next.js 15 (App Router), TypeScript, Tailwind CSS, Shadcn/UI, Recharts
+- **Frontend Desktop**: Electron + Vite + React 18 + TypeScript + TailwindCSS + Recharts
+- **Sistema de Temas**: 5 temas (2 escuros, 2 claros, 1 sistema) com variáveis CSS
+- **Navegação**: React Router DOM v6 com abas horizontais por módulo
 - **Backend APIs**: 3 instâncias de FastAPI (Python 3.11) isoladas por responsabilidade
 - **ML/AI**: XGBoost, LightGBM, SHAP para explicabilidade
 - **Orquestração**: Docker Compose para ambiente local e desenvolvimento

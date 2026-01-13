@@ -18,13 +18,13 @@ export interface User {
     nome: string
     email: string
     matricula: string
-    loginWindows?: string  // Login do Windows AD
+    loginWindows?: string
     role: UserRole
     departamento: string
     cargo?: string
     avatar?: string
-    isExterno?: boolean    // Auditor externo BACEN
-    expiresAt?: string     // Data de expiração (externos)
+    isExterno?: boolean
+    expiresAt?: string
     lastLogin: string
 }
 
@@ -43,8 +43,6 @@ interface AuthState {
     isAuthenticated: boolean
     isLoading: boolean
     auditLogs: AuditLogEntry[]
-
-    // Actions
     login: (email: string, senha: string) => Promise<boolean>
     logout: () => void
     checkPermission: (permission: string) => boolean
@@ -52,7 +50,6 @@ interface AuthState {
     getAuditLogs: () => AuditLogEntry[]
 }
 
-// Mapeamento de permissões por role
 const PERMISSIONS: Record<UserRole, string[]> = {
     ANALISTA: [
         'view:prinad',
@@ -85,17 +82,15 @@ const PERMISSIONS: Record<UserRole, string[]> = {
         'view:user_activity_logs',
         'export:audit_reports',
         'export:compliance_reports',
-        // Auditor é READ-ONLY - não pode classify ou calculate
     ],
     ADMIN: [
-        '*', // Acesso total
+        '*',
         'manage:users',
         'view:system_errors',
         'manage:system_config',
     ],
 }
 
-// Usuários mockados para desenvolvimento
 const MOCK_USERS: Record<string, { senha: string; user: User }> = {
     'analista@banco.com': {
         senha: 'analista123',
@@ -157,8 +152,6 @@ export const useAuth = create<AuthState>()(
 
             login: async (email: string, senha: string) => {
                 set({ isLoading: true })
-
-                // Simular delay de autenticação
                 await new Promise(resolve => setTimeout(resolve, 500))
 
                 const mockUser = MOCK_USERS[email.toLowerCase()]
@@ -175,9 +168,7 @@ export const useAuth = create<AuthState>()(
                         isLoading: false
                     })
 
-                    // Registrar login no audit log
                     get().addAuditLog('LOGIN', 'SISTEMA', `Usuário ${user.nome} (${user.role}) autenticado`)
-
                     return true
                 }
 
@@ -198,11 +189,7 @@ export const useAuth = create<AuthState>()(
                 if (!user) return false
 
                 const userPermissions = PERMISSIONS[user.role]
-
-                // Admin tem acesso total
                 if (userPermissions.includes('*')) return true
-
-                // Verificar permissão específica
                 return userPermissions.includes(permission)
             },
 
@@ -218,7 +205,7 @@ export const useAuth = create<AuthState>()(
                 }
 
                 set(state => ({
-                    auditLogs: [newLog, ...state.auditLogs].slice(0, 1000) // Manter últimos 1000
+                    auditLogs: [newLog, ...state.auditLogs].slice(0, 1000)
                 }))
             },
 

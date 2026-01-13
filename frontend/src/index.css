@@ -1,0 +1,352 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===========================================
+   SISTEMA DE 5 TEMAS - Propensão
+   ===========================================
+   1. dark-ocean    - Escuro azulado (referência Anomalia PIX)
+   2. dark-midnight - Escuro puro
+   3. light-snow    - Claro suave
+   4. light-cream   - Claro creme
+   5. system        - Segue preferência do OS
+   =========================================== */
+
+@layer base {
+  :root {
+    --radius: 0.625rem;
+  }
+
+  /* ===========================================
+     TEMA: Dark Ocean (Inspirado na referência)
+     =========================================== */
+  [data-theme="dark-ocean"] {
+    --background: #0a0a14;
+    --foreground: #f8fafc;
+    
+    --card: #12121c;
+    --card-foreground: #f8fafc;
+    
+    --popover: #12121c;
+    --popover-foreground: #f8fafc;
+    
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #1e1e2e;
+    --secondary-foreground: #f8fafc;
+    
+    --muted: #1a1a28;
+    --muted-foreground: #94a3b8;
+    
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+    
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
+    
+    --border: #2a2a3c;
+    --input: #1e1e2e;
+    --ring: #3b82f6;
+    
+    --sidebar: #0d0d18;
+    --sidebar-foreground: #f8fafc;
+    --sidebar-border: #1a1a28;
+    --sidebar-accent: #1e293b;
+    --sidebar-accent-foreground: #f8fafc;
+    
+    /* Cores dos gráficos - paleta vibrante */
+    --chart-1: #4ade80;
+    --chart-2: #f97316;
+    --chart-3: #3b82f6;
+    --chart-4: #ec4899;
+    --chart-5: #a855f7;
+  }
+
+  /* ===========================================
+     TEMA: Dark Midnight (Escuro puro)
+     =========================================== */
+  [data-theme="dark-midnight"] {
+    --background: #0f0f0f;
+    --foreground: #fafafa;
+    
+    --card: #171717;
+    --card-foreground: #fafafa;
+    
+    --popover: #171717;
+    --popover-foreground: #fafafa;
+    
+    --primary: #8b5cf6;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #262626;
+    --secondary-foreground: #fafafa;
+    
+    --muted: #1f1f1f;
+    --muted-foreground: #a3a3a3;
+    
+    --accent: #292929;
+    --accent-foreground: #fafafa;
+    
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    
+    --border: #333333;
+    --input: #262626;
+    --ring: #8b5cf6;
+    
+    --sidebar: #0a0a0a;
+    --sidebar-foreground: #fafafa;
+    --sidebar-border: #262626;
+    --sidebar-accent: #292929;
+    --sidebar-accent-foreground: #fafafa;
+    
+    --chart-1: #22c55e;
+    --chart-2: #eab308;
+    --chart-3: #8b5cf6;
+    --chart-4: #f43f5e;
+    --chart-5: #06b6d4;
+  }
+
+  /* ===========================================
+     TEMA: Light Snow (Claro suave)
+     =========================================== */
+  [data-theme="light-snow"] {
+    --background: #fafafa;
+    --foreground: #1a1a1a;
+    
+    --card: #ffffff;
+    --card-foreground: #1a1a1a;
+    
+    --popover: #ffffff;
+    --popover-foreground: #1a1a1a;
+    
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #f1f5f9;
+    --secondary-foreground: #1a1a1a;
+    
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    
+    --accent: #e2e8f0;
+    --accent-foreground: #1a1a1a;
+    
+    --destructive: #dc2626;
+    --destructive-foreground: #ffffff;
+    
+    --border: #e2e8f0;
+    --input: #f1f5f9;
+    --ring: #2563eb;
+    
+    --sidebar: #f8fafc;
+    --sidebar-foreground: #1a1a1a;
+    --sidebar-border: #e2e8f0;
+    --sidebar-accent: #f1f5f9;
+    --sidebar-accent-foreground: #1a1a1a;
+    
+    --chart-1: #16a34a;
+    --chart-2: #ea580c;
+    --chart-3: #2563eb;
+    --chart-4: #db2777;
+    --chart-5: #7c3aed;
+  }
+
+  /* ===========================================
+     TEMA: Light Cream (Claro creme)
+     =========================================== */
+  [data-theme="light-cream"] {
+    --background: #faf7f2;
+    --foreground: #292524;
+    
+    --card: #fffdf9;
+    --card-foreground: #292524;
+    
+    --popover: #fffdf9;
+    --popover-foreground: #292524;
+    
+    --primary: #d97706;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #f5f0e8;
+    --secondary-foreground: #292524;
+    
+    --muted: #f5f0e8;
+    --muted-foreground: #78716c;
+    
+    --accent: #ede8df;
+    --accent-foreground: #292524;
+    
+    --destructive: #b91c1c;
+    --destructive-foreground: #ffffff;
+    
+    --border: #e7e0d5;
+    --input: #f5f0e8;
+    --ring: #d97706;
+    
+    --sidebar: #fdfbf7;
+    --sidebar-foreground: #292524;
+    --sidebar-border: #e7e0d5;
+    --sidebar-accent: #f5f0e8;
+    --sidebar-accent-foreground: #292524;
+    
+    --chart-1: #65a30d;
+    --chart-2: #c2410c;
+    --chart-3: #0369a1;
+    --chart-4: #be185d;
+    --chart-5: #6d28d9;
+  }
+
+  /* Estilos base */
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Remove scroll bar styling no Windows para ficar mais limpo */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground);
+    border-radius: 4px;
+    opacity: 0.5;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--foreground);
+    opacity: 0.7;
+  }
+}
+
+/* ===========================================
+   COMPONENTES CUSTOMIZADOS
+   =========================================== */
+
+@layer components {
+  /* Card de KPI estilizado */
+  .kpi-card {
+    @apply relative overflow-hidden rounded-xl p-4 transition-all duration-200;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .kpi-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  /* Sidebar item ativo */
+  .sidebar-item-active {
+    @apply relative;
+  }
+
+  .sidebar-item-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: var(--primary);
+    border-radius: 0 3px 3px 0;
+  }
+
+  /* Badge de status */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .status-badge-success {
+    @apply bg-emerald-500/10 text-emerald-500;
+  }
+
+  .status-badge-warning {
+    @apply bg-amber-500/10 text-amber-500;
+  }
+
+  .status-badge-danger {
+    @apply bg-red-500/10 text-red-500;
+  }
+
+  .status-badge-info {
+    @apply bg-blue-500/10 text-blue-500;
+  }
+
+  /* Gráfico container */
+  .chart-container {
+    @apply rounded-xl p-4;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  /* Grid responsivo para dashboard */
+  .dashboard-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
+
+/* ===========================================
+   ANIMAÇÕES
+   =========================================== */
+
+@layer utilities {
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Pulse suave para indicadores */
+  .animate-pulse-soft {
+    animation: pulseSoft 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseSoft {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  /* Slide in do sidebar */
+  .animate-slide-in {
+    animation: slideIn 0.2s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(-10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+}
