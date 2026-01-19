@@ -11,6 +11,8 @@ import {
     Users,
     ChevronDown,
     ChevronRight,
+    BarChart3,
+    Bot,
 } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
@@ -28,6 +30,8 @@ const navigation: NavItem[] = [
     { label: 'PRINAD', path: '/prinad', icon: Target },
     { label: 'Perda Esperada', path: '/perda-esperada', icon: Calculator },
     { label: 'Propensão', path: '/propensao', icon: TrendingUp },
+    { label: 'Agente IA', path: '/agent', icon: Bot },
+    { label: 'Analytics', path: '/analytics', icon: BarChart3, permission: 'view:analytics' },
     { label: 'Auditoria', path: '/auditoria', icon: Shield, permission: 'view:audit' },
     { label: 'Relatórios', path: '/relatorios', icon: FileText },
     { label: 'Admin', path: '/admin', icon: Users, permission: 'manage:users' },

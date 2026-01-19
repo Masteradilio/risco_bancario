@@ -119,32 +119,68 @@ export default function LoginPage() {
                         </button>
                     </form>
 
-                    {/* Dica de usuários de teste */}
+                    {/* Acesso Rápido DEMO */}
                     <div className="mt-6 pt-6 border-t border-border">
-                        <p className="text-xs text-muted-foreground text-center mb-3">
-                            Usuários de teste:
+                        <p className="text-xs text-muted-foreground text-center mb-4 uppercase tracking-wider font-semibold">
+                            Acesso Rápido (DEMO)
                         </p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="bg-secondary/50 rounded-lg p-2">
-                                <p className="font-medium">Analista</p>
-                                <p className="text-muted-foreground">analista@banco.com</p>
-                            </div>
-                            <div className="bg-secondary/50 rounded-lg p-2">
-                                <p className="font-medium">Gestor</p>
-                                <p className="text-muted-foreground">gestor@banco.com</p>
-                            </div>
-                            <div className="bg-secondary/50 rounded-lg p-2">
-                                <p className="font-medium">Auditor</p>
-                                <p className="text-muted-foreground">auditor@banco.com</p>
-                            </div>
-                            <div className="bg-secondary/50 rounded-lg p-2">
-                                <p className="font-medium">Admin</p>
-                                <p className="text-muted-foreground">admin@banco.com</p>
-                            </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => { setEmail('analista@banco.com'); setSenha('analista123'); }}
+                                className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg border border-blue-200 dark:border-blue-800 transition-all group"
+                            >
+                                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <TrendingUp className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">Analista</p>
+                                    <p className="text-xs text-blue-500 dark:text-blue-400">analista@banco.com</p>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setEmail('gestor@banco.com'); setSenha('gestor123'); }}
+                                className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg border border-green-200 dark:border-green-800 transition-all group"
+                            >
+                                <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
+                                    <TrendingUp className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-green-700 dark:text-green-300">Gestor</p>
+                                    <p className="text-xs text-green-500 dark:text-green-400">gestor@banco.com</p>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setEmail('auditor@banco.com'); setSenha('auditor123'); }}
+                                className="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-lg border border-amber-200 dark:border-amber-800 transition-all group"
+                            >
+                                <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                                    <Eye className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Auditor</p>
+                                    <p className="text-xs text-amber-500 dark:text-amber-400">auditor@banco.com</p>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => { setEmail('admin@banco.com'); setSenha('admin123'); }}
+                                className="flex items-center gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 rounded-lg border border-purple-200 dark:border-purple-800 transition-all group"
+                            >
+                                <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <AlertCircle className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-sm font-semibold text-purple-700 dark:text-purple-300">Admin</p>
+                                    <p className="text-xs text-purple-500 dark:text-purple-400">admin@banco.com</p>
+                                </div>
+                            </button>
                         </div>
-                        <p className="text-xs text-muted-foreground text-center mt-2">
-                            Senha: [role]123 (ex: admin123)
-                        </p>
                     </div>
                 </div>
 

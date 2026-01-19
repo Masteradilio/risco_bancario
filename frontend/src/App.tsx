@@ -16,6 +16,8 @@ import AuditoriaPage from './pages/auditoria/AuditoriaPage'
 import AdminPage from './pages/admin/AdminPage'
 import SettingsPage from './pages/settings/SettingsPage'
 import RelatoriosPage from './pages/relatorios/RelatoriosPage'
+import { AgentPage } from './pages/agent/AgentPage'
+import AnalyticsPage from './pages/analytics/AnalyticsPage'
 
 // Perda Esperada (ECL)
 import ECLDashboardPage from './pages/ecl/ECLDashboardPage'
@@ -28,6 +30,9 @@ import ECLCuraPage from './pages/ecl/ECLCuraPage'
 import ECLWriteoffPage from './pages/ecl/ECLWriteoffPage'
 import ECLExportacaoPage from './pages/ecl/ECLExportacaoPage'
 import ECLPipelinePage from './pages/ecl/ECLPipelinePage'
+
+// Chat flutuante
+import { FloatingChat } from './components/chat'
 
 // Componente de rota protegida
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -97,6 +102,8 @@ function App() {
                     <Route path="admin" element={<AdminPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                     <Route path="relatorios" element={<RelatoriosPage />} />
+                    <Route path="agent" element={<AgentPage />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
 
                     {/* Perda Esperada (ECL) - com layout de abas horizontais */}
                     <Route path="perda-esperada" element={<ECLLayout />}>
@@ -116,6 +123,7 @@ function App() {
                 {/* Redirect para login se rota não encontrada */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <FloatingChat />
         </BrowserRouter>
     )
 }

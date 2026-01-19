@@ -30,11 +30,32 @@ matplotlib>=3.8.0
 
 # HTTP Client
 requests>=2.31.0
+httpx>=0.25.0
 
 # Testing
 pytest>=7.4.0
 pytest-asyncio>=0.21.0
-httpx>=0.25.0
 
 # Utilities
 python-dotenv>=1.0.0
+
+# =============================================================================
+# Agente IA - RAG e LLM
+# =============================================================================
+psycopg2-binary>=2.9.0
+sentence-transformers>=3.0.0
+tiktoken>=0.5.0
+openpyxl>=3.1.0
+pypdf>=4.0.0
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.0
+
+# =============================================================================
+# Ferramentas do Agente - Geração de Artefatos
+# =============================================================================
+seaborn>=0.13.0
+reportlab>=4.0.0
+python-docx>=1.0.0
+python-pptx>=1.0.0
+XlsxWriter>=3.0.0
+lxml>=5.0.0
