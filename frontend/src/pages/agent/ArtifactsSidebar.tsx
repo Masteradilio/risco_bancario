@@ -111,16 +111,34 @@ export function ArtifactsSidebar({
         }
     };
 
-    const handleDownload = (artifactId: string, versao: 'dark' | 'light') => {
-        const url = getArtifactDownloadUrl(artifactId, versao);
-        // Usar link para forçar download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = '';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownload = (artifact: Artifact, versao: 'dark' | 'light') => {
+        console.log('[Download] Iniciando download via iframe:', {
+            id: artifact.id,
+            nome: artifact.nome,
+            versao: versao
+        });
+
+        const url = getArtifactDownloadUrl(artifact.id, versao);
+        console.log('[Download] URL:', url);
+
+        // Método iframe: força o navegador a usar o Content-Disposition do servidor
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = url;
+        document.body.appendChild(iframe);
+
+        console.log('[Download] Iframe criado e adicionado');
+
+        // Cleanup após 5 segundos
+        setTimeout(() => {
+            if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+            }
+            console.log('[Download] ✅ Download solicitado via iframe - verificar pasta Downloads');
+        }, 5000);
     };
+
+
 
     // Sempre renderizar a sidebar, mesmo sem artefatos (para o toggle funcionar)
     return (
@@ -328,14 +346,14 @@ export function ArtifactsSidebar({
                                 {viewingArtifact.temVersoes ? (
                                     <>
                                         <button
-                                            onClick={() => handleDownload(viewingArtifact.id, 'dark')}
+                                            onClick={() => handleDownload(viewingArtifact, 'dark')}
                                             className="flex items-center gap-2 px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg transition-colors"
                                         >
                                             <Monitor className="w-4 h-4" />
                                             Download Digital
                                         </button>
                                         <button
-                                            onClick={() => handleDownload(viewingArtifact.id, 'light')}
+                                            onClick={() => handleDownload(viewingArtifact, 'light')}
                                             className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                                         >
                                             <Printer className="w-4 h-4" />
@@ -344,7 +362,7 @@ export function ArtifactsSidebar({
                                     </>
                                 ) : (
                                     <button
-                                        onClick={() => handleDownload(viewingArtifact.id, 'dark')}
+                                        onClick={() => handleDownload(viewingArtifact, 'dark')}
                                         className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                                     >
                                         <Download className="w-4 h-4" />

@@ -200,24 +200,40 @@ def executar_gerar_excel(params: Dict[str, Any]) -> Dict[str, Any]:
     """Executa geração de Excel."""
     dados_fonte = params.get("dados_fonte", "ecl")
     titulo = params.get("titulo", "Dados Exportados")
-    nome = params.get("nome_arquivo", f"dados_{dados_fonte}")
+    nome_base = params.get("nome_arquivo", f"dados_{dados_fonte}")
     
     dados, descricao = obter_dados(dados_fonte)
     
     excel_bytes = gerar_excel(dados, nome_planilha=dados_fonte.upper(), titulo=titulo)
     
+    # Adicionar timestamp para nome único
+    timestamp = datetime.now().strftime("%H%M%S")
+    nome_arquivo = f"{nome_base}_{timestamp}.xlsx"
+    
+    # Gerar resumo para LLM
+    resumo_dados = f"Contém {len(dados)} registros e {len(dados.columns)} colunas."
+    if dados_fonte == "ecl" and "ecl_total" in dados.columns:
+        ultimo = dados.iloc[-1] if len(dados) > 0 else None
+        if ultimo is not None:
+            resumo_dados = f"ECL último período: R$ {ultimo['ecl_total']:,.2f}. Total de {len(dados)} meses."
+    elif dados_fonte == "prinad" and "quantidade" in dados.columns:
+        total = dados['quantidade'].sum()
+        resumo_dados = f"Total de {total:,} clientes distribuídos em {len(dados)} ratings."
+    
     return {
         "tipo": "excel",
-        "nome": f"{nome}.xlsx",
+        "nome": nome_arquivo,
         "mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "conteudo": excel_bytes,
-        "descricao": f"Planilha Excel: {titulo} ({len(dados)} linhas)",
+        "descricao": f"Planilha gerada às {timestamp}. {titulo}: {resumo_dados}",
         "metadados": {
             "fonte_dados": dados_fonte,
             "linhas": len(dados),
-            "colunas": len(dados.columns)
+            "colunas": len(dados.columns),
+            "gerado_em": datetime.now().isoformat()
         }
     }
+
 
 
 def executar_gerar_pdf(params: Dict[str, Any]) -> Dict[str, Any]:
