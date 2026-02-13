@@ -1,45 +1,17 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import electron from 'vite-plugin-electron'
-import renderer from 'vite-plugin-electron-renderer'
 import path from 'path'
 
+// Configuração Vite para browser (sem Electron)
 export default defineConfig({
-    plugins: [
-        react(),
-        electron([
-            {
-                entry: 'electron/main.ts',
-                vite: {
-                    build: {
-                        outDir: 'dist-electron',
-                    },
-                },
-            },
-            {
-                entry: 'electron/preload.ts',
-                onstart(options) {
-                    options.reload()
-                },
-                vite: {
-                    build: {
-                        outDir: 'dist-electron',
-                    },
-                },
-            },
-        ]),
-        renderer(),
-    ],
+    plugins: [react()],
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src'),
         },
     },
-    build: {
-        rollupOptions: {
-            input: {
-                main: path.resolve(__dirname, 'index.html'),
-            },
-        },
+    server: {
+        port: 5173,
+        host: true,
     },
 })

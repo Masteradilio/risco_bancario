@@ -48,7 +48,9 @@ export interface ChatResponse {
  */
 export async function sendMessage(
     message: string,
-    sessionId?: string
+    sessionId?: string,
+    userId?: string,
+    userRole?: string
 ): Promise<ChatResponse> {
     const response = await fetch(`${API_BASE}/api/agent/chat`, {
         method: 'POST',
@@ -58,6 +60,8 @@ export async function sendMessage(
         body: JSON.stringify({
             message,
             session_id: sessionId,
+            user_id: userId,
+            user_role: userRole
         }),
     });
 
@@ -77,8 +81,8 @@ export async function sendMessage(
 /**
  * Lista sessões do usuário
  */
-export async function getSessions(limit = 50): Promise<ChatSession[]> {
-    const response = await fetch(`${API_BASE}/api/agent/sessions?limit=${limit}`);
+export async function getSessions(userId: string, limit = 50): Promise<ChatSession[]> {
+    const response = await fetch(`${API_BASE}/api/agent/sessions?user_id=${userId}&limit=${limit}`);
 
     if (!response.ok) {
         throw new Error(`Erro ao listar sessões: ${response.status}`);
@@ -97,8 +101,8 @@ export async function getSessions(limit = 50): Promise<ChatSession[]> {
 /**
  * Cria nova sessão
  */
-export async function createSession(titulo = 'Nova Conversa'): Promise<ChatSession> {
-    const response = await fetch(`${API_BASE}/api/agent/sessions`, {
+export async function createSession(titulo: string, userId: string, userRole: string): Promise<ChatSession> {
+    const response = await fetch(`${API_BASE}/api/agent/sessions?user_id=${userId}&user_role=${userRole}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -156,10 +160,10 @@ export async function deleteSession(sessionId: string): Promise<void> {
 /**
  * Lista artefatos de uma sessão
  */
-export async function getArtifacts(sessionId?: string): Promise<Artifact[]> {
-    const url = sessionId
-        ? `${API_BASE}/api/agent/artifacts?session_id=${sessionId}`
-        : `${API_BASE}/api/agent/artifacts`;
+export async function getArtifacts(sessionId?: string, userId?: string): Promise<Artifact[]> {
+    let url = `${API_BASE}/api/agent/artifacts?`;
+    if (sessionId) url += `session_id=${sessionId}&`;
+    if (userId) url += `user_id=${userId}&`;
 
     const response = await fetch(url);
 
@@ -231,10 +235,11 @@ export interface FileUpload {
 /**
  * Faz upload de arquivo para contexto do agente
  */
-export async function uploadFile(file: File, sessionId: string): Promise<FileUpload> {
+export async function uploadFile(file: File, sessionId: string, userId: string): Promise<FileUpload> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('session_id', sessionId);
+    formData.append('user_id', userId);
 
     const response = await fetch(`${API_BASE}/api/agent/upload`, {
         method: 'POST',
@@ -292,4 +297,3 @@ export const agentApi = {
 };
 
 export default agentApi;
-

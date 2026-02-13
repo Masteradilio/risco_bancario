@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useRef, FormEvent } from 'react';
+import { useAuth } from '@/stores/useAuth';
 import {
     Bot,
     Send,
@@ -115,6 +116,9 @@ const defaultTools: ToolWithPrompt[] = [
 ];
 
 export function AgentPage() {
+    // Auth
+    const { user } = useAuth();
+    
     // Estado
     const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -130,8 +134,10 @@ export function AgentPage() {
 
     // Carregar sessões ao montar
     useEffect(() => {
-        loadSessions();
-    }, []);
+        if (user?.id) {
+            loadSessions();
+        }
+    }, [user?.id]);
 
     // Carregar mensagens quando mudar sessão ativa
     useEffect(() => {
@@ -148,8 +154,9 @@ export function AgentPage() {
     }, [messages]);
 
     const loadSessions = async () => {
+        if (!user?.id) return;
         try {
-            const data = await getSessions();
+            const data = await getSessions(user.id);
             setSessions(data);
         } catch (error) {
             console.error('Erro ao carregar sessões:', error);
@@ -171,8 +178,9 @@ export function AgentPage() {
 
 
     const handleNewSession = async () => {
+        if (!user?.id) return;
         try {
-            const session = await createSession();
+            const session = await createSession('Nova Conversa', user.id, user.role);
             setSessions(prev => [session, ...prev]);
             setActiveSessionId(session.id);
             setMessages([]);
@@ -212,7 +220,14 @@ export function AgentPage() {
         setIsLoading(true);
 
         try {
-            const response = await sendMessage(userMessage.content, activeSessionId || undefined);
+            if (!user?.id) throw new Error('Usuário não autenticado');
+            
+            const response = await sendMessage(
+                userMessage.content, 
+                activeSessionId || undefined,
+                user.id,
+                user.role
+            );
 
             if (!activeSessionId) {
                 setActiveSessionId(response.sessionId);
@@ -483,6 +498,7 @@ export function AgentPage() {
                             {/* Botão de Upload */}
                             <FileUploadButton
                                 sessionId={activeSessionId || undefined}
+                                userId={user?.id || ''}
                                 onUploadComplete={(file) => setUploads(prev => [...prev, file])}
                                 onError={(error) => console.error(error)}
                             />

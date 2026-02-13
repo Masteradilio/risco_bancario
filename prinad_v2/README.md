@@ -57,17 +57,23 @@ Para garantir a máxima precisão na concessão de crédito, nosso sistema não 
 Aqui está como cada componente contribui para a decisão final:
 
 #### 1. O Especialista Detalhista (XGBoost)
+
 O primeiro analista do nosso comitê é o **XGBoost**.
+
 - **O que ele faz:** Ele é extremamente minucioso. Ele analisa os dados do cliente criando centenas de "árvores de decisão" sequenciais. Imagine que ele faz perguntas em cadeia: *"O cliente tem renda acima de X? Se sim, ele tem atrasos recentes? Se não, qual a idade?"*.
 - **O diferencial:** O grande trunfo do XGBoost é que ele aprende com os próprios erros. Se ele errou a análise de um perfil específico no passado, ele cria novas regras focadas especificamente em corrigir esse tipo de erro. Ele é excelente para capturar padrões complexos e sutis de comportamento de risco.
 
 #### 2. O Especialista em Velocidade e Volume (LightGBM)
+
 O segundo analista é o **LightGBM**.
+
 - **O que ele faz:** Ele também usa árvores de decisão, mas com uma estratégia diferente, focada em eficiência e em lidar com grandes volumes de dados.
 - **O diferencial:** Enquanto o XGBoost é profundo, o LightGBM é ágil e tem uma visão mais generalista. Ele é muito bom em garantir que o modelo não fique "viciado" em detalhes irrelevantes (overfitting) e traz uma segunda opinião robusta, garantindo que não estamos deixando passar nada óbvio.
 
 #### 3. O Juiz do Comitê (Logistic Regression / Meta-Learner)
+
 Depois que os dois especialistas dão seus pareceres (ex: XGBoost diz "Risco 80%" e LightGBM diz "Risco 60%"), entra em cena o nosso **Meta-Learner**.
+
 - **O que ele faz:** Ele não olha mais para a renda ou idade do cliente; ele olha apenas para **quem está dando a opinião**.
 - **A inteligência:** Ele aprendeu historicamente em quem confiar mais em cada situação. O algoritmo calcula matematicamente: *"Historicamente, quando o XGBoost está muito pessimista e o LightGBM está otimista, quem costuma acertar?"*.
 - **O resultado:** Ele pondera as opiniões dos dois modelos anteriores para gerar uma **Probabilidade Final Calibrada**. Ele atua como um gestor de risco experiente que sabe ouvir sua equipe e tomar a decisão final mais equilibrada e segura.
@@ -77,32 +83,6 @@ Não confiamos a decisão de milhões de reais a um único algoritmo. Nosso sist
 
 ---
 
-### 🧠 A Inteligência do Motor de Decisão PRINAD
-
-Para garantir a máxima precisão na concessão de crédito, nosso sistema não depende de uma única opinião. Utilizamos uma arquitetura avançada chamada **Ensemble (Comitê de Modelos)**, onde três "especialistas digitais" trabalham em conjunto para avaliar cada cliente.
-
-Aqui está como cada componente contribui para a decisão final:
-
-#### 1. O Especialista Detalhista (XGBoost)
-O primeiro analista do nosso comitê é o **XGBoost**.
-- **O que ele faz:** Ele é extremamente minucioso. Ele analisa os dados do cliente criando centenas de "árvores de decisão" sequenciais. Imagine que ele faz perguntas em cadeia: *"O cliente tem renda acima de X? Se sim, ele tem atrasos recentes? Se não, qual a idade?"*.
-- **O diferencial:** O grande trunfo do XGBoost é que ele aprende com os próprios erros. Se ele errou a análise de um perfil específico no passado, ele cria novas regras focadas especificamente em corrigir esse tipo de erro. Ele é excelente para capturar padrões complexos e sutis de comportamento de risco.
-
-#### 2. O Especialista em Velocidade e Volume (LightGBM)
-O segundo analista é o **LightGBM**.
-- **O que ele faz:** Ele também usa árvores de decisão, mas com uma estratégia diferente, focada em eficiência e em lidar com grandes volumes de dados.
-- **O diferencial:** Enquanto o XGBoost é profundo, o LightGBM é ágil e tem uma visão mais generalista. Ele é muito bom em garantir que o modelo não fique "viciado" em detalhes irrelevantes (overfitting) e traz uma segunda opinião robusta, garantindo que não estamos deixando passar nada óbvio.
-
-#### 3. O Juiz do Comitê (Logistic Regression / Meta-Learner)
-Depois que os dois especialistas dão seus pareceres (ex: XGBoost diz "Risco 80%" e LightGBM diz "Risco 60%"), entra em cena o nosso **Meta-Learner**.
-- **O que ele faz:** Ele não olha mais para a renda ou idade do cliente; ele olha apenas para **quem está dando a opinião**.
-- **A inteligência:** Ele aprendeu historicamente em quem confiar mais em cada situação. O algoritmo calcula matematicamente: *"Historicamente, quando o XGBoost está muito pessimista e o LightGBM está otimista, quem costuma acertar?"*.
-- **O resultado:** Ele pondera as opiniões dos dois modelos anteriores para gerar uma **Probabilidade Final Calibrada**. Ele atua como um gestor de risco experiente que sabe ouvir sua equipe e tomar a decisão final mais equilibrada e segura.
-
-**Resumo para o Negócio:**
-Não confiamos a decisão de milhões de reais a um único algoritmo. Nosso sistema simula um comitê de crédito onde especialistas com visões diferentes debatem cada proposta, e um juiz imparcial pondera essas visões para entregar a probabilidade de inadimplência (PD) mais precisa possível.
-
----
 
 ## 📂 Estrutura do Pacote
 

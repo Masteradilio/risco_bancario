@@ -1,14 +1,12 @@
 {
   "name": "propensao",
   "version": "1.0.0",
-  "description": "Sistema de Gestão de Risco Bancário - Aplicação Desktop",
-  "main": "dist-electron/main.js",
+  "description": "Sistema de Gestão de Risco Bancário - Aplicação Web",
+  "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:browser": "vite --config vite.browser.config.ts",
-    "build": "tsc && vite build && electron-builder",
+    "build": "tsc && vite build",
     "preview": "vite preview",
-    "electron:dev": "vite build && electron .",
     "lint": "eslint ."
   },
   "dependencies": {
@@ -41,42 +39,9 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
-    "electron": "^33.2.1",
-    "electron-builder": "^25.1.8",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",
-    "vite": "^6.0.5",
-    "vite-plugin-electron": "^0.28.8",
-    "vite-plugin-electron-renderer": "^0.14.6"
-  },
-  "build": {
-    "appId": "com.riscobancario.propensao",
-    "productName": "Propensão",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*"
-    ],
-    "win": {
-      "target": [
-        "nsis"
-      ],
-      "icon": "public/icon.ico"
-    },
-    "mac": {
-      "target": [
-        "dmg"
-      ],
-      "icon": "public/icon.icns"
-    },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "icon": "public/icon.png"
-    }
+    "vite": "^6.0.5"
   }
 }

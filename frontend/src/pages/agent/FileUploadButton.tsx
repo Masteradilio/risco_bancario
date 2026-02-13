@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
     sessionId?: string;
+    userId: string;
     onUploadComplete?: (upload: FileUpload) => void;
     onError?: (error: string) => void;
 }
@@ -46,7 +47,7 @@ const formatSize = (bytes: number): string => {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
 
-export function FileUploadButton({ sessionId, onUploadComplete, onError }: FileUploadProps) {
+export function FileUploadButton({ sessionId, userId, onUploadComplete, onError }: FileUploadProps) {
     const [uploading, setUploading] = useState(false);
     const [uploadedFiles, setUploadedFiles] = useState<FileUpload[]>([]);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +64,7 @@ export function FileUploadButton({ sessionId, onUploadComplete, onError }: FileU
 
         try {
             for (const file of Array.from(files)) {
-                const result = await uploadFile(file, sessionId);
+                const result = await uploadFile(file, sessionId, userId);
                 setUploadedFiles(prev => [...prev, result]);
                 onUploadComplete?.(result);
             }
