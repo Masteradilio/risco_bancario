@@ -71,6 +71,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Criado dataset workout LGD por coorte/default com recuperações, custos, garantias, cura, write-off, janela e censura explícita.
 - Implementada LGD realizada com EAD no default, recuperações e custos descontados à EIR, tratamento separado de cura/perda, censura e limites versionados que preservam o valor bruto.
 - Comparados baseline segmentado, Ridge one-stage, two-stage cura/severidade e one-inflated para LGD, com features point-in-time de garantia/LTV, produto, atraso, prazo e macro e seleção provisória não aprovada.
+- Adicionada projeção versionada de garantia com valor, enforceability, haircut, custos, prazo, desconto, sensibilidades e controle explícito que impede somar a projeção ao cash flow de execução já observado.
 
 ---
 

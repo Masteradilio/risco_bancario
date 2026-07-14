@@ -69,7 +69,9 @@ def load_realized_lgd_policy(path: Path) -> RealizedLGDPolicy:
     )
 
 
-def _discount(amount: Decimal, start: date, end: date, annual_rate: Decimal) -> Decimal:
+def discount_recovery_cash_flow(
+    amount: Decimal, start: date, end: date, annual_rate: Decimal
+) -> Decimal:
     if annual_rate <= Decimal("-1") or end < start:
         raise DomainValidationError("LGD discount rate or cash-flow date is invalid")
     years = Decimal((end - start).days) / Decimal("365")
@@ -84,7 +86,7 @@ def calculate_realized_lgd(record: LGDWorkoutRecord, policy: RealizedLGDPolicy) 
         raise DomainValidationError("EAD at default must be positive")
     gross = sum(
         (
-            _discount(
+            discount_recovery_cash_flow(
                 item.gross_amount,
                 record.default_date,
                 item.recovery_date,
@@ -96,7 +98,7 @@ def calculate_realized_lgd(record: LGDWorkoutRecord, policy: RealizedLGDPolicy) 
     )
     costs = sum(
         (
-            _discount(
+            discount_recovery_cash_flow(
                 item.cost_amount,
                 record.default_date,
                 item.recovery_date,
@@ -109,7 +111,7 @@ def calculate_realized_lgd(record: LGDWorkoutRecord, policy: RealizedLGDPolicy) 
     cure_value = Decimal("0")
     if record.cure_date is not None:
         residual = max(Decimal("0"), record.exposure_at_default - record.gross_recovery_total)
-        cure_value = _discount(
+        cure_value = discount_recovery_cash_flow(
             residual, record.default_date, record.cure_date, record.effective_interest_rate
         )
     net = gross - costs + cure_value

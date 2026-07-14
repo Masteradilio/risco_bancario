@@ -982,10 +982,21 @@ Calcular LGD a partir de recuperações líquidas e descontadas.
 
 ### Subtarefas
 
-- [ ] Projetar valor de garantia.
-- [ ] Aplicar haircut e custos.
-- [ ] Modelar tempo de execução.
-- [ ] Evitar dupla contagem entre recuperação e garantia.
+- [x] Projetar valor de garantia.
+- [x] Aplicar haircut e custos.
+- [x] Modelar tempo de execução.
+- [x] Evitar dupla contagem entre recuperação e garantia.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/lgd/collateral.py`, política `config/lgd_collateral_policy/2026.07.1.json`, 7 testes e `docs/models/LGD_COLLATERAL.md`.
+- Projeção: valor desde a avaliação até o default, enforceability, haircut, custo, prazo de execução e desconto pela EIR são componentes separados e auditáveis.
+- Sensibilidade: cenários upside, base e downside alteram valor, haircut, custo e prazo sob a mesma versão de política.
+- Dupla contagem: cash flows observados de `collateral_execution` são excluídos da base, a projeção ocupa somente o headroom após outras recuperações e o total é limitado à EAD.
+- Carteira: 20 defaults garantidos (11 veículos e 9 imóveis) e 12 sem garantia; recuperação líquida descontada base média de R$ 101.573,44 ou 68,1058% da EAD garantida.
+- Faixa: médias de R$ 115.644,45 no upside e R$ 73.320,10 no downside; nenhum caso atingiu o cap de headroom.
+- Limitação: parâmetros e resultados são sintéticos, demonstrativos e não aprovados para uso institucional.
 
 ## Tarefa 7.5 — Validação de LGD
 
