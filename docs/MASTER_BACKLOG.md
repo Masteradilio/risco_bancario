@@ -174,16 +174,25 @@ Eliminar duplicações, organizar o domínio e criar uma base estável para a re
 
 ### Subtarefas
 
-- [ ] Comparar `backend/prinad`, `prinad_v2` e demais cópias.
-- [ ] Comparar frontend atual com `frontend-nextjs-backup`.
-- [ ] Identificar constantes duplicadas em `shared/utils.py` e módulos locais.
-- [ ] Mapear regras divergentes de rating, PD e estágio.
-- [ ] Criar `docs/architecture/DUPLICATION_MAP.md`.
+- [x] Comparar `backend/prinad`, `prinad_v2` e demais cópias.
+- [x] Comparar frontend atual com `frontend-nextjs-backup`.
+- [x] Identificar constantes duplicadas em `shared/utils.py` e módulos locais.
+- [x] Mapear regras divergentes de rating, PD e estágio.
+- [x] Criar `docs/architecture/DUPLICATION_MAP.md`.
 
 ### Critérios de aceite
 
-- [ ] Cada conceito possui uma implementação canônica definida.
-- [ ] O plano de migração do legado está documentado.
+- [x] Cada conceito possui uma implementação canônica definida.
+- [x] O plano de migração do legado está documentado.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregável: `docs/architecture/DUPLICATION_MAP.md`.
+- Decisão: `backend/prinad` e `frontend` são as fontes canônicas de transição; `prinad_v2` e `frontend-nextjs-backup` ficam congelados como legado até a migração comprovada.
+- Destino: o pacote `src/` será a fonte canônica definitiva; regras materiais serão tipadas e externalizadas em configuração versionada nas Tarefas 1.2 e 1.3.
+- Evidência: comparação de pontos de entrada, imports, rotas, testes, hashes SHA-256, artefatos e regras divergentes de rating, PD, LGD, EAD e estágio.
+- Guardrail: nenhuma divergência quantitativa foi resolvida silenciosamente nesta tarefa de inventário.
 
 ## Tarefa 1.2 — Criar arquitetura de domínio
 

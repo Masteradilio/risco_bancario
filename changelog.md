@@ -23,6 +23,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Marcados frontends, dashboards, métricas, APIs e ferramentas do agente como sintéticos ou demonstrativos, incluindo o frontend legado.
 - Bloqueada a conclusão regulatória hard-coded do agente: o checklist agora retorna `NAO_AVALIADO` até possuir fontes e evidências versionadas.
 - Corrigidos exemplos matemáticos de ECL com erros de ordem de grandeza e substituída a descrição incorreta de Stage 3 por cash shortfall descontado.
+- Mapeadas as duplicações de PRINAD, artefatos, frontends, constantes e regras quantitativas em `docs/architecture/DUPLICATION_MAP.md`.
+- Definidas fontes canônicas de transição e de destino, com congelamento do legado e plano de migração baseado em testes de caracterização.
 
 ---
 
