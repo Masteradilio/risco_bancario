@@ -1415,6 +1415,14 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 - [x] Gerar sensibilidades e overlays.
 - [x] Gerar pacote de disclosure sintético.
 
+## Tarefa 11.6 — Fechamento de evidências regulatórias da fase
+
+### Subtarefas
+
+- [x] Gerar manifesto de revisão mensal de estágio e provisão.
+- [x] Fechar a rastreabilidade CMN 4.966 para staging, default, cura, ECL e revisão.
+- [x] Vincular a aplicabilidade BCB 352 aos motores de staging e ECL sem duplicar fórmulas.
+
 ### Critérios de aceite
 
 - [x] O sistema diferencia claramente IFRS 9, CMN 4.966, piso regulatório e capital IRB.
