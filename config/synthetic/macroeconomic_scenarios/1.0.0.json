@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "effective_from": "2026-07-14",
+    "status": "synthetic_demonstrative",
+    "description": "Versioned synthetic macroeconomic history and scenario paths; not observed official data."
+  },
+  "observed": {
+    "start_date": "2016-01-01",
+    "end_date": "2025-12-01",
+    "regimes": [
+      {"start": "2016-01-01", "end": "2016-12-01", "name": "recession", "targets": {"gdp_growth": -1.5, "inflation": 7.0, "policy_rate": 14.0, "unemployment": 11.0, "household_debt": 42.0}},
+      {"start": "2017-01-01", "end": "2019-12-01", "name": "recovery", "targets": {"gdp_growth": 1.8, "inflation": 4.0, "policy_rate": 7.0, "unemployment": 9.0, "household_debt": 44.0}},
+      {"start": "2020-01-01", "end": "2020-12-01", "name": "shock", "targets": {"gdp_growth": -4.0, "inflation": 5.5, "policy_rate": 3.0, "unemployment": 14.0, "household_debt": 50.0}},
+      {"start": "2021-01-01", "end": "2022-12-01", "name": "recovery", "targets": {"gdp_growth": 3.0, "inflation": 8.0, "policy_rate": 11.0, "unemployment": 10.0, "household_debt": 52.0}},
+      {"start": "2023-01-01", "end": "2025-12-01", "name": "stability", "targets": {"gdp_growth": 2.2, "inflation": 4.5, "policy_rate": 10.0, "unemployment": 7.5, "household_debt": 49.0}}
+    ]
+  },
+  "forecast": {
+    "start_date": "2026-01-01",
+    "horizon_months": 60,
+    "scenarios": [
+      {"scenario_id": "upside", "weight": 0.15, "curvature": 0.85, "terminal_offsets": {"gdp_growth": 1.5, "inflation": -1.0, "policy_rate": -3.0, "unemployment": -2.0, "household_debt": -4.0}},
+      {"scenario_id": "base", "weight": 0.70, "curvature": 1.0, "terminal_offsets": {"gdp_growth": 0.0, "inflation": 0.0, "policy_rate": -1.0, "unemployment": 0.0, "household_debt": 0.0}},
+      {"scenario_id": "downside", "weight": 0.15, "curvature": 1.25, "terminal_offsets": {"gdp_growth": -2.5, "inflation": 2.0, "policy_rate": 3.0, "unemployment": 3.0, "household_debt": 6.0}},
+      {"scenario_id": "stress", "weight": 0.00, "curvature": 1.60, "terminal_offsets": {"gdp_growth": -6.0, "inflation": 5.0, "policy_rate": 8.0, "unemployment": 7.0, "household_debt": 12.0}}
+    ]
+  }
+}

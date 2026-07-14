@@ -48,6 +48,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementados snapshots mensais de 2016–2025 com saldos, limites, utilização, pagamentos, atrasos, score, rating, safras e modificações.
 - Ratings longitudinais passaram a consumir a política versionada; campos futuros e latentes permanecem bloqueados nas saídas.
 - Gerados defaults, cobranças, recuperações mensais, execução de garantias, custos, curas, redefaults, write-offs e recuperações pós-baixa com reconciliação e ordem temporal testadas.
+- Adicionados histórico macroeconômico sintético e trajetórias mensais versionadas `upside`, `base`, `downside` e `stress`, com pesos auditáveis e pressão de risco não linear.
 
 ---
 

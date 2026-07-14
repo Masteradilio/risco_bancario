@@ -443,11 +443,22 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Gerar cenário observado histórico.
-- [ ] Gerar cenários base, otimista, pessimista e stress.
-- [ ] Gerar trajetórias mensais de PIB, inflação, juros, desemprego e endividamento.
-- [ ] Introduzir relações não lineares com risco.
-- [ ] Versionar pesos e trajetórias.
+- [x] Gerar cenário observado histórico.
+- [x] Gerar cenários base, otimista, pessimista e stress.
+- [x] Gerar trajetórias mensais de PIB, inflação, juros, desemprego e endividamento.
+- [x] Introduzir relações não lineares com risco.
+- [x] Versionar pesos e trajetórias.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/macroeconomics.py`, configuração `1.0.0`, API pública e `docs/data/SYNTHETIC_MACROECONOMICS.md`.
+- Histórico: 120 pontos mensais sintéticos de janeiro de 2016 a dezembro de 2025, com regimes autocorrelacionados e cinco variáveis macroeconômicas.
+- Forecast: trajetórias mensais de 60 meses para `upside`, `base`, `downside` e `stress`; stress permanece sensibilidade não ponderada.
+- Versionamento: pesos 15%/70%/15% preservam a política canônica; versão e SHA-256 da configuração acompanham a saída.
+- Não linearidade: pressão de risco usa termos quadráticos além de patamares adversos e cresce mais que proporcionalmente no stress.
+- Limitação: dados e trajetórias são hipóteses sintéticas demonstrativas, não séries oficiais, forecasts ou calibração institucional.
+- Evidência: 7 testes aprovados, cobrindo reprodução, periodicidade, trajetórias, pesos, severidade, não linearidade e anti-leakage.
 
 ## Tarefa 3.6 — Datasets de modelagem
 
