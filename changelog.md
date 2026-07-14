@@ -16,6 +16,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionado `docs/baseline/CURRENT_STATE_BASELINE.md` com inventário de APIs, frontends, bancos, containers, modelos, artefatos, dependências e dados.
 - Registrado o estado real da regressão: suítes aprovadas, falhas de integração, erros de coleta, build frontend quebrado e bloqueios de Docker.
 - Todas as métricas citadas no baseline foram qualificadas como resultados de testes locais ou artefatos sintéticos/demonstrativos, sem alegação de conformidade institucional.
+- Formalizado em `docs/SCOPE.md` o núcleo de impairment/ECL, suas extensões limitadas, exclusões e fronteiras de módulos.
+- Criado `docs/GLOSSARY.md` para padronizar conceitos quantitativos, contábeis, regulatórios e de governança.
+- Atualizado o README para explicitar dados sintéticos, ausência de homologação e exclusão inicial de hedge accounting.
 
 ---
 

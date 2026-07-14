@@ -1,8 +1,7 @@
 # 🏦 Sistema de Gestão de Risco Bancário
 
-**Solução Enterprise para Crédito, Perda Esperada (ECL) e Otimização de Limites**
+**Plataforma de referência para risco de crédito e perda esperada com dados sintéticos**
 
-[![BACEN 4966](https://img.shields.io/badge/Compliance-BACEN%204966-blue.svg)]()
 [![IFRS 9](https://img.shields.io/badge/Standard-IFRS%209-green.svg)]()
 [![Basel III](https://img.shields.io/badge/Standard-Basel%20III-orange.svg)]()
 [![Electron](https://img.shields.io/badge/Desktop-Electron-47848F.svg)]()
@@ -11,7 +10,13 @@
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)]()
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
 
-Este projeto é uma plataforma integrada de gestão de risco de crédito, desenvolvida para instituições financeiras brasileiras, focada em conformidade regulatória, automação de decisões e otimização de rentabilidade.
+Este projeto é uma plataforma pública em modernização para modelagem e demonstração de risco de crédito. O escopo principal é impairment/ECL da IFRS 9 e requisitos aplicáveis da CMN 4.966, sempre com dados sintéticos, rastreabilidade e preparação para validação independente. O projeto não é certificado ou homologado pelo Banco Central e não substitui políticas, validação e julgamento de uma instituição financeira.
+
+## Escopo
+
+O produto cobre como núcleo PD, LGD, EAD, SICR/staging, cenários forward-looking, ECL para Stage 1, Stage 2, Stage 3 e POCI, governança quantitativa e pré-validação sintética do Documento 3040. Classificação e mensuração entram somente na extensão necessária à elegibilidade do impairment. Hedge accounting, transmissão regulatória oficial, dados bancários reais, capital IRB e decisão automática de crédito estão fora do escopo inicial.
+
+Consulte [o escopo oficial](docs/SCOPE.md), [o glossário](docs/GLOSSARY.md) e [o baseline técnico](docs/baseline/CURRENT_STATE_BASELINE.md). Funcionalidades descritas abaixo refletem o protótipo legado e serão validadas ou substituídas conforme o [backlog mestre](docs/MASTER_BACKLOG.md).
 
 
 ---
@@ -387,7 +392,7 @@ pytest tests/ -v
 
 ## 📄 Licença
 
-Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
+O licenciamento público ainda não foi formalizado em um arquivo de licença na raiz. Até que isso seja definido, o conteúdo do repositório não deve ser presumido como licenciado sob MIT ou outra licença específica.
 
 ## 👥 Autores e Contato
 

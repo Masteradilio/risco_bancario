@@ -120,16 +120,23 @@ Congelar o estado atual, estabelecer o escopo oficial e impedir que o projeto co
 
 ### Subtarefas
 
-- [ ] Definir o escopo principal como IFRS 9 impairment/ECL e CMN 4.966 aplicável.
-- [ ] Identificar extensões de classificação e mensuração, POCI, compromissos e garantias.
-- [ ] Definir o que permanece fora do escopo inicial, especialmente hedge accounting, se não for implementado.
-- [ ] Criar `docs/SCOPE.md` com itens incluídos, excluídos e futuros.
-- [ ] Criar glossário oficial em `docs/GLOSSARY.md`.
+- [x] Definir o escopo principal como IFRS 9 impairment/ECL e CMN 4.966 aplicável.
+- [x] Identificar extensões de classificação e mensuração, POCI, compromissos e garantias.
+- [x] Definir o que permanece fora do escopo inicial, especialmente hedge accounting, se não for implementado.
+- [x] Criar `docs/SCOPE.md` com itens incluídos, excluídos e futuros.
+- [x] Criar glossário oficial em `docs/GLOSSARY.md`.
 
 ### Critérios de aceite
 
-- [ ] O README não sugere cobertura integral da IFRS 9 quando o escopo for apenas impairment.
-- [ ] Cada módulo possui propósito e fronteira definidos.
+- [x] O README não sugere cobertura integral da IFRS 9 quando o escopo for apenas impairment.
+- [x] Cada módulo possui propósito e fronteira definidos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `docs/SCOPE.md`, `docs/GLOSSARY.md` e seção de escopo do `README.md`.
+- Decisão: impairment/ECL é o núcleo; classificação e mensuração são extensão limitada; hedge accounting permanece fora do escopo inicial.
+- Fontes de enquadramento: páginas oficiais da IFRS Foundation, Resolução CMN nº 4.966/2021 e Resolução BCB nº 352/2023, consultadas na data acima.
 
 ## Tarefa 0.3 — Corrigir linguagem de conformidade
 
