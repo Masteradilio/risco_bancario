@@ -39,6 +39,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Registrada explicitamente a diferença entre os artefatos operacionais do Documento 3040 e o XSD 3045 listado na página oficial consultada.
 - Criada matriz de rastreabilidade com requisitos atômicos, aplicabilidade, estado real, código, teste, evidência e fase responsável.
 - Adicionado teste de contrato que bloqueia fontes órfãs, IDs duplicados, implementação sem evidência e não aplicabilidade sem justificativa.
+- Criada estrutura de testes com IDs regulatórios em nomes e metadados Pytest.
+- Adicionados relatório automático de cobertura regulatória e gate de release; 20 requisitos incompletos bloqueiam corretamente a promoção atual.
 
 ---
 

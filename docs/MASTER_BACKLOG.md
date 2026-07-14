@@ -326,10 +326,20 @@ Transformar requisitos normativos em itens testáveis, versionados e auditáveis
 
 ### Subtarefas
 
-- [ ] Criar estrutura de testes por requisito.
-- [ ] Adicionar identificador regulatório nos nomes/metadados dos testes.
-- [ ] Gerar relatório automático de cobertura regulatória.
-- [ ] Bloquear release quando requisito obrigatório estiver sem evidência.
+- [x] Criar estrutura de testes por requisito.
+- [x] Adicionar identificador regulatório nos nomes/metadados dos testes.
+- [x] Gerar relatório automático de cobertura regulatória.
+- [x] Bloquear release quando requisito obrigatório estiver sem evidência.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: testes em `tests/regulatory`, gerador `src/regulatory/traceability/report.py`, comando `scripts/regulatory-report.ps1` e `docs/regulatory/TESTING.md`.
+- Identificação: evidências parciais usam ID no nome e marcador Pytest `regulatory(requirement_id)`.
+- Relatório: cobre as 22 linhas da matriz e lista contagens, status e bloqueadores.
+- Gate: `--enforce` retorna falha enquanto requisito aplicável não estiver implementado com código, teste existente e evidência.
+- Estado esperado: 20 bloqueadores permanecem; o gate foi testado e bloqueou corretamente a release nesta fase.
+- Evidência: 11 testes regulatórios aprovados; comando de qualidade passou a incluí-los.
 
 ---
 

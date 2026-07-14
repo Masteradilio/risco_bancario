@@ -54,6 +54,7 @@ filterwarnings = [
   "ignore::FutureWarning",
   "ignore::PendingDeprecationWarning"
 ]
+markers = ["regulatory(requirement_id): links a test to a traceability-matrix requirement"]
 
 [tool.coverage.run]
 branch = true
@@ -63,4 +64,3 @@ source = ["src"]
 fail_under = 70
 show_missing = true
 skip_empty = true
-
