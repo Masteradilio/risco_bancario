@@ -475,12 +475,12 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 - Data: 14 de julho de 2026.
 - Entregáveis: `src/data/synthetic/modeling.py`, API pública, testes e `docs/data/SYNTHETIC_MODELING_DATASETS.md`.
-- PD/hazard: observações mensais point-in-time até dezembro de 2024, com target de default em 12 meses e hazard no mês seguinte.
+- PD/hazard: observações mensais point-in-time até dezembro de 2025; targets maduros vão até 2024 e 2025 permanece nulo para backtesting futuro.
 - LGD/EAD: resultados reconciliados por default, LGD realizada não descontada explicitamente nomeada e CCF para exposições com limite não utilizado.
 - SICR: target futuro combina default, atraso de 31 dias e deterioração mínima de dois graus contra a originação.
-- Splits: treino até 2019, validação em 2020, calibração em 2021, OOT em 2022–2023 e backtesting em 2024, sem sorteio entre períodos.
+- Splits: revisados na Tarefa 5.4 para treino até 2018, validação 2020, calibração 2022, OOT 2024 e backtesting futuro 2025, com embargos anuais.
 - Anti-leakage: tabelas de PD/SICR não expõem datas de default, recuperação, EAD realizada ou campos latentes como features.
-- Evidência: 7 testes aprovados; 1.299 linhas PD/SICR sem POCI, 25 LGD/EAD, 194 defaults 12m, 16 hazards mensais e 247 SICR positivos na carteira fixa.
+- Evidência atual após Tarefa 5.4: 1.026 linhas PD/SICR sem POCI, 844 targets maduros, 117 defaults 12m, 10 hazards mensais e 148 SICR positivos na carteira fixa.
 
 ## Tarefa 3.7 — Qualidade e anti-leakage
 
@@ -497,7 +497,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - Data: 14 de julho de 2026.
 - Entregáveis: `src/data/synthetic/quality.py`, testes, `docs/data/DATA_CARD_SYNTHETIC_FACTORY.md` e `docs/data/DATA_DICTIONARY.md`.
 - Integridade: referências entre clientes, contratos, snapshots, defaults e eventos são verificadas; órfãos bloqueiam o relatório.
-- Temporalidade: duplicidade mensal, recuperação/cura anterior ao default, reconciliação e janela incompleta de target são detectadas.
+- Temporalidade: duplicidade mensal, recuperação/cura anterior ao default, reconciliação, target maduro ausente e target futuro prematuro são detectados.
 - Anti-leakage: detector bloqueia latentes, targets, defaults, recuperações, write-offs e EAD realizada na lista de features.
 - Diagnóstico: distribuição e correlação de dez features numéricas de PD são calculadas sem usar correlação como critério de seleção.
 - Cobertura: data card registra composição, proveniência, usos, proibições, qualidade e limitações; dicionário define entidades, eventos, macro e targets.
