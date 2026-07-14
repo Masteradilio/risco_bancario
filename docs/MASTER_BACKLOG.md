@@ -790,9 +790,18 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Persistir PD/rating na originação.
-- [ ] Persistir data, modelo e política de originação.
-- [ ] Calcular lifetime PD de originação no prazo original.
+- [x] Persistir PD/rating na originação.
+- [x] Persistir data, modelo e política de originação.
+- [x] Calcular lifetime PD de originação no prazo original.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/sicr/origination.py`, ledger JSON versionado, 8 casos de teste e `docs/models/SICR_ORIGINATION_BASELINE.md`.
+- Baseline: persiste PD 12m, rating, reconhecimento, maturidade original, modelo/versão, política/hash, lifetime PD e status de aprovação.
+- Prazo: lifetime PD usa a curva canônica até a maturidade contratual original; contratos curtos terminam no próprio horizonte.
+- Integridade: schema `1.0.0`, unicidade por contrato, hash por registro e rejeição de adulteração.
+- Governança: status padrão `not_approved`; persistência da referência não promove o modelo sintético reprovado.
 
 ## Tarefa 6.2 — Motor SICR
 
