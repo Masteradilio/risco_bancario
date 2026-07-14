@@ -43,6 +43,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionados relatório automático de cobertura regulatória e gate de release; 20 requisitos incompletos bloqueiam corretamente a promoção atual.
 - Documentado o desenho causal e temporal da fábrica sintética, com entidades, relógio mensal, regimes macroeconômicos e dinâmica de crédito.
 - Definido guardrail de anti-leakage: latentes privados, exportação por allowlist e targets derivados exclusivamente de eventos futuros.
+- Implementado gerador determinístico de clientes PF/PJ, grupos econômicos, contratos amortizados/rotativos, compromissos, garantias financeiras e POCI.
+- Adicionados cronogramas reconciliados em `Decimal`, colaterais e exportação tabular sem campos latentes.
 
 ---
 

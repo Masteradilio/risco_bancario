@@ -381,12 +381,22 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Gerar clientes PF e PJ sintéticos.
-- [ ] Gerar grupos econômicos e contrapartes.
-- [ ] Gerar produtos amortizados e rotativos.
-- [ ] Gerar originação, prazo, taxa efetiva, cronograma e garantias.
-- [ ] Gerar compromissos de crédito e garantias financeiras.
-- [ ] Gerar POCI e contratos adquiridos com problema de crédito.
+- [x] Gerar clientes PF e PJ sintéticos.
+- [x] Gerar grupos econômicos e contrapartes.
+- [x] Gerar produtos amortizados e rotativos.
+- [x] Gerar originação, prazo, taxa efetiva, cronograma e garantias.
+- [x] Gerar compromissos de crédito e garantias financeiras.
+- [x] Gerar POCI e contratos adquiridos com problema de crédito.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/population.py`, API em `src/data/synthetic/__init__.py` e `docs/data/SYNTHETIC_POPULATION.md`.
+- Cobertura: PF/PJ, grupos, oito produtos, facilidades amortizadas/rotativas, compromissos, garantias financeiras, colaterais e POCI.
+- Reprodutibilidade: seed mestre com substreams separadas para população e contratos; registros imutáveis e moeda em `Decimal`.
+- Reconciliação: cronogramas amortizados liquidam principal exatamente e terminam com saldo zero na data de vencimento.
+- Evidência: 7 testes aprovados; carteira de teste com 16 clientes, 32 contratos, 1.536 parcelas e 8 garantias.
+- Limite: persistência, snapshots e eventos posteriores permanecem nas Tarefas 3.3–3.6.
 
 ## Tarefa 3.3 — Gerar snapshots mensais
 
