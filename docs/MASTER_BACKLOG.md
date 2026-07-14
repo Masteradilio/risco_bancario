@@ -612,14 +612,29 @@ Representar corretamente a vida financeira dos instrumentos.
 
 ### Subtarefas
 
-- [ ] Criar contratos pequenos com planilha manual de referência.
-- [ ] Testar saldos, juros e amortização período a período.
-- [ ] Testar arredondamento e reconciliação.
+- [x] Criar contratos pequenos com planilha manual de referência.
+- [x] Testar saldos, juros e amortização período a período.
+- [x] Testar arredondamento e reconciliação.
 
 ### Critérios de aceite
 
-- [ ] Fluxos fecham com o saldo contábil.
-- [ ] Resultados batem com casos manuais dentro da tolerância definida.
+- [x] Fluxos fecham com o saldo contábil.
+- [x] Resultados batem com casos manuais dentro da tolerância definida.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `tests/fixtures/golden/amortization_cases.csv`, testes e `docs/contracts/GOLDEN_AMORTIZATION_CASES.md`.
+- Casos: contratos Price, SAC e bullet de R$ 1.200, três meses e 12% a.a., calculados manualmente em planilha CSV estática.
+- Tolerância: R$ 0,01 por campo/período para abertura, principal, juros, pagamento e fechamento.
+- Reconciliação: cada linha verifica abertura menos principal igual a fechamento e principal mais juros/tarifa igual ao pagamento.
+- Aceite: os três métodos amortizam exatamente R$ 1.200 e encerram com saldo zero.
+- Evidência: 3 testes golden aprovados; a referência não é regenerada pelo motor durante os testes.
+
+### Aceite da fase
+
+- A Fase 4 foi aceita com motores separados para amortizados e rotativos, eventos de prepagamento/modificação, EIR e casos golden independentes.
+- Limitações e decisões de política permanecem explícitas e não foram convertidas em regras contábeis arbitrárias.
 
 ---
 
