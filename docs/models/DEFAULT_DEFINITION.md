@@ -31,9 +31,9 @@ deve aprovar e versionar seus próprios critérios sem atrasar o backstop aplic�
 - compromissos e garantias financeiras: avaliação de contraparte;
 - POCI: população separada, fora do modelo PD 12 meses padrão.
 
-O arrasto de instrumentos da mesma contraparte e sua exceção documentada serão
-aplicados no motor de staging da Fase 8; por isso os requisitos regulatórios
-permanecem `partial` na matriz.
+O arrasto de instrumentos da mesma contraparte e suas exceções documentadas são
+aplicados pelo motor Stage 3 da Fase 6. A política versiona habilitação, motivos
+permitidos e status pendente de validação; nenhuma exceção é inferida.
 
 ## Cura e redefault
 

@@ -34,6 +34,15 @@
     "financial_guarantee": "counterparty",
     "acquired_distressed": "poci_separate"
   },
+  "counterparty_contagion": {
+    "enabled": true,
+    "exception_reasons": [
+      "independent_facility_risk",
+      "legal_ring_fence",
+      "documented_no_risk_link"
+    ],
+    "status": "operational_hypothesis_pending_validation"
+  },
   "cure": {
     "minimum_timely_payment_months": 3,
     "minimum_low_frequency_evidence_days": 90,

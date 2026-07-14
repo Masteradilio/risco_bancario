@@ -48,12 +48,19 @@ class TargetPolicy(StrictModel):
     require_complete_horizon: bool
 
 
+class CounterpartyContagionPolicy(StrictModel):
+    enabled: bool
+    exception_reasons: tuple[str, ...] = Field(min_length=1)
+    status: str = Field(min_length=1)
+
+
 class DefaultPolicy(StrictModel):
     metadata: DefaultPolicyMetadata
     backstop_days_past_due: int = Field(ge=1)
     materiality: MaterialityPolicy
     qualitative_indicators: tuple[str, ...] = Field(min_length=1)
     product_assessment_level: dict[str, Literal["facility", "counterparty", "poci_separate"]]
+    counterparty_contagion: CounterpartyContagionPolicy
     cure: CurePolicy
     target: TargetPolicy
 
@@ -61,6 +68,10 @@ class DefaultPolicy(StrictModel):
     def unique_and_complete(self) -> DefaultPolicy:
         if len(set(self.qualitative_indicators)) != len(self.qualitative_indicators):
             raise ValueError("qualitative indicators must be unique")
+        if len(set(self.counterparty_contagion.exception_reasons)) != len(
+            self.counterparty_contagion.exception_reasons
+        ):
+            raise ValueError("counterparty contagion exceptions must be unique")
         if self.backstop_days_past_due != 91:
             raise ValueError("CMN/BCB greater-than-90-days backstop must operationalize at 91")
         return self

@@ -15,15 +15,25 @@ from .origination import (
     load_origination_ledger,
     save_origination_ledger,
 )
+from .stage3 import (
+    CounterpartyDefaultEvidence,
+    Stage3AssessmentInput,
+    Stage3Decision,
+    assess_stage3,
+)
 
 __all__ = [
     "OriginationBaselineLedger",
     "OriginationRiskBaseline",
     "LowCreditRiskPolicy",
+    "CounterpartyDefaultEvidence",
     "SICRAssessmentInput",
     "SICRDecision",
     "SICRPolicy",
+    "Stage3AssessmentInput",
+    "Stage3Decision",
     "assess_sicr",
+    "assess_stage3",
     "create_origination_baseline",
     "load_origination_ledger",
     "save_origination_ledger",

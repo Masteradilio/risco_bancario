@@ -64,6 +64,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Publicados validação OOT e model card de PD com discriminação, calibração, testes binomiais, segmentos e PSI; modelo reprovado e backtesting mantido pendente sem targets fabricados.
 - Criado ledger versionado e verificável de baseline na originação com PD/rating, modelo, política e lifetime PD no prazo contratual original.
 - Implementado motor SICR versionado com variações de lifetime PD, downgrade, watchlist, eventos, atraso, low-credit-risk e razões auditáveis.
+- Unificados default operacional e Stage 3, com UTP, reestruturação em dificuldade e arrasto por contraparte sujeito a exceções documentadas.
 
 ---
 

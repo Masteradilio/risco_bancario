@@ -829,10 +829,20 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Unificar default contábil e operacional.
-- [ ] Implementar arrasto por contraparte com exceções documentadas.
-- [ ] Implementar evento de unlikeliness to pay.
-- [ ] Implementar reestruturação/concessão.
+- [x] Unificar default contábil e operacional.
+- [x] Implementar arrasto por contraparte com exceções documentadas.
+- [x] Implementar evento de unlikeliness to pay.
+- [x] Implementar reestruturação/concessão.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: política de contágio versionada, `src/models/sicr/stage3.py`, 9 testes e `docs/models/STAGE3_DEFAULT.md`.
+- Unificação: default operacional, crédito deteriorado contábil e Stage 3 compartilham decisão e motivos canônicos.
+- UTP: indicadores qualitativos podem antecipar o backstop material de 91 DPD.
+- Reestruturação: concessão com dificuldade financeira mapeia `distressed_restructuring`; concessão isolada não vira Stage 3 automaticamente.
+- Arrasto: produtos de avaliação `counterparty` propagam default, salvo exceção permitida e documentada; facility permanece individual.
+- Rastreabilidade: contratos de contágio, exceções, razões, nível, versão/hash e status da política integram a saída.
 
 ## Tarefa 6.4 — Cura e retorno de estágio
 
