@@ -1155,11 +1155,20 @@ Calcular riscos e ECL completos por cenário, com relações macroeconômicas de
 
 ### Subtarefas
 
-- [ ] Estimar ou parametrizar de forma transparente a relação macro-PD.
-- [ ] Estimar relação macro-LGD.
-- [ ] Estimar relação macro-EAD/CCF.
-- [ ] Permitir relações não lineares.
-- [ ] Documentar coeficientes sintéticos.
+- [x] Estimar ou parametrizar de forma transparente a relação macro-PD.
+- [x] Estimar relação macro-LGD.
+- [x] Estimar relação macro-EAD/CCF.
+- [x] Permitir relações não lineares.
+- [x] Documentar coeficientes sintéticos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/forward_looking/relations.py`, política `config/macro_risk_relations/2026.07.1.json`, 7 testes e `docs/models/MACRO_RISK_RELATIONS.md`.
+- Método: fatores separados de PD, LGD, EAD e CCF por mês/segmento, com transformação exponencial, termos quadráticos e limites explícitos.
+- Segmentação: `portfolio`, `secured`, `revolving` e `off_balance`, com sensibilidades específicas por componente.
+- Diagnóstico terminal: todos os fatores ordenam otimista < base < pessimista < stress; PD de stress atinge o teto parametrizado de 4,00.
+- Guardrail: coeficientes são sintéticos, documentados e `demonstrative_not_estimated_not_approved`; não existe alegação de estimação ou calibração institucional.
 
 ## Tarefa 9.3 — ECL por cenário
 

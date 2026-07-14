@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "schema_version": "1.0.0",
+    "policy_version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "author": "risco_bancario maintainers",
+    "method": "transparent_synthetic_parameterization",
+    "evidence_status": "demonstrative_not_estimated_not_approved",
+    "justification": "Synthetic coefficients provide traceable scenario sensitivity without claiming empirical estimation or institutional calibration."
+  },
+  "anchors": {
+    "gdp_growth": "2.20",
+    "inflation": "4.50",
+    "policy_rate": "9.00",
+    "unemployment": "7.50",
+    "household_debt": "49.00",
+    "risk_pressure": "0.00"
+  },
+  "components": {
+    "pd": {
+      "linear": {"gdp_growth": "-0.080", "inflation": "0.015", "policy_rate": "0.010", "unemployment": "0.055", "household_debt": "0.006", "risk_pressure": "0.015"},
+      "quadratic": {"unemployment": "0.004", "risk_pressure": "0.0015"},
+      "minimum": "0.50",
+      "maximum": "4.00"
+    },
+    "lgd": {
+      "linear": {"gdp_growth": "-0.035", "inflation": "0.006", "policy_rate": "0.004", "unemployment": "0.025", "household_debt": "0.004", "risk_pressure": "0.008"},
+      "quadratic": {"gdp_growth": "-0.002", "risk_pressure": "0.0008"},
+      "minimum": "0.65",
+      "maximum": "2.50"
+    },
+    "ead": {
+      "linear": {"gdp_growth": "-0.010", "inflation": "0.002", "policy_rate": "-0.003", "unemployment": "0.012", "household_debt": "0.003", "risk_pressure": "0.003"},
+      "quadratic": {"unemployment": "0.001"},
+      "minimum": "0.75",
+      "maximum": "1.75"
+    },
+    "ccf": {
+      "linear": {"gdp_growth": "-0.025", "inflation": "0.004", "policy_rate": "-0.006", "unemployment": "0.025", "household_debt": "0.005", "risk_pressure": "0.006"},
+      "quadratic": {"unemployment": "0.002", "risk_pressure": "0.0005"},
+      "minimum": "0.60",
+      "maximum": "2.25"
+    }
+  },
+  "segment_scalars": {
+    "portfolio": {"pd": "1.00", "lgd": "1.00", "ead": "1.00", "ccf": "1.00"},
+    "secured": {"pd": "0.90", "lgd": "0.80", "ead": "0.70", "ccf": "0.70"},
+    "revolving": {"pd": "1.10", "lgd": "1.00", "ead": "1.20", "ccf": "1.30"},
+    "off_balance": {"pd": "1.00", "lgd": "0.90", "ead": "1.10", "ccf": "1.20"}
+  }
+}
