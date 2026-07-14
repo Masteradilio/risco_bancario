@@ -7,6 +7,18 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
+## [Não lançado]
+
+### Governança e baseline
+
+- Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.
+- Preservado o commit-base `265cb644f4dbb7e96d1566ecd982260851ade5fb` na tag publicada `modernization-baseline-20260714`.
+- Adicionado `docs/baseline/CURRENT_STATE_BASELINE.md` com inventário de APIs, frontends, bancos, containers, modelos, artefatos, dependências e dados.
+- Registrado o estado real da regressão: suítes aprovadas, falhas de integração, erros de coleta, build frontend quebrado e bloqueios de Docker.
+- Todas as métricas citadas no baseline foram qualificadas como resultados de testes locais ou artefatos sintéticos/demonstrativos, sem alegação de conformidade institucional.
+
+---
+
 ## [3.0.0] - 2026-01-18
 
 ### 🤖 Agente de IA Completo
