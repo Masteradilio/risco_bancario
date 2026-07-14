@@ -82,6 +82,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado ECL mensal integral por cenário com hazard/sobrevivência, LGD, EAD, CCF e desconto específicos, seguido de ponderação dos valores de ECL e stress separado.
 - Adicionados sensitividades versionadas de pesos/trajetórias, relatório de stress e framework de management overlays pós-modelo com aprovação, vigência e reversão auditáveis.
 - Implementado ECL Stage 1 por contrato, período e cenário, limitado a defaults possíveis em 12 meses, com LGD lifetime condicional e desconto pela EIR original.
+- Implementado ECL Stage 2 lifetime com prazo comportamental, prepagamento, extensão probabilística e modos individual/coletivo governados.
 
 ---
 

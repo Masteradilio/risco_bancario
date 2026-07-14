@@ -1244,9 +1244,17 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Calcular lifetime ECL pela vida remanescente.
-- [ ] Tratar prepagamento e extensão contratual esperada.
-- [ ] Suportar cálculo individual e coletivo.
+- [x] Calcular lifetime ECL pela vida remanescente.
+- [x] Tratar prepagamento e extensão contratual esperada.
+- [x] Suportar cálculo individual e coletivo.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/stage2.py`, 7 testes e `docs/models/STAGE2_ECL.md`.
+- Lifetime: caso de 18 meses produz ECL otimista R$ 62,98, base R$ 71,49, pessimista R$ 96,71, ponderado R$ 74,00 e stress R$ 188,82.
+- Comportamento: prepagamento esperado de 3% a.m. reduz o ECL para R$ 60,39; extensão de 6 meses com probabilidade de 50% eleva o caso de 12 meses de R$ 57,14 para R$ 65,57.
+- Modos: mensuração individual proíbe grupo; coletiva exige `homogeneous_group_id`. Validação estatística dos grupos permanece na Tarefa 10.5.
 
 ## Tarefa 10.3 — Cálculo Stage 3
 

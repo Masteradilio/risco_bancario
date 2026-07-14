@@ -31,6 +31,13 @@ from .stage1 import (
     Stage1RiskPeriod,
     calculate_stage1_ecl,
 )
+from .stage2 import (
+    Stage2CalculationMode,
+    Stage2ContractInput,
+    Stage2ECLResult,
+    Stage2RiskPeriod,
+    calculate_stage2_ecl,
+)
 
 __all__ = [
     "ECLResult",
@@ -48,10 +55,15 @@ __all__ = [
     "Stage1ContractInput",
     "Stage1ECLResult",
     "Stage1RiskPeriod",
+    "Stage2CalculationMode",
+    "Stage2ContractInput",
+    "Stage2ECLResult",
+    "Stage2RiskPeriod",
     "TrajectoryShock",
     "WeightSensitivityCase",
     "calculate_probability_weighted_scenario_ecl",
     "calculate_stage1_ecl",
+    "calculate_stage2_ecl",
     "classify_poci",
     "credit_adjusted_eir",
     "measure_poci_change",
