@@ -45,6 +45,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Definido guardrail de anti-leakage: latentes privados, exportação por allowlist e targets derivados exclusivamente de eventos futuros.
 - Implementado gerador determinístico de clientes PF/PJ, grupos econômicos, contratos amortizados/rotativos, compromissos, garantias financeiras e POCI.
 - Adicionados cronogramas reconciliados em `Decimal`, colaterais e exportação tabular sem campos latentes.
+- Implementados snapshots mensais de 2016–2025 com saldos, limites, utilização, pagamentos, atrasos, score, rating, safras e modificações.
+- Ratings longitudinais passaram a consumir a política versionada; campos futuros e latentes permanecem bloqueados nas saídas.
 
 ---
 

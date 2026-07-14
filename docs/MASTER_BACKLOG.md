@@ -402,11 +402,21 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Gerar 8 a 10 anos de snapshots.
-- [ ] Gerar saldo, limite, utilização, parcelas, atraso e rating.
-- [ ] Gerar mudanças de risco antes do default.
-- [ ] Gerar safras e coortes.
-- [ ] Gerar eventos de modificação e renegociação.
+- [x] Gerar 8 a 10 anos de snapshots.
+- [x] Gerar saldo, limite, utilização, parcelas, atraso e rating.
+- [x] Gerar mudanças de risco antes do default.
+- [x] Gerar safras e coortes.
+- [x] Gerar eventos de modificação e renegociação.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/longitudinal.py`, API pública atualizada e `docs/data/SYNTHETIC_LONGITUDINAL.md`.
+- Janela: snapshots mensais entre janeiro de 2016 e dezembro de 2025, limitados à vida ativa de cada contrato.
+- Estado: saldo, limite, utilização, prestação, pagamento, atraso, score observável, rating canônico, safra e meses desde originação.
+- Modificações: extensão de prazo registra termos anterior/novo, data, tipo e concessão sem apagar histórico.
+- Anti-leakage: saídas não contêm target, default futuro nem campos latentes; defaults serão eventos posteriores na Tarefa 3.4.
+- Evidência: 7 testes aprovados; carteira de teste com 2.431 snapshots, 62 safras, 10 ratings, 6 modificações e atraso máximo de 120 dias.
 
 ## Tarefa 3.4 — Gerar defaults, cobranças e recuperações
 
