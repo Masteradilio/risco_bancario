@@ -1260,11 +1260,20 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Projetar recebimentos e recuperações.
-- [ ] Calcular cash shortfall.
-- [ ] Descontar fluxos.
-- [ ] Tratar garantias, custos, cura e write-off.
-- [ ] Calcular juros sobre base apropriada.
+- [x] Projetar recebimentos e recuperações.
+- [x] Calcular cash shortfall.
+- [x] Descontar fluxos.
+- [x] Tratar garantias, custos, cura e write-off.
+- [x] Calcular juros sobre base apropriada.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/stage3/cash_shortfall.py`, 8 testes e `docs/models/STAGE3_ECL.md`.
+- Golden shortfall: R$ 100 contratual − R$ 60 devedor − R$ 20 colateral + R$ 5 custos = ECL R$ 25.
+- Multi-cenário: otimista/base/pessimista/stress R$ 20/R$ 40/R$ 60/R$ 80, ponderado R$ 40.
+- Write-off: baixa de R$ 100 e recuperação pós-baixa de R$ 20 resultam em ECL R$ 80, sem dupla contagem.
+- Juros: valor bruto R$ 1.000 menos allowance R$ 200, EIR 12%, produz R$ 8 mensais sobre base líquida Stage 3.
 
 ## Tarefa 10.4 — Cálculo POCI
 
