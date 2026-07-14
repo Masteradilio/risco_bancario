@@ -511,19 +511,35 @@ O estado-alvo em `PROJECT_AUDIT_AND_TARGET_STATE.md` exige datasets Parquet obri
 
 ### Subtarefas
 
-- [ ] Materializar os datasets Parquet obrigatórios em diretório de saída versionado.
-- [ ] Derivar pagamentos, atrasos e limites/drawdowns sem duplicar a fonte canônica.
-- [ ] Criar insumo regulatório sintético de origem sem inventar campos de leiaute Doc3040.
-- [ ] Gerar manifesto com seed, versões, schemas, contagens e SHA-256.
-- [ ] Garantir reprodução byte a byte e documentar o comando de geração.
-- [ ] Testar integridade dos arquivos materializados.
+- [x] Materializar os datasets Parquet obrigatórios em diretório de saída versionado.
+- [x] Derivar pagamentos, atrasos e limites/drawdowns sem duplicar a fonte canônica.
+- [x] Criar insumo regulatório sintético de origem sem inventar campos de leiaute Doc3040.
+- [x] Gerar manifesto com seed, versões, schemas, contagens e SHA-256.
+- [x] Garantir reprodução byte a byte e documentar o comando de geração.
+- [x] Testar integridade dos arquivos materializados.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/export.py`, `scripts/generate-synthetic-data.ps1`, `docs/data/SYNTHETIC_EXPORT.md` e `data/synthetic/acceptance-v0.1.0`.
+- Materialização: 24 tabelas Parquet cobrem as 16 saídas obrigatórias e entidades/eventos auxiliares; o pacote de aceitação usa seed 91, 40 clientes e 80 contratos.
+- Derivação: pagamentos, atrasos e limites/drawdowns são projeções reconciliadas dos 2.431 snapshots canônicos.
+- Regulatório: `regulatory_reporting_input.parquet` contém 80 linhas de dados-fonte neutros e nenhum campo de leiaute Doc3040 presumido.
+- Manifesto: registra parâmetros, versões, hash da política macro, schema, contagem e SHA-256 por arquivo, sem timestamp volátil.
+- Reprodutibilidade: duas materializações em diretórios distintos resultam em igualdade byte a byte.
+- Evidência: 6 testes aprovados, incluindo presença, hashes, schemas, contagens, reprodução e validação do pacote versionado no repositório.
 
 ### Critérios de aceite da fase
 
-- [ ] O dataset é reproduzível por seed.
-- [ ] O modelo não recebe variáveis latentes.
-- [ ] Existe OOT real.
-- [ ] Há dados para PD, LGD, EAD, SICR, Stage 3, POCI e Doc3040.
+- [x] O dataset é reproduzível por seed.
+- [x] O modelo não recebe variáveis latentes.
+- [x] Existe OOT real.
+- [x] Há dados para PD, LGD, EAD, SICR, Stage 3, POCI e Doc3040.
+
+### Aceite da fase
+
+- A fábrica foi aceita com regressão automatizada, anti-leakage, OOT temporal e artefato Parquet reproduzível.
+- A cobertura Doc3040 nesta fase significa somente dados-fonte sintéticos materializados; não significa XML, aderência a XSD, crítica semântica ou autorização de envio, que permanecem na Fase 12.
 
 ---
 

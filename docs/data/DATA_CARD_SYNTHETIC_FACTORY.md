@@ -62,5 +62,5 @@ derivados depois da simulação.
 - O histórico macro é sintético e não deve ser confundido com série oficial.
 - Os insumos de cliente/contrato/snapshot ainda não constituem um Documento 3040
   nem substituem leiaute, XSD, domínios e críticas oficiais.
-- Artefatos Parquet, manifesto de execução e tabela regulatória dedicada serão
-  entregues na Tarefa 3.8, adicionada para atender integralmente ao estado-alvo.
+- O insumo regulatório materializado é apenas fonte neutra; leiaute, XSD,
+  domínios e críticas Doc3040 permanecem para a Fase 12.

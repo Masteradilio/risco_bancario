@@ -1,0 +1,923 @@
+{
+  "component_versions": {
+    "events": "0.1.0",
+    "longitudinal": "0.1.0",
+    "macroeconomics": "1.0.0",
+    "modeling": "0.1.0",
+    "population": "0.1.0"
+  },
+  "factory_version": "0.1.0",
+  "files": {
+    "clients.parquet": {
+      "rows": 40,
+      "schema": [
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "counterparty_id",
+          "type": "string"
+        },
+        {
+          "name": "client_type",
+          "type": "string"
+        },
+        {
+          "name": "relationship_start_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "region",
+          "type": "string"
+        }
+      ],
+      "sha256": "c83c47527fac7c0a90cd6613d24fbf443263a6ccb61552504eabfadb6203a1f7"
+    },
+    "collateral.parquet": {
+      "rows": 20,
+      "schema": [
+        {
+          "name": "collateral_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "collateral_type",
+          "type": "string"
+        },
+        {
+          "name": "valuation_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "appraised_value",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "enforceable_share",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        }
+      ],
+      "sha256": "e4cc11cc4baf1326ea16b88448f1682bbe6ee856b456a08bd6705c95213ea704"
+    },
+    "collections.parquet": {
+      "rows": 33,
+      "schema": [
+        {
+          "name": "collection_id",
+          "type": "string"
+        },
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "event_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "action",
+          "type": "string"
+        }
+      ],
+      "sha256": "55e55c4a937bcdfa2d69191c481c7c097f8917843206fab59a042f219aac1203"
+    },
+    "contracts.parquet": {
+      "rows": 80,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "counterparty_id",
+          "type": "string"
+        },
+        {
+          "name": "product_code",
+          "type": "string"
+        },
+        {
+          "name": "facility_type",
+          "type": "string"
+        },
+        {
+          "name": "origination_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "maturity_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "effective_interest_rate",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "original_amount",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "credit_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "initial_drawn_amount",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "acquired_credit_impaired",
+          "type": "bool"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "ba6de318d68d644c19a269a20f7e1e1a691b7db0f0a2b6bb76c1ac17d4450a95"
+    },
+    "counterparties.parquet": {
+      "rows": 40,
+      "schema": [
+        {
+          "name": "counterparty_id",
+          "type": "string"
+        },
+        {
+          "name": "party_type",
+          "type": "string"
+        },
+        {
+          "name": "economic_group_id",
+          "type": "string"
+        },
+        {
+          "name": "inception_date",
+          "type": "date32[day]"
+        }
+      ],
+      "sha256": "804b55382934f6389b691d9ade68adc8845b6f30d63499db79179f165a1ac2b6"
+    },
+    "cures.parquet": {
+      "rows": 6,
+      "schema": [
+        {
+          "name": "cure_id",
+          "type": "string"
+        },
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "cure_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "observation_months",
+          "type": "int64"
+        }
+      ],
+      "sha256": "153a4aef4b50f182252329fd5bbe35a7c290aa3567e788588144dc2031852fb4"
+    },
+    "defaults.parquet": {
+      "rows": 14,
+      "schema": [
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "default_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "exposure_at_default",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "trigger",
+          "type": "string"
+        },
+        {
+          "name": "is_redefault",
+          "type": "bool"
+        }
+      ],
+      "sha256": "6e72cdc660ac0f41d92babea9054fe3f62ec864b41448950c9ebdde51c0be837"
+    },
+    "delinquencies.parquet": {
+      "rows": 2431,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "days_past_due",
+          "type": "int64"
+        }
+      ],
+      "sha256": "94e720b09908b594aec61bf1eff287b55c2ccbab8242ae16c8579a3f25eff468"
+    },
+    "ead_modeling.parquet": {
+      "rows": 11,
+      "schema": [
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "observation_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "default_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "product_code",
+          "type": "string"
+        },
+        {
+          "name": "facility_type",
+          "type": "string"
+        },
+        {
+          "name": "observed_balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "observed_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "observed_utilization",
+          "type": "decimal128(9, 8)"
+        },
+        {
+          "name": "target_exposure_at_default",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "target_ccf",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "split",
+          "type": "string"
+        }
+      ],
+      "sha256": "dffa68777a74da855e9d5e91a2a70644349202164055145c600f880095b1a8fe"
+    },
+    "economic_groups.parquet": {
+      "rows": 7,
+      "schema": [
+        {
+          "name": "economic_group_id",
+          "type": "string"
+        },
+        {
+          "name": "sector",
+          "type": "string"
+        }
+      ],
+      "sha256": "aa6bf51049b8cd23aa37c37ad6a4d301365b089fedec1bd0869ce4650e571bfe"
+    },
+    "lgd_modeling.parquet": {
+      "rows": 11,
+      "schema": [
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "default_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "product_code",
+          "type": "string"
+        },
+        {
+          "name": "exposure_at_default",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "collateral_coverage_at_origination",
+          "type": "decimal128(1, 0)"
+        },
+        {
+          "name": "recovery_net_total",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "target_realized_lgd_undiscounted",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "split",
+          "type": "string"
+        }
+      ],
+      "sha256": "619a3351f41ed730cc02953ed6ce1c92aaa6e7b5733befde73e16a73115dc1d7"
+    },
+    "limits_and_drawdowns.parquet": {
+      "rows": 2431,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "credit_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "drawn_balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "monthly_drawdown",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "utilization",
+          "type": "decimal128(9, 8)"
+        }
+      ],
+      "sha256": "b43c6f94bbe63f6efd78d9ce36677ad791b2d71803913b4d3a7e8c70927244bc"
+    },
+    "macro_observed.parquet": {
+      "rows": 120,
+      "schema": [
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "scenario_id",
+          "type": "string"
+        },
+        {
+          "name": "regime",
+          "type": "string"
+        },
+        {
+          "name": "gdp_growth",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "inflation",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "policy_rate",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "unemployment",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "household_debt",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "risk_pressure",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "4de6cfcf0d963cd73362221fb3ed6f48eaa10d1523913f3713322d063b719032"
+    },
+    "macro_scenarios.parquet": {
+      "rows": 240,
+      "schema": [
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "scenario_id",
+          "type": "string"
+        },
+        {
+          "name": "regime",
+          "type": "string"
+        },
+        {
+          "name": "gdp_growth",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "inflation",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "policy_rate",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "unemployment",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "household_debt",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "risk_pressure",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "5b87cf536b4befef5bd01c9aa3ce8b68c3ac4672543c7c10d50b2b36874851fe"
+    },
+    "modifications.parquet": {
+      "rows": 6,
+      "schema": [
+        {
+          "name": "modification_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "modification_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "modification_type",
+          "type": "string"
+        },
+        {
+          "name": "old_maturity_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "new_maturity_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "concession",
+          "type": "bool"
+        }
+      ],
+      "sha256": "c6150926dae6d545074bdf1ea55eae04b65af00e67ff43d960ace5105bde0401"
+    },
+    "monthly_snapshots.parquet": {
+      "rows": 2431,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "origination_cohort",
+          "type": "string"
+        },
+        {
+          "name": "months_on_book",
+          "type": "int64"
+        },
+        {
+          "name": "balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "credit_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "utilization",
+          "type": "decimal128(9, 8)"
+        },
+        {
+          "name": "scheduled_payment",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "paid_amount",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "days_past_due",
+          "type": "int64"
+        },
+        {
+          "name": "behavior_score",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "rating",
+          "type": "string"
+        },
+        {
+          "name": "modified",
+          "type": "bool"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "2a574f04e261660a10dcba68d6e67a467f5c39073ce46f41c6f292ae1e698db0"
+    },
+    "payments.parquet": {
+      "rows": 2431,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "scheduled_payment",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "paid_amount",
+          "type": "decimal128(6, 2)"
+        }
+      ],
+      "sha256": "5658c3ec90ff3f9fb81fa8a0bfdda95268e246becfc0539a50b2fc4010b995f8"
+    },
+    "pd_modeling.parquet": {
+      "rows": 1840,
+      "schema": [
+        {
+          "name": "observation_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "product_code",
+          "type": "string"
+        },
+        {
+          "name": "balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "credit_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "utilization",
+          "type": "decimal128(9, 8)"
+        },
+        {
+          "name": "days_past_due",
+          "type": "int64"
+        },
+        {
+          "name": "behavior_score",
+          "type": "decimal128(8, 8)"
+        },
+        {
+          "name": "rating",
+          "type": "string"
+        },
+        {
+          "name": "gdp_growth",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "inflation",
+          "type": "decimal128(5, 4)"
+        },
+        {
+          "name": "policy_rate",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "unemployment",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "household_debt",
+          "type": "decimal128(6, 4)"
+        },
+        {
+          "name": "target_default_12m",
+          "type": "int64"
+        },
+        {
+          "name": "target_hazard_1m",
+          "type": "int64"
+        },
+        {
+          "name": "split",
+          "type": "string"
+        }
+      ],
+      "sha256": "734d5892c04e22d59d1b61d63e4093ca56f8bd5ed5203fdc88b1a29c731b6bed"
+    },
+    "recoveries.parquet": {
+      "rows": 76,
+      "schema": [
+        {
+          "name": "recovery_id",
+          "type": "string"
+        },
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "recovery_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "source",
+          "type": "string"
+        },
+        {
+          "name": "gross_amount",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "cost_amount",
+          "type": "decimal128(7, 2)"
+        },
+        {
+          "name": "cost_type",
+          "type": "string"
+        },
+        {
+          "name": "net_amount",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "post_writeoff",
+          "type": "bool"
+        }
+      ],
+      "sha256": "081b7a757097b696a5bf247c6a189c2441e9dd2e4b0a0b3f21b02b80a0a24eaa"
+    },
+    "regulatory_reporting_input.parquet": {
+      "rows": 80,
+      "schema": [
+        {
+          "name": "reference_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "counterparty_id",
+          "type": "string"
+        },
+        {
+          "name": "product_code",
+          "type": "string"
+        },
+        {
+          "name": "facility_type",
+          "type": "string"
+        },
+        {
+          "name": "origination_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "maturity_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        },
+        {
+          "name": "balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "credit_limit",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "days_past_due",
+          "type": "int64"
+        },
+        {
+          "name": "acquired_credit_impaired",
+          "type": "bool"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "c265682ba3b151af1a9649341ddc18fe91501e7569665e67e629b17effad9102"
+    },
+    "scenario_weights.parquet": {
+      "rows": 4,
+      "schema": [
+        {
+          "name": "scenario_id",
+          "type": "string"
+        },
+        {
+          "name": "weight",
+          "type": "decimal128(4, 4)"
+        }
+      ],
+      "sha256": "309b66c85400d585117bf3a347a741d9d284409ad4665133cf06faf1e5529a23"
+    },
+    "schedules.parquet": {
+      "rows": 3840,
+      "schema": [
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "installment_number",
+          "type": "int64"
+        },
+        {
+          "name": "due_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "opening_balance",
+          "type": "decimal128(8, 2)"
+        },
+        {
+          "name": "principal",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "interest",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "payment",
+          "type": "decimal128(6, 2)"
+        },
+        {
+          "name": "closing_balance",
+          "type": "decimal128(8, 2)"
+        }
+      ],
+      "sha256": "5746052f2b42f9ce2b8ff06a644d473e269b95142592d5f7cf792551bde863b6"
+    },
+    "sicr_modeling.parquet": {
+      "rows": 1840,
+      "schema": [
+        {
+          "name": "observation_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "origination_rating",
+          "type": "string"
+        },
+        {
+          "name": "current_rating",
+          "type": "string"
+        },
+        {
+          "name": "days_past_due",
+          "type": "int64"
+        },
+        {
+          "name": "target_sicr_12m",
+          "type": "int64"
+        },
+        {
+          "name": "split",
+          "type": "string"
+        }
+      ],
+      "sha256": "da354c7fca5083b5415d7ecd34db0bf70cb10543dbf634de110a0ca2324498c4"
+    },
+    "writeoffs.parquet": {
+      "rows": 8,
+      "schema": [
+        {
+          "name": "writeoff_id",
+          "type": "string"
+        },
+        {
+          "name": "default_id",
+          "type": "string"
+        },
+        {
+          "name": "contract_id",
+          "type": "string"
+        },
+        {
+          "name": "writeoff_date",
+          "type": "date32[day]"
+        },
+        {
+          "name": "amount",
+          "type": "decimal128(7, 2)"
+        },
+        {
+          "name": "policy_version",
+          "type": "string"
+        }
+      ],
+      "sha256": "4543ddf26a1a3388b86a1144ab5146aee507aba2cdd365539038a6af8b918b1e"
+    }
+  },
+  "macroeconomic_policy_sha256": "ddf94d2b12e8a97355763f7e545cb4e71b9cf5cc5e98c2ba37fc1811d03cba71",
+  "manifest_version": "1.0.0",
+  "parameters": {
+    "clients": 40,
+    "contracts_per_client": 2
+  },
+  "seed": 91
+}

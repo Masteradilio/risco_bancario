@@ -1,2 +1,4 @@
 dados/*.csv filter=lfs diff=lfs merge=lfs -text
 modelo/*.joblib filter=lfs diff=lfs merge=lfs -text
+data/synthetic/**/*.parquet -text
+data/synthetic/**/manifest.json text eol=lf

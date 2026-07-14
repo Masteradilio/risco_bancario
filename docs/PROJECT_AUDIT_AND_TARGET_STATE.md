@@ -473,6 +473,20 @@ Devem existir pequenas carteiras com resultados conhecidos manualmente:
 - operação com provisão mínima;
 - arquivo Doc3040 válido e arquivos inválidos por regra.
 
+### 8.6 Estado executado em 14 de julho de 2026
+
+A Fase 3 materializou a fábrica longitudinal canônica em
+`data/synthetic/acceptance-v0.1.0`, com 24 Parquets e manifesto contendo seed,
+versões, schemas, contagens e hashes. O pacote cobre as entidades e datasets
+obrigatórios das seções 8.1 a 8.4, possui splits temporais disjuntos, detector de
+leakage e gate de integridade/temporalidade.
+
+`regulatory_reporting_input.parquet` é somente uma consolidação neutra de
+dados-fonte sintéticos. Ele não é Documento 3040 e não presume campos, XSD,
+domínios ou críticas ainda não versionados. Golden cases com resultados manuais e
+o pacote Doc3040 válido/inválido permanecem nas fases quantitativas e regulatória
+correspondentes.
+
 ---
 
 ## 9. Estado-alvo arquitetural
