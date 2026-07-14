@@ -27,6 +27,17 @@ from .realized import (
     discount_recovery_cash_flow,
     load_realized_lgd_policy,
 )
+from .validation import (
+    LGDCalibrationBand,
+    LGDCohortBacktest,
+    LGDDownturnAnalysis,
+    LGDPrediction,
+    LGDProductStability,
+    LGDValidationPolicy,
+    LGDValidationReport,
+    load_lgd_validation_policy,
+    validate_lgd_model,
+)
 from .workout import (
     LGDWorkoutDataset,
     LGDWorkoutRecord,
@@ -46,6 +57,13 @@ __all__ = [
     "LGDModelComparison",
     "LGDModelingDataset",
     "LGDModelingRow",
+    "LGDCalibrationBand",
+    "LGDCohortBacktest",
+    "LGDDownturnAnalysis",
+    "LGDPrediction",
+    "LGDProductStability",
+    "LGDValidationPolicy",
+    "LGDValidationReport",
     "RealizedLGD",
     "RealizedLGDPolicy",
     "WorkoutCashFlow",
@@ -57,7 +75,9 @@ __all__ = [
     "discount_recovery_cash_flow",
     "load_collateral_policy",
     "load_realized_lgd_policy",
+    "load_lgd_validation_policy",
     "fit_lgd_models",
     "project_collateral_recovery",
     "project_collateral_sensitivities",
+    "validate_lgd_model",
 ]

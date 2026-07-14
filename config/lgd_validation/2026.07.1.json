@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_unvalidated",
+  "minimum_validation_observations": 100,
+  "maximum_mae": "0.15000000",
+  "maximum_rmse": "0.20000000",
+  "maximum_band_calibration_error": "0.10000000",
+  "minimum_observations_per_cohort": 30,
+  "minimum_observations_per_product": 30,
+  "minimum_downturn_observations": 50,
+  "calibration_bands": 3,
+  "require_independent_oot_after_selection": true,
+  "downturn_definition": "top_quartile_of_unemployment_minus_gdp_growth",
+  "downturn_usage": "sensitivity_only_not_used_in_ecl_pit"
+}

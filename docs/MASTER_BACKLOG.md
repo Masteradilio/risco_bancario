@@ -1002,17 +1002,32 @@ Calcular LGD a partir de recuperações líquidas e descontadas.
 
 ### Subtarefas
 
-- [ ] previsto versus realizado.
-- [ ] MAE, RMSE e calibração por faixa.
-- [ ] backtesting por coorte.
-- [ ] estabilidade por produto.
-- [ ] análise downturn separada do ECL PIT.
+- [x] previsto versus realizado.
+- [x] MAE, RMSE e calibração por faixa.
+- [x] backtesting por coorte.
+- [x] estabilidade por produto.
+- [x] análise downturn separada do ECL PIT.
 
 ### Critérios de aceite
 
-- [ ] LGD é derivada de fluxos de recuperação.
-- [ ] Toda premissa possui versão e sensibilidade.
-- [ ] Existe model card e relatório de validação.
+- [x] LGD é derivada de fluxos de recuperação.
+- [x] Toda premissa possui versão e sensibilidade.
+- [x] Existe model card e relatório de validação.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/lgd/validation.py`, política `config/lgd_validation/2026.07.1.json`, 7 testes, `docs/models/LGD_VALIDATION_REPORT.md` e `docs/models/LGD_MODEL_CARD.md`.
+- Holdout: 10 defaults de 2022–2023, já usados para seleção na Tarefa 7.3; ausência de OOT independente é blocker explícito.
+- Performance: LGD realizada média de 0,568917, prevista de 0,571144, MAE 0,358173 e RMSE 0,452035; uma de três faixas excede o erro de calibração máximo.
+- Coortes/produtos: todas as seis coortes estão abaixo do mínimo; credit card e mortgage não aparecem na validação.
+- Downturn: quartil macro adverso tem 7 casos e addon zero, mantido como sensibilidade descritiva separada do ECL PIT, sem inferência de ausência de risco downturn.
+- Decisão: `not_approved`; não existe champion LGD aprovado até haver workouts institucionais maduros, amostra mínima, OOT congelado e validação independente.
+
+### Aceite da fase
+
+- A Fase 7 foi aceita como implementação técnica reproduzível: LGD deriva de cash flows descontados, políticas e sensibilidades são versionadas, garantias evitam dupla contagem e há model card/relatório.
+- O aceite da entrega não aprova o modelo: os blockers quantitativos e de independência permanecem formais e impedem uso institucional.
 
 ---
 
