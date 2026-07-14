@@ -8,6 +8,12 @@ from .engine import (
     assess_sicr,
     load_sicr_policy,
 )
+from .history import (
+    StageHistoryLedger,
+    StageHistoryRecord,
+    StageTransitionContext,
+    decide_stage_transition,
+)
 from .origination import (
     OriginationBaselineLedger,
     OriginationRiskBaseline,
@@ -32,8 +38,12 @@ __all__ = [
     "SICRPolicy",
     "Stage3AssessmentInput",
     "Stage3Decision",
+    "StageHistoryLedger",
+    "StageHistoryRecord",
+    "StageTransitionContext",
     "assess_sicr",
     "assess_stage3",
+    "decide_stage_transition",
     "create_origination_baseline",
     "load_origination_ledger",
     "save_origination_ledger",

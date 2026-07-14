@@ -848,11 +848,21 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Implementar período de observação.
-- [ ] Implementar critérios quantitativos e qualitativos.
-- [ ] Registrar histórico de estágio.
-- [ ] Impedir cura prematura.
-- [ ] Tratar redefault.
+- [x] Implementar período de observação.
+- [x] Implementar critérios quantitativos e qualitativos.
+- [x] Registrar histórico de estágio.
+- [x] Impedir cura prematura.
+- [x] Tratar redefault.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/sicr/history.py`, ledger imutável, 7 testes e `docs/models/STAGE_HISTORY_AND_CURE.md`.
+- Cura: reutiliza período, adimplência, obrigações e capacidade da política canônica; ausência ou insuficiência mantém Stage 3.
+- Retorno: cura elegível retorna a Stage 2 com SICR residual ou Stage 1 sem SICR.
+- Histórico: sequência, data, estágio anterior/novo, razões, cura, redefault e hashes das políticas são registrados.
+- Integridade: continuidade de contrato, sequência, data e estado falha fechada.
+- Redefault: nova entrada em Stage 3 após cura é marcada e justificada explicitamente.
 
 ## Tarefa 6.5 — POCI
 
