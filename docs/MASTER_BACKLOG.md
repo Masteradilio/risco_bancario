@@ -437,7 +437,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - Recuperação: seis fluxos mensais por default inicial, execução de garantia limitada à exposição e custos operacionais/judiciais explícitos.
 - Ciclo de vida: cura com período de observação, redefault posterior, write-off reconciliado e recuperação pós-baixa preservada.
 - Anti-leakage: os eventos são derivados depois do histórico e as tabelas públicas não exportam campos latentes.
-- Evidência: 7 testes aprovados; carteira fixa com 10 defaults iniciais, 2 redefaults, 69 recuperações, 5 curas e 7 write-offs.
+- Evidência: 7 testes aprovados; carteira fixa com 11 defaults iniciais, 3 redefaults, 76 recuperações, 6 curas e 8 write-offs.
 
 ## Tarefa 3.5 — Gerar macroeconomia e cenários
 
@@ -464,12 +464,23 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Construir observation dates.
-- [ ] Construir target de default em 12 meses.
-- [ ] Construir targets de hazard mensal.
-- [ ] Construir datasets de LGD e EAD.
-- [ ] Construir datasets de SICR.
-- [ ] Separar treino, validação, calibração, OOT e backtesting por tempo.
+- [x] Construir observation dates.
+- [x] Construir target de default em 12 meses.
+- [x] Construir targets de hazard mensal.
+- [x] Construir datasets de LGD e EAD.
+- [x] Construir datasets de SICR.
+- [x] Separar treino, validação, calibração, OOT e backtesting por tempo.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/modeling.py`, API pública, testes e `docs/data/SYNTHETIC_MODELING_DATASETS.md`.
+- PD/hazard: observações mensais point-in-time até dezembro de 2024, com target de default em 12 meses e hazard no mês seguinte.
+- LGD/EAD: resultados reconciliados por default, LGD realizada não descontada explicitamente nomeada e CCF para exposições com limite não utilizado.
+- SICR: target futuro combina default, atraso de 31 dias e deterioração mínima de dois graus contra a originação.
+- Splits: treino até 2019, validação em 2020, calibração em 2021, OOT em 2022–2023 e backtesting em 2024, sem sorteio entre períodos.
+- Anti-leakage: tabelas de PD/SICR não expõem datas de default, recuperação, EAD realizada ou campos latentes como features.
+- Evidência: 7 testes aprovados; 1.840 linhas PD/SICR, 11 LGD/EAD, 98 defaults 12m, 8 hazards mensais e 236 SICR positivos na carteira fixa.
 
 ## Tarefa 3.7 — Qualidade e anti-leakage
 

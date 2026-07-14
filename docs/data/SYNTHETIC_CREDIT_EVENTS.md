@@ -36,11 +36,11 @@ taxas observadas, calibração institucional ou política contábil aprovada.
 
 Com `seed=91`, 40 clientes e dois contratos por cliente, a suíte fixa produziu:
 
-- 10 defaults iniciais e 2 redefaults;
-- 30 ações de cobrança;
-- 60 recuperações mensais em caixa e 2 execuções de garantia;
-- 5 curas;
-- 7 write-offs e 7 recuperações pós-baixa.
+- 11 defaults iniciais e 3 redefaults;
+- 33 ações de cobrança;
+- 66 recuperações mensais em caixa e 2 execuções de garantia;
+- 6 curas;
+- 8 write-offs e 8 recuperações pós-baixa.
 
 Sete testes verificam reprodutibilidade, ordem temporal, fluxo mensal, custos,
 execução de garantia, cura/redefault, reconciliação de baixa e anti-leakage.

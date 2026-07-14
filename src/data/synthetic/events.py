@@ -94,15 +94,19 @@ def _money(value: Decimal) -> Decimal:
 
 
 def _first_default_candidate(
-    rows: list[MonthlySnapshotRecord], rng: Random, *, force_shock: bool
+    rows: list[MonthlySnapshotRecord],
+    rng: Random,
+    *,
+    forced_trigger: str | None,
+    forced_months_on_book: int,
 ) -> tuple[MonthlySnapshotRecord, str] | None:
     for row in rows:
         if row.balance <= 0 or row.months_on_book < 6:
             continue
         if row.days_past_due >= 90:
             return row, "90_days_past_due"
-        if force_shock and row.months_on_book >= 36:
-            return row, "idiosyncratic_collateral_shock"
+        if forced_trigger is not None and row.months_on_book >= forced_months_on_book:
+            return row, forced_trigger
         monthly_hazard = 0.0005 + float(row.behavior_score**2) * 0.012
         if rng.random() < monthly_hazard:
             return row, "stochastic_hazard"
@@ -126,11 +130,27 @@ def generate_credit_events(
             key=lambda item: item.reference_date,
         )
         rng = _event_rng(population.seed, contract.contract_id)
-        force_shock = (
+        force_collateral_shock = (
             contract.contract_id in collateral_by_contract
             and int(contract.contract_id[-4:]) % 17 == 0
         )
-        candidate = _first_default_candidate(rows, rng, force_shock=force_shock)
+        force_ccf_shock = (
+            contract.facility_type in {"revolving", "commitment", "financial_guarantee"}
+            and int(contract.contract_id[-4:]) % 19 == 0
+        )
+        forced_trigger = None
+        forced_months_on_book = 36
+        if force_collateral_shock:
+            forced_trigger = "idiosyncratic_collateral_shock"
+        elif force_ccf_shock:
+            forced_trigger = "liquidity_drawdown_shock"
+            forced_months_on_book = 6
+        candidate = _first_default_candidate(
+            rows,
+            rng,
+            forced_trigger=forced_trigger,
+            forced_months_on_book=forced_months_on_book,
+        )
         if candidate is None:
             continue
         snapshot, trigger = candidate
