@@ -70,6 +70,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Publicada validação de staging com PSI, migrações, sensibilidade, comparação de definições e erros futuros; regra proxy reprovada no OOT.
 - Criado dataset workout LGD por coorte/default com recuperações, custos, garantias, cura, write-off, janela e censura explícita.
 - Implementada LGD realizada com EAD no default, recuperações e custos descontados à EIR, tratamento separado de cura/perda, censura e limites versionados que preservam o valor bruto.
+- Comparados baseline segmentado, Ridge one-stage, two-stage cura/severidade e one-inflated para LGD, com features point-in-time de garantia/LTV, produto, atraso, prazo e macro e seleção provisória não aprovada.
 
 ---
 

@@ -961,11 +961,22 @@ Calcular LGD a partir de recuperações líquidas e descontadas.
 
 ### Subtarefas
 
-- [ ] Implementar baseline segmentado.
-- [ ] Avaliar one-stage regression.
-- [ ] Avaliar two-stage: probabilidade de write-off/cura + severidade.
-- [ ] Considerar zero/one-inflated ou beta regression quando adequado.
-- [ ] Incluir garantias, LTV, produto, atraso, prazo e macroeconomia.
+- [x] Implementar baseline segmentado.
+- [x] Avaliar one-stage regression.
+- [x] Avaliar two-stage: probabilidade de write-off/cura + severidade.
+- [x] Considerar zero/one-inflated ou beta regression quando adequado.
+- [x] Incluir garantias, LTV, produto, atraso, prazo e macroeconomia.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/lgd/modeling.py`, 7 testes e `docs/models/LGD_MODELING.md`.
+- Amostra: 25 workouts fechados; treino temporal com 15 defaults de 2017–2021 e validação com 10 defaults de 2022–2023; 7 censurados excluídos.
+- Features: produto, garantia, LTV, EAD, atraso, prazo remanescente e macro observado point-in-time, sem fluxos futuros como preditores.
+- Candidatos: baseline segmentado, Ridge one-stage, two-stage cura/severidade e one-inflated Ridge foram comparados no mesmo holdout.
+- Adequação: seis perdas integrais justificam avaliar one-inflation; não há massa em zero e beta puro não acomoda os limites sem transformação.
+- Seleção provisória: `ridge_one_stage` teve o menor RMSE (0,452035), contra 0,453292 do two-stage, 0,455493 do one-inflated e 0,509690 do baseline.
+- Guardrail: todos os candidatos permanecem `demonstrative_not_approved`; a amostra sintética pequena e diferenças marginais impedem aprovação.
 
 ## Tarefa 7.4 — Garantias
 
