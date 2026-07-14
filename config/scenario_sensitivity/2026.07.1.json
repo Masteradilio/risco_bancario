@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "schema_version": "1.0.0",
+    "policy_version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "evidence_status": "synthetic_demonstrative_only"
+  },
+  "weight_cases": [
+    {"case_id": "downside_shift", "upside": "0.10", "base": "0.55", "downside": "0.35"},
+    {"case_id": "severe_downside_shift", "upside": "0.05", "base": "0.35", "downside": "0.60"}
+  ],
+  "trajectory_shocks": [
+    {"case_id": "unemployment_plus_1pp", "variable": "unemployment", "additive": "1.00", "scenario_ids": ["upside", "base", "downside"]},
+    {"case_id": "gdp_minus_1pp", "variable": "gdp_growth", "additive": "-1.00", "scenario_ids": ["upside", "base", "downside"]}
+  ]
+}

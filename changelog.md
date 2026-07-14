@@ -80,6 +80,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Criado serviço governado de cenários com trajetórias macro mensais tipadas, quatro cenários, validação de pesos, versão/aprovação e cache verificável para snapshots externos; a fonte sintética permanece não aprovada.
 - Parametrizadas relações macroeconômicas versionadas e não lineares para PD, LGD, EAD e CCF por segmento, com coeficientes sintéticos integralmente documentados e sem alegação de estimação.
 - Implementado ECL mensal integral por cenário com hazard/sobrevivência, LGD, EAD, CCF e desconto específicos, seguido de ponderação dos valores de ECL e stress separado.
+- Adicionados sensitividades versionadas de pesos/trajetórias, relatório de stress e framework de management overlays pós-modelo com aprovação, vigência e reversão auditáveis.
 
 ---
 

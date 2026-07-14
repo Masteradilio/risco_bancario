@@ -16,6 +16,15 @@ from .scenario_engine import (
     ScenarioRiskPeriod,
     calculate_probability_weighted_scenario_ecl,
 )
+from .sensitivity import (
+    ScenarioSensitivityPolicy,
+    ScenarioSensitivityReport,
+    SensitivityResult,
+    TrajectoryShock,
+    WeightSensitivityCase,
+    load_scenario_sensitivity_policy,
+    run_scenario_sensitivities,
+)
 
 __all__ = [
     "ECLResult",
@@ -27,8 +36,15 @@ __all__ = [
     "ScenarioECL",
     "ScenarioIntegral",
     "ScenarioRiskPeriod",
+    "ScenarioSensitivityPolicy",
+    "ScenarioSensitivityReport",
+    "SensitivityResult",
+    "TrajectoryShock",
+    "WeightSensitivityCase",
     "calculate_probability_weighted_scenario_ecl",
     "classify_poci",
     "credit_adjusted_eir",
     "measure_poci_change",
+    "load_scenario_sensitivity_policy",
+    "run_scenario_sensitivities",
 ]

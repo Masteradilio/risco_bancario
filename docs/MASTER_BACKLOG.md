@@ -1192,15 +1192,28 @@ Calcular riscos e ECL completos por cenário, com relações macroeconômicas de
 
 ### Subtarefas
 
-- [ ] Executar sensibilidade a pesos e trajetórias.
-- [ ] Implementar stress testing.
-- [ ] Criar framework de management overlays separado do modelo.
-- [ ] Registrar motivo, valor, aprovador, vigência e reversão do overlay.
+- [x] Executar sensibilidade a pesos e trajetórias.
+- [x] Implementar stress testing.
+- [x] Criar framework de management overlays separado do modelo.
+- [x] Registrar motivo, valor, aprovador, vigência e reversão do overlay.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/sensitivity.py`, `src/ecl/overlays/management.py`, política `config/scenario_sensitivity/2026.07.1.json`, 7 testes e `docs/models/SCENARIO_SENSITIVITY_AND_OVERLAYS.md`.
+- Caso de 6 meses: base R$ 121,51; sensibilidades de peso R$ 125,61/R$ 130,65; choques de trajetória R$ 133,51/R$ 137,22; stress separado R$ 187,54.
+- Overlay: ECL econômico, valor gerencial e ECL final permanecem separados; registro exige motivo, aprovador, vigência e trilha de reversão.
+- Guardrail: sensibilidades são derivadas e versionadas; overlays não alteram curvas, fatores, pesos ou integrais de cenário.
 
 ### Critérios de aceite
 
-- [ ] Alterações macroeconômicas afetam curvas e ECL de forma rastreável.
-- [ ] ECL final reconcilia com a soma ponderada dos cenários.
+- [x] Alterações macroeconômicas afetam curvas e ECL de forma rastreável.
+- [x] ECL final reconcilia com a soma ponderada dos cenários.
+
+### Aceite da fase
+
+- A Fase 9 foi aceita tecnicamente: trajetórias, pesos, relações macro-risco, ECL integral por cenário, sensibilidades, stress e overlays possuem contratos versionados, testes e reconciliação.
+- O aceite não aprova cenários ou coeficientes para uso institucional. As fontes e relações permanecem sintéticas, demonstrativas e `not_approved`; a orquestração completa por Stage pertence à Fase 10.
 
 ---
 
