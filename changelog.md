@@ -28,6 +28,10 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Criado o esqueleto canônico em `src/`, separando domínio, dados, modelos, ECL, regulação, validação, aplicação e infraestrutura.
 - Adicionados modelos imutáveis para cliente, contraparte, contrato, garantia, fluxo de caixa, snapshot, cenário e resultado ECL.
 - Formalizadas em ADR as convenções de `Decimal`, `ROUND_HALF_EVEN`, percentuais decimais, datas de negócio e timestamps UTC.
+- Criada política quantitativa JSON versionada e validada por schema estrito para rating/PD, staging, LGD, CCF e cenários.
+- Adicionados metadados de vigência, autoria, justificativa, status de evidência e hash SHA-256 determinístico da configuração.
+- Conectados `shared/utils.py` e o gerenciador legado de cenários à política canônica, preservando interfaces de compatibilidade.
+- Tornados obrigatórios a versão e o hash da configuração no contrato de resultado ECL.
 
 ---
 

@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "schema_version": "1.0.0",
+    "policy_version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "effective_to": null,
+    "author": "risco_bancario maintainers",
+    "justification": "Initial canonical migration of demonstrative legacy parameters; calibration and regulatory validation remain pending.",
+    "evidence_status": "demonstrative",
+    "source_references": [
+      "shared/utils.py",
+      "backend/perda_esperada/src/cenarios_forward_looking.py",
+      "docs/architecture/DUPLICATION_MAP.md"
+    ]
+  },
+  "rounding": {
+    "currency": "BRL",
+    "monetary_quantum": "0.01",
+    "rounding_mode": "ROUND_HALF_EVEN",
+    "rate_quantum": "0.00000001"
+  },
+  "rating_bands": [
+    {"rating": "A1", "lower_inclusive": "0", "upper_exclusive": "5", "pd_12m_min": "0.0003", "pd_12m_max": "0.0050", "lifetime_horizon_years": 5},
+    {"rating": "A2", "lower_inclusive": "5", "upper_exclusive": "15", "pd_12m_min": "0.0050", "pd_12m_max": "0.0100", "lifetime_horizon_years": 5},
+    {"rating": "A3", "lower_inclusive": "15", "upper_exclusive": "25", "pd_12m_min": "0.0100", "pd_12m_max": "0.0200", "lifetime_horizon_years": 5},
+    {"rating": "B1", "lower_inclusive": "25", "upper_exclusive": "35", "pd_12m_min": "0.0200", "pd_12m_max": "0.0350", "lifetime_horizon_years": 5},
+    {"rating": "B2", "lower_inclusive": "35", "upper_exclusive": "45", "pd_12m_min": "0.0350", "pd_12m_max": "0.0500", "lifetime_horizon_years": 5},
+    {"rating": "B3", "lower_inclusive": "45", "upper_exclusive": "55", "pd_12m_min": "0.0500", "pd_12m_max": "0.0700", "lifetime_horizon_years": 5},
+    {"rating": "C1", "lower_inclusive": "55", "upper_exclusive": "65", "pd_12m_min": "0.0700", "pd_12m_max": "0.1000", "lifetime_horizon_years": 5},
+    {"rating": "C2", "lower_inclusive": "65", "upper_exclusive": "75", "pd_12m_min": "0.1000", "pd_12m_max": "0.1500", "lifetime_horizon_years": 5},
+    {"rating": "C3", "lower_inclusive": "75", "upper_exclusive": "85", "pd_12m_min": "0.1500", "pd_12m_max": "0.2500", "lifetime_horizon_years": 5},
+    {"rating": "D", "lower_inclusive": "85", "upper_exclusive": "95", "pd_12m_min": "0.2500", "pd_12m_max": "0.5000", "lifetime_horizon_years": 5},
+    {"rating": "DEFAULT", "lower_inclusive": "95", "upper_exclusive": "101", "pd_12m_min": "0.5000", "pd_12m_max": "1.0000", "lifetime_horizon_years": 5}
+  ],
+  "staging": {
+    "stage_2_days_past_due": 31,
+    "stage_3_days_past_due": 91,
+    "stage_2_downgrade_notches": 2,
+    "stage_2_income_reduction": "0.30",
+    "stage_2_dti_increase": "0.20",
+    "stage_2_external_score_drop": 100,
+    "stage_3_qualitative_events": ["judicial_event", "insolvency", "failed_restructuring"],
+    "score_only_staging_allowed": false
+  },
+  "lgd_by_guarantee": {
+    "consignacao": {"base": "0.25", "downturn_multiplier": "1.25"},
+    "imovel_residencial": {"base": "0.15", "downturn_multiplier": "1.30"},
+    "imovel_comercial": {"base": "0.20", "downturn_multiplier": "1.35"},
+    "veiculo": {"base": "0.35", "downturn_multiplier": "1.40"},
+    "equipamento": {"base": "0.40", "downturn_multiplier": "1.45"},
+    "recebivel": {"base": "0.45", "downturn_multiplier": "1.30"},
+    "nenhuma": {"base": "0.60", "downturn_multiplier": "1.50"}
+  },
+  "ccf_by_product": {
+    "consignado": "1.00", "imobiliario": "1.00", "cred_veiculo": "1.00", "energia_solar": "1.00",
+    "cartao_credito_rotativo": "0.75", "cartao_credito_parcelado": "0.75", "banparacard": "0.75",
+    "cheque_especial": "0.70", "credito_sazonal": "0.50", "pessoal": "1.00"
+  },
+  "scenarios": [
+    {"scenario_id": "upside", "kind": "upside", "weight": "0.15", "pd_multiplier": "0.85", "lgd_multiplier": "0.90"},
+    {"scenario_id": "base", "kind": "base", "weight": "0.70", "pd_multiplier": "1.00", "lgd_multiplier": "1.00"},
+    {"scenario_id": "downside", "kind": "downside", "weight": "0.15", "pd_multiplier": "1.25", "lgd_multiplier": "1.15"}
+  ]
+}

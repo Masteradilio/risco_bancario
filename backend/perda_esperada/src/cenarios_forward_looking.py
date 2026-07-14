@@ -23,7 +23,10 @@ from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
 import requests
 from datetime import datetime
+from pathlib import Path
 import numpy as np
+
+from src.infrastructure.configuration import load_risk_policy
 
 # Configuração de logging
 logger = logging.getLogger(__name__)
@@ -34,6 +37,15 @@ class TipoCenario(Enum):
     OTIMISTA = "otimista"
     BASE = "base"
     PESSIMISTA = "pessimista"
+
+
+_POLICY_PATH = Path(__file__).resolve().parents[3] / "config" / "risk_policy" / "2026.07.1.json"
+_LOADED_POLICY = load_risk_policy(_POLICY_PATH)
+_SCENARIO_KIND = {
+    "upside": TipoCenario.OTIMISTA,
+    "base": TipoCenario.BASE,
+    "downside": TipoCenario.PESSIMISTA,
+}
 
 
 @dataclass
@@ -142,23 +154,20 @@ class GerenciadorCenarios:
     
     # Pesos padrão dos cenários (soma deve ser 1.0)
     PESOS_PADRAO = {
-        TipoCenario.OTIMISTA: 0.15,
-        TipoCenario.BASE: 0.70,
-        TipoCenario.PESSIMISTA: 0.15
+        _SCENARIO_KIND[item.kind]: float(item.weight)
+        for item in _LOADED_POLICY.policy.scenarios
     }
     
     # Spreads padrão de PD por cenário
     SPREADS_PD_PADRAO = {
-        TipoCenario.OTIMISTA: 0.85,     # PD 15% menor
-        TipoCenario.BASE: 1.00,          # PD base
-        TipoCenario.PESSIMISTA: 1.25     # PD 25% maior
+        _SCENARIO_KIND[item.kind]: float(item.pd_multiplier)
+        for item in _LOADED_POLICY.policy.scenarios
     }
     
     # Spreads padrão de LGD por cenário
     SPREADS_LGD_PADRAO = {
-        TipoCenario.OTIMISTA: 0.90,     # LGD 10% menor
-        TipoCenario.BASE: 1.00,          # LGD base
-        TipoCenario.PESSIMISTA: 1.15     # LGD 15% maior (Downturn LGD)
+        _SCENARIO_KIND[item.kind]: float(item.lgd_multiplier)
+        for item in _LOADED_POLICY.policy.scenarios
     }
     
     # URL da API SGS do BACEN

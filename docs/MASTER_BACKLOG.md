@@ -223,16 +223,26 @@ Eliminar duplicações, organizar o domínio e criar uma base estável para a re
 
 ### Subtarefas
 
-- [ ] Criar schemas versionados de configuração.
-- [ ] Migrar thresholds, pesos, cenários e políticas para YAML/JSON/Pydantic.
-- [ ] Registrar data de vigência, autor, versão e justificativa.
-- [ ] Impedir carregamento de configuração inválida.
-- [ ] Criar hash da configuração usada em cada execução.
+- [x] Criar schemas versionados de configuração.
+- [x] Migrar thresholds, pesos, cenários e políticas para YAML/JSON/Pydantic.
+- [x] Registrar data de vigência, autor, versão e justificativa.
+- [x] Impedir carregamento de configuração inválida.
+- [x] Criar hash da configuração usada em cada execução.
 
 ### Critérios de aceite
 
-- [ ] Nenhuma regra material depende de número mágico disperso.
-- [ ] O resultado ECL identifica a versão exata da configuração.
+- [x] Nenhuma regra material depende de número mágico disperso.
+- [x] O resultado ECL identifica a versão exata da configuração.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `config/risk_policy/2026.07.1.json`, schema Pydantic estrito em `src/infrastructure/configuration` e `docs/configuration/RISK_POLICY.md`.
+- Migração: rating/PD, staging, LGD, CCF e cenários passaram a possuir fonte efetiva única; `shared/utils.py` e o gerenciador legado de cenários funcionam como adaptadores de compatibilidade.
+- Governança: política registra schema, versão, vigência, autor, justificativa, fontes e status demonstrativo; nenhuma premissa foi promovida a validada.
+- Rastreabilidade: loader gera SHA-256 determinístico e `ECLResult` exige versão e hash da configuração.
+- Evidência: 18 testes de configuração/domínio, 28 testes de cenários ECL e 94 testes PRINAD aprovados; 7 testes PRINAD ignorados conforme baseline.
+- Limitação preexistente: a coleta isolada de testes de Propensão continua bloqueada pela ausência de `python-jose` no venv, já registrada no baseline e destinada à Tarefa 1.4.
 
 ## Tarefa 1.4 — Padronizar tooling
 

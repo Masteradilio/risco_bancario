@@ -535,6 +535,63 @@ CRITERIOS_STAGE = {
     }
 }
 
+# Canonical configuration adapter. The literal dictionaries above are retained
+# temporarily as legacy documentation while consumers migrate, but the effective
+# values exported by this module come from the governed, versioned policy.
+from src.infrastructure.configuration import load_risk_policy
+
+_RISK_POLICY_SOURCE = BASE_DIR / "config" / "risk_policy" / "2026.07.1.json"
+_LOADED_RISK_POLICY = load_risk_policy(_RISK_POLICY_SOURCE)
+_RISK_POLICY = _LOADED_RISK_POLICY.policy
+RISK_POLICY_VERSION = _RISK_POLICY.metadata.policy_version
+RISK_POLICY_HASH = _LOADED_RISK_POLICY.configuration_hash
+
+_RATING_BANDS = sorted(_RISK_POLICY.rating_bands, key=lambda band: band.lower_inclusive)
+PD_POR_RATING = {
+    band.rating: (float(band.pd_12m_min), float(band.pd_12m_max), band.lifetime_horizon_years)
+    for band in _RATING_BANDS
+}
+PRINAD_TO_RATING = [
+    (float(band.upper_exclusive), band.rating) for band in _RATING_BANDS[:-1]
+] + [(float("inf"), _RATING_BANDS[-1].rating)]
+LGD_POR_GARANTIA = {
+    name: (float(rule.base), float(rule.downturn_multiplier))
+    for name, rule in _RISK_POLICY.lgd_by_guarantee.items()
+}
+CCF_POR_PRODUTO = {name: float(value) for name, value in _RISK_POLICY.ccf_by_product.items()}
+CRITERIOS_STAGE = {
+    "STAGE_1": {
+        "descricao": "Risco Normal",
+        "ecl_horizonte": "12_meses",
+        "condicoes": {"dias_atraso_max": _RISK_POLICY.staging.stage_2_days_past_due - 1},
+    },
+    "STAGE_2": {
+        "descricao": "Aumento Significativo de Risco",
+        "ecl_horizonte": "lifetime",
+        "gatilhos": {
+            "dias_atraso_min": _RISK_POLICY.staging.stage_2_days_past_due,
+            "dias_atraso_max": _RISK_POLICY.staging.stage_3_days_past_due - 1,
+            "downgrade_notches": _RISK_POLICY.staging.stage_2_downgrade_notches,
+            "reducao_renda_pct": float(_RISK_POLICY.staging.stage_2_income_reduction),
+            "aumento_dti_pp": float(_RISK_POLICY.staging.stage_2_dti_increase),
+            "queda_score_externo": _RISK_POLICY.staging.stage_2_external_score_drop,
+        },
+    },
+    "STAGE_3": {
+        "descricao": "Default/Impairment",
+        "ecl_horizonte": "lifetime_cash_shortfall",
+        "gatilhos": {
+            "dias_atraso_min": _RISK_POLICY.staging.stage_3_days_past_due,
+            **{event: True for event in _RISK_POLICY.staging.stage_3_qualitative_events},
+            # Compatibility aliases used by the current function signature.
+            "evento_judicial": "judicial_event" in _RISK_POLICY.staging.stage_3_qualitative_events,
+            "insolvencia": "insolvency" in _RISK_POLICY.staging.stage_3_qualitative_events,
+            "falha_renegociacao": "failed_restructuring" in _RISK_POLICY.staging.stage_3_qualitative_events,
+        },
+        "arrasto": True,
+    },
+}
+
 # =============================================================================
 # IFRS 9 / BACEN 4966: CURE CRITERIA (STAGE REVERSAL)
 # =============================================================================
