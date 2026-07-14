@@ -25,6 +25,19 @@ from .contract import (
     iter_sourced_values,
     sourced,
 )
+from .layout_registry import (
+    DEFAULT_REGISTRY_DIR,
+    ArtifactRef,
+    CriticCatalogRef,
+    DomainCatalogRef,
+    LayoutVersion,
+    XsdRef,
+    layout_for_reference_month,
+    load_layout_manifest,
+    load_layout_registry,
+    load_official_xsd,
+    verify_artifact_file,
+)
 
 __all__ = [
     "FIELD_CATALOG",
@@ -50,4 +63,15 @@ __all__ = [
     "catalog_fields_for",
     "iter_sourced_values",
     "sourced",
+    "DEFAULT_REGISTRY_DIR",
+    "ArtifactRef",
+    "CriticCatalogRef",
+    "DomainCatalogRef",
+    "LayoutVersion",
+    "XsdRef",
+    "layout_for_reference_month",
+    "load_layout_manifest",
+    "load_layout_registry",
+    "load_official_xsd",
+    "verify_artifact_file",
 ]

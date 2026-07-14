@@ -1467,10 +1467,26 @@ Substituir o simulador heurístico por um gerador e pré-validador versionado, s
 
 ### Subtarefas
 
-- [ ] Implementar registry por data-base.
-- [ ] Carregar XSD correspondente.
-- [ ] Versionar críticas e tabelas de domínio.
-- [ ] Bloquear data-base sem versão suportada.
+- [x] Implementar registry por data-base.
+- [x] Carregar XSD correspondente.
+- [x] Versionar críticas e tabelas de domínio.
+- [x] Bloquear data-base sem versão suportada.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: registry em `src/regulatory/doc3040/layout_registry.py`, manifesto
+  `2026.07-observed-20260714`, testes e
+  `docs/regulatory/DOC3040_LAYOUT_REGISTRY.md`.
+- Perímetro: datas-base de julho a outubro de 2026; meses anteriores e novembro/2026 em
+  diante são bloqueados até existir pacote observado e testado próprio.
+- Integridade: URLs BCB e hashes SHA-256 versionam leiaute/domínios, instruções, críticas
+  e regras de reconciliação consultados em 14/07/2026.
+- XSD: o loader exige documento 3040, origem oficial, nome e hash; como a página oficial
+  lista XSD 3045, o manifesto atual não habilita geração nem validação XSD e falha com
+  causa explícita.
+- Evidência: 6 testes do registry e 11 do contrato aprovados; execução de domínios e
+  críticas permanece na Tarefa 12.4.
 
 ## Tarefa 12.3 — Geração XML
 

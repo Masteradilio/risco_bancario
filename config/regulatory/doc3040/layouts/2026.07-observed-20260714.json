@@ -1,0 +1,45 @@
+{
+  "document_code": "3040",
+  "version": "2026.07-observed-20260714",
+  "effective_from": "2026-07-01",
+  "effective_to": "2026-11-01",
+  "observed_at": "2026-07-14",
+  "source_id": "SRC-DOC3040",
+  "normative_acts": ["IN BCB 733/2026", "IN BCB 735/2026"],
+  "artifacts": {
+    "layout_and_domains": {
+      "filename": "SCR3040_Leiaute.xls",
+      "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_Leiaute.xls",
+      "sha256": "ab3cad54fe481a52b5c4c24c832af3b1c0ef1e0d75cbaa3639611c903ed5c70f"
+    },
+    "filling_instructions": {
+      "filename": "SCR_InstrucoesDePreenchimento_Doc3040.pdf",
+      "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR_InstrucoesDePreenchimento_Doc3040.pdf",
+      "sha256": "3a2f9dff406b404b26617ab0dce79b5992cc67ac410ff60047236c73b11daf8b"
+    },
+    "critics": {
+      "filename": "SCR3040_Criticas.xls",
+      "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_Criticas.xls",
+      "sha256": "10718c233c5a27f07d49554b716c68c35dfbd92f1df2d0d328be56b1507cda40"
+    },
+    "bacen_reconciliation_rules": {
+      "filename": "SCR3040_RegrasValidacaoBacen.xls",
+      "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_RegrasValidacaoBacen.xls",
+      "sha256": "8efd7bbd8ad50fdb0acf7413532235740eefdadbdda56312274154cb491e92e5"
+    }
+  },
+  "domain_catalog": {
+    "artifact": "layout_and_domains",
+    "sheets": ["Anexo", "Anexo 26 - InfosAdicionais"],
+    "future_markers_must_be_filtered": ["NR3"],
+    "active_markers": ["NR", "NR1", "NR2", "NR4"]
+  },
+  "critic_catalog": {
+    "artifacts": ["critics", "bacen_reconciliation_rules"],
+    "critics_last_update": "2026-07-10",
+    "execution_status": "versioned_not_yet_executed"
+  },
+  "xsd": null,
+  "xsd_status": "official_source_page_lists_xsd_3045_not_3040",
+  "generation_enabled": false
+}
