@@ -593,10 +593,20 @@ Representar corretamente a vida financeira dos instrumentos.
 
 ### Subtarefas
 
-- [ ] Implementar prepagamento parcial e total.
-- [ ] Implementar modificação com e sem baixa.
-- [ ] Calcular ganho/perda de modificação.
-- [ ] Preservar EIR original quando exigido.
+- [x] Implementar prepagamento parcial e total.
+- [x] Implementar modificação com e sem baixa.
+- [x] Calcular ganho/perda de modificação.
+- [x] Preservar EIR original quando exigido.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/domain/contracts/modifications.py`, API de domínio, testes e `docs/contracts/PREPAYMENT_AND_MODIFICATIONS.md`.
+- Prepagamento: valores são limitados ao saldo; total encerra e parcial reprojeta saldo/prazo remanescentes sem reaplicar tarifa upfront.
+- Sem baixa: novos fluxos são descontados pela EIR original, que permanece como taxa aplicada; ganho/perda reconcilia valor anterior e presente modificado.
+- Com baixa: exige valor justo explícito, reconhece novo valor contábil, calcula ganho/perda e resolve nova EIR.
+- Guardrail: o motor não inventa teste de substancialidade; `derecognize` deve vir de política aprovada e o principal revisado deve reconciliar com o saldo anterior.
+- Evidência: 5 testes aprovados; contraprestação, custos de renegociação, capitalização de atraso, teste de baixa e POCI permanecem documentados como limitações.
 
 ## Tarefa 4.4 — Golden cases financeiros
 

@@ -54,6 +54,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Materializado pacote de aceitação com 24 Parquets e manifesto determinístico; adicionados exportador, comando PowerShell, hashes/schemas e insumo regulatório neutro sem campos Doc3040 inventados.
 - Implementado motor canônico de contratos amortizados Price, SAC e bullet, com taxas fixas/variáveis, tarifas, EIR, convenções de dias e ajustes de calendário.
 - Implementado motor mensal de cartão e cheque especial, separando limite, saldo e disponibilidade, com drawdown, pagamento mínimo, shortfall e cancelamento reconciliados.
+- Adicionados prepagamento parcial/total e modificações com/sem baixa, com reconciliação de saldo, ganho/perda, preservação da EIR original ou cálculo de nova EIR.
 
 ---
 
