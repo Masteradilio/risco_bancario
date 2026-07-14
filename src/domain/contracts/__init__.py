@@ -13,6 +13,13 @@ from .amortization import (
     year_fraction,
 )
 from .models import Contract, ContractStatus, Guarantee, GuaranteeType
+from .revolving import (
+    RevolvingActivity,
+    RevolvingProduct,
+    RevolvingSchedule,
+    RevolvingTerms,
+    project_revolving_facility,
+)
 
 __all__ = [
     "AmortizationMethod",
@@ -26,7 +33,12 @@ __all__ = [
     "GuaranteeType",
     "RateReset",
     "RateType",
+    "RevolvingActivity",
+    "RevolvingProduct",
+    "RevolvingSchedule",
+    "RevolvingTerms",
     "adjust_business_day",
     "project_amortized_schedule",
+    "project_revolving_facility",
     "year_fraction",
 ]

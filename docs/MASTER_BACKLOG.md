@@ -574,10 +574,20 @@ Representar corretamente a vida financeira dos instrumentos.
 
 ### Subtarefas
 
-- [ ] Implementar limites, utilização e pagamento mínimo.
-- [ ] Projetar drawdown e cancelamento.
-- [ ] Tratar limite não utilizado.
-- [ ] Suportar cartões e cheque especial.
+- [x] Implementar limites, utilização e pagamento mínimo.
+- [x] Projetar drawdown e cancelamento.
+- [x] Tratar limite não utilizado.
+- [x] Suportar cartões e cheque especial.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/domain/contracts/revolving.py`, API de domínio, testes e `docs/contracts/REVOLVING_FACILITIES.md`.
+- Estado: limite, saldo, juros, disponibilidade, drawdown, pagamento mínimo/real, shortfall e cancelamento são reconciliados mensalmente.
+- Guardrails: drawdown não excede limite disponível; pagamento não excede dívida; cancelamento não reduz limite abaixo do saldo.
+- Produtos: cartão e cheque especial compartilham invariantes, mantendo tipo explícito e política de pagamento mínimo parametrizável.
+- Temporalidade: exige uma atividade única, ordenada e mensal para cada período contratual.
+- Evidência: 6 testes aprovados; tarifas, IOF, parcelamento de fatura, aumento de limite e políticas de cobrança permanecem fora do escopo desta tarefa.
 
 ## Tarefa 4.3 — Modificações e prepagamento
 
