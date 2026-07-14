@@ -712,10 +712,21 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] Usar split por data/coorte.
-- [ ] Separar calibração do teste OOT.
-- [ ] Aplicar Platt, isotonic ou beta calibration conforme validação.
-- [ ] Avaliar calibração por rating, produto e safra.
+- [x] Usar split por data/coorte.
+- [x] Separar calibração do teste OOT.
+- [x] Aplicar Platt, isotonic ou beta calibration conforme validação.
+- [x] Avaliar calibração por rating, produto e safra.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: split purgado `0.2.0`, `src/models/pd/calibration.py`, testes e `docs/models/PD_TEMPORAL_CALIBRATION.md`.
+- Cortes: treino 2016–2018, validação 2020, calibração 2022, OOT 2024 e backtesting futuro 2025, com anos intermediários de embargo.
+- Backtesting: targets de 2025 são nulos até maturarem; falsos zeros são bloqueados pelo quality gate.
+- Seleção: isotonic venceu Platt por Brier em holdout temporal interno da validação; o calibrador final foi ajustado somente em calibração.
+- OOT: baseline calibrado colapsou para PD constante 0,2941, ROC AUC 0,5000 e erro global 0,1782; resultado bloqueia aprovação e não foi usado para retuning.
+- Segmentação: 14 cortes por rating, produto e safra registram contagem, eventos, taxa, PD média, erro e Brier.
+- Evidência: 5 testes novos e pacote Parquet regenerado; resultados permanecem sintéticos e `not_approved`.
 
 ## Tarefa 5.5 — Curvas de PD
 

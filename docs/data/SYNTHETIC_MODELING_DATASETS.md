@@ -7,9 +7,10 @@ ou valida modelos.
 
 ## Data de observação e targets
 
-As linhas de PD e SICR usam snapshots mensais até dezembro de 2024. Esse corte
-preserva doze meses completos de resultado na janela simulada. Contratos deixam
-o conjunto de risco de PD a partir do primeiro default.
+As linhas de PD e SICR usam snapshots mensais até dezembro de 2025. Targets
+maduros existem somente até dezembro de 2024; as linhas de 2025 representam o
+backtesting futuro e mantêm targets nulos, em vez de registrar falsos zeros.
+Contratos deixam o conjunto de risco de PD a partir do primeiro default.
 
 - `target_default_12m`: default estritamente depois da data de observação e até
   doze meses depois;
@@ -36,13 +37,17 @@ aceitação.
 
 ## Separação temporal
 
-Nenhuma linha é sorteada entre amostras. Os cortes são fixos e disjuntos:
+Nenhuma linha é sorteada entre amostras. Os cortes são fixos, disjuntos e
+separados por doze meses de embargo entre os blocos de desenvolvimento:
 
-- treino: até dezembro de 2019;
+- treino: até dezembro de 2018;
+- embargo: janeiro a dezembro de 2019;
 - validação: janeiro a dezembro de 2020;
-- calibração: janeiro a dezembro de 2021;
-- OOT: janeiro de 2022 a dezembro de 2023;
-- backtesting: janeiro a dezembro de 2024.
+- embargo: janeiro a dezembro de 2021;
+- calibração: janeiro a dezembro de 2022;
+- embargo: janeiro a dezembro de 2023;
+- OOT: janeiro a dezembro de 2024;
+- backtesting futuro: janeiro a dezembro de 2025, ainda sem target maduro.
 
 Esses nomes definem o uso permitido das linhas. Treino/tuning não pode consultar
 calibração, OOT ou backtesting, e o conjunto de teste não pode orientar seleção
@@ -50,8 +55,8 @@ de variável, threshold ou hiperparâmetro.
 
 ## Evidência de aceitação
 
-Com `seed=91`, 40 clientes e dois contratos por cliente, foram geradas 1.299
-linhas de PD/hazard, 1.299 de SICR, 25 de LGD e 25 de EAD. Há 194 targets de
-default em 12 meses, 16 hazards mensais, 247 targets de SICR e ao menos um target
-de CCF. Sete testes verificam janelas, targets, reconciliação, ordem temporal,
-splits e anti-leakage.
+Com `seed=91`, 40 clientes e dois contratos por cliente, foram geradas 1.026
+linhas de PD/hazard e SICR, das quais 844 possuem target maduro e 182 pertencem
+ao backtesting futuro. Há 117 defaults em 12 meses, 10 hazards mensais, 148
+targets de SICR positivos e ao menos um target de CCF. Os testes verificam
+janelas, nulidade futura, embargo, reconciliação, ordem temporal e anti-leakage.

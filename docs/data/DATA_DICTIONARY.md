@@ -54,11 +54,15 @@ decimal, exceto variáveis macro em pontos percentuais.
 |---|---|
 | `pd_modeling.target_default_12m` | Label: default em `(t, t+12m]`. |
 | `pd_modeling.target_hazard_1m` | Label: default em `(t, t+1m]`. |
+| `pd_modeling.origination_cohort` | Safra mensal de originação; metadado de segmentação, não feature automática. |
 | `lgd_modeling.target_realized_lgd_undiscounted` | Label: perda líquida realizada, ainda sem desconto EIR. |
 | `ead_modeling.target_exposure_at_default` | Label: exposição realizada na data de default. |
 | `ead_modeling.target_ccf` | Label: parcela do limite não utilizado convertida, quando aplicável. |
 | `sicr_modeling.target_sicr_12m` | Label: deterioração relevante futura conforme definição sintética documentada. |
 | `split` | `train`, `validation`, `calibration`, `oot` ou `backtesting`. |
+
+Targets de PD, hazard e SICR são nulos em `backtesting` enquanto a janela futura
+não estiver completa. Anos de embargo não são exportados para modelagem.
 
 Identificadores, datas de evento e campos `target_*` são metadados/labels e não
 devem entrar automaticamente na matriz de features.

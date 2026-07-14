@@ -3,7 +3,7 @@
     "events": "0.1.0",
     "longitudinal": "0.1.0",
     "macroeconomics": "1.0.0",
-    "modeling": "0.1.0",
+    "modeling": "0.2.0",
     "population": "0.1.0"
   },
   "factory_version": "0.1.0",
@@ -611,7 +611,7 @@
       "sha256": "5658c3ec90ff3f9fb81fa8a0bfdda95268e246becfc0539a50b2fc4010b995f8"
     },
     "pd_modeling.parquet": {
-      "rows": 1299,
+      "rows": 1026,
       "schema": [
         {
           "name": "observation_date",
@@ -623,6 +623,10 @@
         },
         {
           "name": "client_id",
+          "type": "string"
+        },
+        {
+          "name": "origination_cohort",
           "type": "string"
         },
         {
@@ -686,7 +690,7 @@
           "type": "string"
         }
       ],
-      "sha256": "05dc13aabee866bd5104b0d48625598b58cbf76c3d11605723898ace7f8beab1"
+      "sha256": "145f9e105229bd5f0e2503b4ec75255dd499fab5a73c71f8b35e8b7f43dc5a2f"
     },
     "recoveries.parquet": {
       "rows": 186,
@@ -849,7 +853,7 @@
       "sha256": "5746052f2b42f9ce2b8ff06a644d473e269b95142592d5f7cf792551bde863b6"
     },
     "sicr_modeling.parquet": {
-      "rows": 1299,
+      "rows": 1026,
       "schema": [
         {
           "name": "observation_date",
@@ -880,7 +884,7 @@
           "type": "string"
         }
       ],
-      "sha256": "30c46fcdb395cf5d1c13e7771db69d836ce60c9950d1d5404fbd20c682c92920"
+      "sha256": "30b772c514267c681e6abe1f26a54cea99d0682cb78b681d99e1c85fbd531608"
     },
     "writeoffs.parquet": {
       "rows": 20,

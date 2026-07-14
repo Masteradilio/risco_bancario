@@ -26,8 +26,10 @@ def test_pd_observation_dates_and_targets_are_point_in_time(datasets) -> None:
     _, _, events, modeling = datasets
     defaults = [item for item in events.defaults if not item.is_redefault]
     assert modeling.pd
-    assert max(item.observation_date for item in modeling.pd) == date(2024, 12, 1)
-    for row in modeling.pd:
+    assert max(item.observation_date for item in modeling.pd) == date(2025, 12, 1)
+    labeled = [item for item in modeling.pd if item.target_default_12m is not None]
+    assert max(item.observation_date for item in labeled) == date(2024, 12, 1)
+    for row in labeled:
         expected = int(
             any(
                 row.observation_date
@@ -47,7 +49,11 @@ def test_pd_observation_dates_and_targets_are_point_in_time(datasets) -> None:
 def test_monthly_hazard_is_subset_of_default_target(datasets) -> None:
     modeling = datasets[-1]
     assert any(item.target_hazard_1m for item in modeling.pd)
-    assert all(item.target_hazard_1m <= item.target_default_12m for item in modeling.pd)
+    assert all(
+        item.target_hazard_1m <= item.target_default_12m
+        for item in modeling.pd
+        if item.target_hazard_1m is not None and item.target_default_12m is not None
+    )
 
 
 def test_lgd_dataset_reconciles_realized_net_recoveries(datasets) -> None:
@@ -79,7 +85,7 @@ def test_ead_dataset_uses_only_pre_default_observations(datasets) -> None:
 def test_sicr_dataset_has_future_deterioration_targets(datasets) -> None:
     modeling = datasets[-1]
     assert len(modeling.sicr) == len(modeling.pd)
-    assert {item.target_sicr_12m for item in modeling.sicr} == {0, 1}
+    assert {item.target_sicr_12m for item in modeling.sicr} == {0, 1, None}
 
 
 def test_time_splits_are_disjoint_and_ordered(datasets) -> None:
@@ -98,6 +104,13 @@ def test_time_splits_are_disjoint_and_ordered(datasets) -> None:
     assert all(
         max(dates_by_split[left]) < min(dates_by_split[right])
         for left, right in zip(order[:-1], order[1:], strict=True)
+    )
+    assert all(
+        (min(dates_by_split[right]).year - max(dates_by_split[left]).year) * 12
+        + min(dates_by_split[right]).month
+        - max(dates_by_split[left]).month
+        >= 12
+        for left, right in zip(order[:-2], order[1:-1], strict=True)
     )
 
 

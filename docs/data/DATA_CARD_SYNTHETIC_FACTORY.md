@@ -16,8 +16,8 @@ Os dados não são dados reais, não contêm PII e não representam uma institui
 - datasets point-in-time de PD, hazard, LGD, EAD/CCF e SICR.
 
 O relógio mensal cobre 2016–2025. Targets de doze meses usam observações apenas
-até dezembro de 2024. Os splits temporais separam treino, validação, calibração,
-OOT e backtesting.
+até dezembro de 2024. Splits de desenvolvimento são separados por embargo anual;
+2025 é backtesting futuro com targets nulos até a janela amadurecer.
 
 ## Geração e proveniência
 
@@ -45,8 +45,8 @@ usam `Decimal` e `ROUND_HALF_EVEN`.
 ## Qualidade e leakage
 
 `assess_synthetic_quality` valida referências, unicidade temporal, ordem de
-eventos, reconciliação de recuperação, janela completa de target, presença dos
-splits e schema de features. Também resume distribuição e correlação das dez
+eventos, reconciliação de recuperação, maturidade/nulidade dos targets, presença
+dos splits e schema de features. Também resume distribuição e correlação das dez
 features numéricas de PD. Correlação é diagnóstico, não critério de seleção.
 
 As latentes do desenho causal não são exportadas. As features usam apenas o
@@ -60,6 +60,8 @@ derivados depois da simulação.
 - A LGD realizada do dataset é não descontada; desconto por EIR será adicionado
   nas fases quantitativas.
 - O histórico macro é sintético e não deve ser confundido com série oficial.
+- O backtesting de 2025 não pode ser pontuado enquanto os targets 12m não forem
+  maturados por uma extensão futura da simulação.
 - Os insumos de cliente/contrato/snapshot ainda não constituem um Documento 3040
   nem substituem leiaute, XSD, domínios e críticas oficiais.
 - O insumo regulatório materializado é apenas fonte neutra; leiaute, XSD,

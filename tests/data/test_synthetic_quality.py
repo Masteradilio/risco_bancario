@@ -81,9 +81,9 @@ def test_time_splits_include_real_oot_and_backtesting(bundle) -> None:
     backtesting_dates = {
         item.observation_date for item in modeling.pd if item.split == "backtesting"
     }
-    assert min(oot_dates) == date(2022, 1, 1)
-    assert max(oot_dates) == date(2023, 12, 1)
-    assert min(backtesting_dates) == date(2024, 1, 1)
+    assert min(oot_dates) == date(2024, 1, 1)
+    assert max(oot_dates) == date(2024, 12, 1)
+    assert min(backtesting_dates) == date(2025, 1, 1)
 
 
 def test_data_card_and_dictionary_document_limitations() -> None:

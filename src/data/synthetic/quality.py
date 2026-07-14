@@ -9,7 +9,7 @@ from statistics import fmean
 from .events import CreditEventHistory
 from .longitudinal import LongitudinalPortfolio
 from .macroeconomics import MacroeconomicBundle
-from .modeling import MAX_OBSERVATION_DATE, ModelingDatasets
+from .modeling import MAX_LABELED_OBSERVATION_DATE, MAX_OBSERVATION_DATE, ModelingDatasets
 from .population import SyntheticPortfolio
 
 PD_FEATURE_COLUMNS = (
@@ -149,7 +149,19 @@ def _temporal_issues(
         if default is not None and cure.cure_date <= default.default_date:
             issues.append(QualityIssue("cure_before_default", "cures", cure.cure_id))
     if any(item.observation_date > MAX_OBSERVATION_DATE for item in modeling.pd):
-        issues.append(QualityIssue("incomplete_target_window", "pd_modeling", "after 2024-12-01"))
+        issues.append(QualityIssue("observation_after_cutoff", "pd_modeling", "after 2025-12-01"))
+    if any(
+        item.observation_date <= MAX_LABELED_OBSERVATION_DATE
+        and (item.target_default_12m is None or item.target_hazard_1m is None)
+        for item in modeling.pd
+    ):
+        issues.append(QualityIssue("missing_mature_target", "pd_modeling", "through 2024-12-01"))
+    if any(
+        item.observation_date > MAX_LABELED_OBSERVATION_DATE
+        and (item.target_default_12m is not None or item.target_hazard_1m is not None)
+        for item in modeling.pd
+    ):
+        issues.append(QualityIssue("premature_future_target", "pd_modeling", "after 2024-12-01"))
     return issues
 
 
@@ -173,15 +185,17 @@ def assess_synthetic_quality(
     if observed_splits != required_splits:
         issues.append(QualityIssue("missing_time_split", "pd_modeling", str(observed_splits)))
 
-    targets = [float(item.target_default_12m) for item in modeling.pd]
+    labeled_pd = [item for item in modeling.pd if item.target_default_12m is not None]
+    targets = [float(item.target_default_12m == 1) for item in labeled_pd]
     distributions: list[DistributionSummary] = []
     correlations: list[CorrelationSummary] = []
     for feature in PD_FEATURE_COLUMNS:
         values = [float(getattr(item, feature)) for item in modeling.pd]
+        labeled_values = [float(getattr(item, feature)) for item in labeled_pd]
         distributions.append(
             DistributionSummary(feature, len(values), min(values), max(values), fmean(values))
         )
         correlations.append(
-            CorrelationSummary(feature, "target_default_12m", _pearson(values, targets))
+            CorrelationSummary(feature, "target_default_12m", _pearson(labeled_values, targets))
         )
     return SyntheticQualityReport(tuple(issues), tuple(distributions), tuple(correlations))

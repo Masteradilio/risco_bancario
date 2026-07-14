@@ -14,9 +14,9 @@ datas futuras e eventos de recuperação não entram na matriz de features.
 ## Protocolo desta tarefa
 
 O ajuste usa somente `train`; as métricas abaixo usam `validation`; `calibration`
-serve exclusivamente para derivar a escala de rating. OOT e backtesting não são
-consultados. Calibração probabilística formal, embargo de horizonte e avaliação
-OOT pertencem à Tarefa 5.4; portanto estes resultados não aprovam modelo.
+serve exclusivamente para derivar a escala de rating. Os resultados foram
+recalculados sobre o split com embargo instituído na Tarefa 5.4. Este baseline
+não consulta OOT nem backtesting e não representa aprovação de modelo.
 
 ## Diagnóstico reproduzível
 
@@ -24,10 +24,10 @@ Na carteira de aceitação (`seed=91`):
 
 | Modelo | n validação | Eventos | Taxa | PD média | Erro calibração global | Brier | Log loss | ROC AUC | AP |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| Logística 12m | 193 | 38 | 0,1969 | 0,2620 | 0,0651 | 0,1768 | 0,4723 | 0,7548 | 0,4271 |
-| Hazard 1m | 193 | 3 | 0,0155 | 0,0006 | 0,0149 | 0,0156 | 0,2350 | 0,6105 | 0,0258 |
+| Logística 12m | 193 | 38 | 0,1969 | 0,2879 | 0,0910 | 0,1969 | 0,5251 | 0,7421 | 0,3725 |
+| Hazard 1m | 193 | 3 | 0,0155 | 0,0253 | 0,0098 | 0,0225 | 0,1277 | 0,4789 | 0,0270 |
 
-O hazard possui somente três eventos de validação e subestima fortemente a taxa;
+O hazard possui somente três eventos de validação e baixa discriminação;
 isso é limitação material. Class weighting permite estimar o baseline, mas não
 substitui mais dados, calibração nem intervalos de incerteza.
 

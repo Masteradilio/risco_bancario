@@ -12,7 +12,8 @@ from .macroeconomics import MacroeconomicBundle, MacroObservation
 from .population import RATE, SyntheticPortfolio, _add_months
 
 RATING_ORDER = ("A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "DEFAULT")
-MAX_OBSERVATION_DATE = date(2024, 12, 1)
+MAX_LABELED_OBSERVATION_DATE = date(2024, 12, 1)
+MAX_OBSERVATION_DATE = date(2025, 12, 1)
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,6 +21,7 @@ class PDModelingRow:
     observation_date: date
     contract_id: str
     client_id: str
+    origination_cohort: str
     product_code: str
     balance: Decimal
     credit_limit: Decimal
@@ -32,8 +34,8 @@ class PDModelingRow:
     policy_rate: Decimal
     unemployment: Decimal
     household_debt: Decimal
-    target_default_12m: int
-    target_hazard_1m: int
+    target_default_12m: int | None
+    target_hazard_1m: int | None
     split: str
 
 
@@ -73,7 +75,7 @@ class SICRModelingRow:
     origination_rating: str
     current_rating: str
     days_past_due: int
-    target_sicr_12m: int
+    target_sicr_12m: int | None
     split: str
 
 
@@ -104,6 +106,21 @@ def _split(reference_date: date) -> str:
     if reference_date <= date(2023, 12, 1):
         return "oot"
     return "backtesting"
+
+
+def _pd_split(reference_date: date) -> str | None:
+    """Return horizon-purged development splits; ``None`` is an embargo row."""
+    if reference_date <= date(2018, 12, 1):
+        return "train"
+    if date(2020, 1, 1) <= reference_date <= date(2020, 12, 1):
+        return "validation"
+    if date(2022, 1, 1) <= reference_date <= date(2022, 12, 1):
+        return "calibration"
+    if date(2024, 1, 1) <= reference_date <= date(2024, 12, 1):
+        return "oot"
+    if date(2025, 1, 1) <= reference_date <= date(2025, 12, 1):
+        return "backtesting"
+    return None
 
 
 def _between(event_date: date, start: date, months: int) -> bool:
@@ -155,25 +172,37 @@ def build_modeling_datasets(
                 continue
             if snapshot.reference_date >= first_default_date:
                 continue
+            split = _pd_split(snapshot.reference_date)
+            if split is None:
+                continue
             macro_row = macro_by_date[snapshot.reference_date]
-            target_default = int(
-                any(
-                    _between(item.default_date, snapshot.reference_date, 12)
-                    for item in contract_defaults
+            labels_complete = snapshot.reference_date <= MAX_LABELED_OBSERVATION_DATE
+            target_default = (
+                int(
+                    any(
+                        _between(item.default_date, snapshot.reference_date, 12)
+                        for item in contract_defaults
+                    )
                 )
+                if labels_complete
+                else None
             )
-            target_hazard = int(
-                any(
-                    _between(item.default_date, snapshot.reference_date, 1)
-                    for item in contract_defaults
+            target_hazard = (
+                int(
+                    any(
+                        _between(item.default_date, snapshot.reference_date, 1)
+                        for item in contract_defaults
+                    )
                 )
+                if labels_complete
+                else None
             )
-            split = _split(snapshot.reference_date)
             pd_rows.append(
                 PDModelingRow(
                     snapshot.reference_date,
                     contract_id,
                     snapshot.client_id,
+                    snapshot.origination_cohort,
                     contract.product_code,
                     snapshot.balance,
                     snapshot.credit_limit,
@@ -200,10 +229,14 @@ def build_modeling_datasets(
                 (rating_rank[item.rating] - rating_rank[origination_rating] for item in future),
                 default=0,
             )
-            sicr_target = int(
-                target_default
-                or any(item.days_past_due >= 31 for item in future)
-                or future_deterioration >= 2
+            sicr_target = (
+                int(
+                    bool(target_default)
+                    or any(item.days_past_due >= 31 for item in future)
+                    or future_deterioration >= 2
+                )
+                if labels_complete
+                else None
             )
             sicr_rows.append(
                 SICRModelingRow(
@@ -305,5 +338,5 @@ def build_modeling_datasets(
         )
 
     return ModelingDatasets(
-        tuple(pd_rows), tuple(lgd_rows), tuple(ead_rows), tuple(sicr_rows), "0.1.0"
+        tuple(pd_rows), tuple(lgd_rows), tuple(ead_rows), tuple(sicr_rows), "0.2.0"
     )
