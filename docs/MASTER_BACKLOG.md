@@ -1372,10 +1372,10 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 
 ### Subtarefas
 
-- [ ] Implementar tabelas e regras apenas a partir de fonte oficial vigente.
-- [ ] Versionar por data-base.
-- [ ] Aplicar após o ECL econômico/contábil, em camada separada.
-- [ ] Exibir ECL calculado, piso e provisão final separadamente.
+- [x] Implementar tabelas e regras apenas a partir de fonte oficial vigente.
+- [x] Versionar por data-base.
+- [x] Aplicar após o ECL econômico/contábil, em camada separada.
+- [x] Exibir ECL calculado, piso e provisão final separadamente.
 
 ## Tarefa 11.2 — Metodologia simplificada
 
