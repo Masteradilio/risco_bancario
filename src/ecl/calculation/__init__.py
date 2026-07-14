@@ -5,9 +5,13 @@ from .poci import (
     POCICashFlow,
     POCIClassification,
     POCIMeasurement,
+    POCIScenarioCashFlows,
+    POCIScenarioMeasurement,
+    POCIScenarioResult,
     classify_poci,
     credit_adjusted_eir,
     measure_poci_change,
+    measure_poci_scenarios,
 )
 from .scenario_engine import (
     BaselineRiskPeriod,
@@ -45,6 +49,9 @@ __all__ = [
     "POCICashFlow",
     "POCIClassification",
     "POCIMeasurement",
+    "POCIScenarioCashFlows",
+    "POCIScenarioMeasurement",
+    "POCIScenarioResult",
     "ProbabilityWeightedScenarioECL",
     "ScenarioECL",
     "ScenarioIntegral",
@@ -67,6 +74,7 @@ __all__ = [
     "classify_poci",
     "credit_adjusted_eir",
     "measure_poci_change",
+    "measure_poci_scenarios",
     "load_scenario_sensitivity_policy",
     "run_scenario_sensitivities",
 ]

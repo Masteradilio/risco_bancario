@@ -9,6 +9,7 @@ from typing import cast
 
 from ...domain.conventions import DecimalInput, money, non_empty
 from ...domain.exceptions import DomainValidationError
+from ...domain.scenarios import ScenarioKind, ScenarioSet
 
 RATE_QUANTUM = Decimal("0.00000001")
 
@@ -38,6 +39,44 @@ class POCIMeasurement:
     current_lifetime_ecl: Decimal
     cumulative_lifetime_ecl_change: Decimal
     change_classification: str
+    status: str
+
+
+@dataclass(frozen=True, slots=True)
+class POCIScenarioCashFlows:
+    scenario_id: str
+    expected_cashflows: tuple[POCICashFlow, ...]
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "scenario_id", non_empty(self.scenario_id, field="scenario_id"))
+
+
+@dataclass(frozen=True, slots=True)
+class POCIScenarioResult:
+    scenario_id: str
+    kind: ScenarioKind
+    weight: Decimal
+    initial_lifetime_ecl: Decimal
+    current_lifetime_ecl: Decimal
+    lifetime_ecl_change: Decimal
+    change_classification: str
+    weighted_ecl_contribution: Decimal
+    weighted_change_contribution: Decimal
+
+
+@dataclass(frozen=True, slots=True)
+class POCIScenarioMeasurement:
+    contract_id: str
+    recognition_date: date
+    credit_adjusted_eir: Decimal
+    scenario_results: tuple[POCIScenarioResult, ...]
+    probability_weighted_lifetime_ecl: Decimal
+    probability_weighted_lifetime_change: Decimal
+    stress_lifetime_ecl: Decimal
+    presentation: str
+    interest_presentation_basis: str
+    scenario_version: str
+    scenario_source_hash: str
     status: str
 
 
@@ -140,5 +179,81 @@ def measure_poci_change(
         current_ecl,
         change,
         classification,
+        "synthetic_unapproved",
+    )
+
+
+def measure_poci_scenarios(
+    contract_id: str,
+    recognition_date: date,
+    purchase_price: DecimalInput,
+    contractual_cashflows: tuple[POCICashFlow, ...],
+    initial_expected_cashflows: tuple[POCICashFlow, ...],
+    scenario_cashflows: tuple[POCIScenarioCashFlows, ...],
+    scenario_set: ScenarioSet,
+) -> POCIScenarioMeasurement:
+    normalized_contract_id = non_empty(contract_id, field="contract_id")
+    _validate_cashflows(recognition_date, contractual_cashflows, initial_expected_cashflows)
+    expected_ids = {trajectory.scenario_id for trajectory in scenario_set.trajectories}
+    actual_ids = [item.scenario_id for item in scenario_cashflows]
+    if set(actual_ids) != expected_ids or len(actual_ids) != len(set(actual_ids)):
+        raise DomainValidationError("POCI cash flows must cover each scenario exactly once")
+    for item in scenario_cashflows:
+        _validate_cashflows(recognition_date, contractual_cashflows, item.expected_cashflows)
+    adjusted_eir = credit_adjusted_eir(purchase_price, recognition_date, initial_expected_cashflows)
+    contractual_pv = _present_value(contractual_cashflows, recognition_date, float(adjusted_eir))
+    initial_pv = _present_value(initial_expected_cashflows, recognition_date, float(adjusted_eir))
+    initial_ecl = contractual_pv - initial_pv
+    trajectories = {item.scenario_id: item for item in scenario_set.trajectories}
+    results: list[POCIScenarioResult] = []
+    for item in scenario_cashflows:
+        trajectory = trajectories[item.scenario_id]
+        current_pv = _present_value(item.expected_cashflows, recognition_date, float(adjusted_eir))
+        current_ecl = contractual_pv - current_pv
+        change = current_ecl - initial_ecl
+        classification = (
+            "impairment_loss" if change > 0 else "impairment_gain" if change < 0 else "no_change"
+        )
+        weight = Decimal(str(trajectory.weight))
+        results.append(
+            POCIScenarioResult(
+                item.scenario_id,
+                trajectory.kind,
+                weight,
+                initial_ecl,
+                current_ecl,
+                change,
+                classification,
+                (current_ecl * weight).quantize(RATE_QUANTUM, rounding=ROUND_HALF_EVEN),
+                (change * weight).quantize(RATE_QUANTUM, rounding=ROUND_HALF_EVEN),
+            )
+        )
+    probabilistic = tuple(item for item in results if item.kind != ScenarioKind.STRESS)
+    weighted_ecl = sum(
+        (item.weighted_ecl_contribution for item in probabilistic), Decimal("0")
+    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    weighted_change = sum(
+        (item.weighted_change_contribution for item in probabilistic), Decimal("0")
+    ).quantize(Decimal("0.01"), rounding=ROUND_HALF_EVEN)
+    presentation = (
+        "impairment_loss"
+        if weighted_change > 0
+        else "impairment_gain" if weighted_change < 0 else "no_change"
+    )
+    stress_ecl = next(
+        item.current_lifetime_ecl for item in results if item.kind == ScenarioKind.STRESS
+    )
+    return POCIScenarioMeasurement(
+        normalized_contract_id,
+        recognition_date,
+        adjusted_eir,
+        tuple(results),
+        weighted_ecl,
+        weighted_change,
+        stress_ecl,
+        presentation,
+        "credit_adjusted_eir_on_amortized_cost",
+        scenario_set.version,
+        scenario_set.source_snapshot_hash,
         "synthetic_unapproved",
     )

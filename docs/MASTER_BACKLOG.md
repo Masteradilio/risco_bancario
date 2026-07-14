@@ -1279,9 +1279,17 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Calcular credit-adjusted EIR.
-- [ ] Reconhecer mudanças na lifetime ECL.
-- [ ] Tratar apresentação e disclosure.
+- [x] Calcular credit-adjusted EIR.
+- [x] Reconhecer mudanças na lifetime ECL.
+- [x] Tratar apresentação e disclosure.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: extensão de `src/ecl/calculation/poci.py`, 7 novos testes (13 POCI combinados) e `docs/models/POCI_SCENARIO_ECL.md`.
+- Golden case: preço R$ 80, fluxo esperado inicial R$ 88 e contratual R$ 110 produzem credit-adjusted EIR 10% e ECL inicial R$ 20.
+- Cenários atuais: lifetime ECL R$ 10/R$ 20/R$ 30/R$ 40, ponderado R$ 20, mudança ponderada zero e stress R$ 40.
+- Apresentação: mudanças positivas são perda, negativas são ganho; juros usam `credit_adjusted_eir_on_amortized_cost`. Status `synthetic_unapproved`.
 
 ## Tarefa 10.5 — Cálculo coletivo e grupos homogêneos
 

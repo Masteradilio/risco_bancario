@@ -84,6 +84,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado ECL Stage 1 por contrato, período e cenário, limitado a defaults possíveis em 12 meses, com LGD lifetime condicional e desconto pela EIR original.
 - Implementado ECL Stage 2 lifetime com prazo comportamental, prepagamento, extensão probabilística e modos individual/coletivo governados.
 - Implementado Stage 3 por cash shortfall descontado, com recebimentos, recuperações, garantias, custos, cura, write-off, pós-baixa e juros sobre valor líquido.
+- Integrado POCI a fluxos lifetime por cenário, preservando credit-adjusted EIR, mudanças ponderadas, stress e apresentação de ganho/perda de impairment.
 
 ---
 
