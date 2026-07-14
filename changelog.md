@@ -87,6 +87,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Integrado POCI a fluxos lifetime por cenário, preservando credit-adjusted EIR, mudanças ponderadas, stress e apresentação de ganho/perda de impairment.
 - Criado agrupamento homogêneo governado para ECL coletivo, com dimensões econômicas, gates de dispersão/concentração e roteamento individual de exposições materiais.
 - Adicionado ledger imutável e encadeável de ECL com reconciliação por período, cenário, contrato, cliente, produto, portfólio e camadas econômico/overlay/piso/final.
+- Consolidado pacote de oito golden cases ECL com resultados manuais exatos, consistência da LGD exibida, modificação pela EIR original e reprodutibilidade multi-cenário.
 
 ---
 

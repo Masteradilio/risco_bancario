@@ -1332,21 +1332,33 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Stage 1 amortizado.
-- [ ] Stage 2 lifetime.
-- [ ] Stage 3 cash shortfall.
-- [ ] rotativo com CCF.
-- [ ] contrato garantido.
-- [ ] POCI.
-- [ ] modificação.
-- [ ] multi-cenário.
+- [x] Stage 1 amortizado.
+- [x] Stage 2 lifetime.
+- [x] Stage 3 cash shortfall.
+- [x] rotativo com CCF.
+- [x] contrato garantido.
+- [x] POCI.
+- [x] modificação.
+- [x] multi-cenário.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `tests/fixtures/golden/ecl_cases.csv`, 8 testes consolidados e `docs/models/ECL_GOLDEN_CASES.md`.
+- Resultados exatos: Stage 1 R$ 9,05; Stage 2 R$ 12,33; Stage 3 R$ 25,00; rotativo R$ 7,50; garantido R$ 30,00; POCI R$ 20,00; modificação R$ 268,15; multi-cenário R$ 21,14.
+- Controles: igualdade entre LGD exibida/usada por período; repetição determinística do caso multi-cenário; modificação sem baixa preserva EIR original.
 
 ### Critérios de aceite
 
-- [ ] Todos os golden cases batem com cálculo manual.
-- [ ] `PD × LGD × EAD` simples permanece apenas como baseline didático.
-- [ ] Nenhuma LGD exibida diverge da usada no cálculo.
-- [ ] Toda execução é reproduzível.
+- [x] Todos os golden cases batem com cálculo manual.
+- [x] `PD × LGD × EAD` simples permanece apenas como baseline didático.
+- [x] Nenhuma LGD exibida diverge da usada no cálculo.
+- [x] Toda execução é reproduzível.
+
+### Aceite da fase
+
+- A Fase 10 foi aceita tecnicamente: Stage 1, Stage 2, Stage 3, POCI, agrupamento, reconciliação, ledger e oito golden cases estão implementados e reproduzíveis.
+- O aceite comprova a mecânica com dados sintéticos; componentes quantitativos anteriormente `not_approved` permanecem não aprovados para uso institucional.
 
 ---
 
