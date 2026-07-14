@@ -1,5 +1,19 @@
 """CMN 4.966 adapters and evidence mappings."""
 
+from .classification import (
+    BusinessModelObjective,
+    BusinessModelRecord,
+    ClassificationResult,
+    FinancialAssetKind,
+    MeasurementCategory,
+    ReclassificationRecognition,
+    ReclassificationResult,
+    SPPIAssessment,
+    SPPITerms,
+    assess_sppi,
+    classify_financial_asset,
+    reclassify_financial_asset,
+)
 from .provision_floor import (
     ProvisionFloorPolicy,
     ProvisionFloorResult,
@@ -20,6 +34,18 @@ from .simplified import (
 )
 
 __all__ = [
+    "BusinessModelObjective",
+    "BusinessModelRecord",
+    "ClassificationResult",
+    "FinancialAssetKind",
+    "MeasurementCategory",
+    "ReclassificationRecognition",
+    "ReclassificationResult",
+    "SPPIAssessment",
+    "SPPITerms",
+    "assess_sppi",
+    "classify_financial_asset",
+    "reclassify_financial_asset",
     "ProvisionFloorPolicy",
     "ProvisionFloorResult",
     "ProvisionPortfolio",

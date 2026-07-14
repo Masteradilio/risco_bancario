@@ -1390,11 +1390,11 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 
 ### Subtarefas
 
-- [ ] Implementar cadastro de business model.
-- [ ] Implementar teste SPPI.
-- [ ] Classificar amortized cost, FVOCI e FVTPL.
-- [ ] Integrar elegibilidade ao motor de impairment.
-- [ ] Tratar reclassificação quando aplicável.
+- [x] Implementar cadastro de business model.
+- [x] Implementar teste SPPI.
+- [x] Classificar amortized cost, FVOCI e FVTPL.
+- [x] Integrar elegibilidade ao motor de impairment.
+- [x] Tratar reclassificação quando aplicável.
 
 ## Tarefa 11.4 — Modificação, baixa e reconhecimento
 
