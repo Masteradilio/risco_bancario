@@ -32,6 +32,16 @@ from .revolving_ccf import (
     load_revolving_ccf_policy,
     predict_revolving_ccf,
 )
+from .validation import (
+    EADErrorMetrics,
+    EADSegmentError,
+    EADSensitivityCheck,
+    EADTemporalStability,
+    EADValidationPolicy,
+    EADValidationReport,
+    load_ead_validation_policy,
+    validate_ead_models,
+)
 
 __all__ = [
     "AmortizedDefaultEADDataset",
@@ -40,6 +50,12 @@ __all__ = [
     "AmortizedEADResult",
     "CCFCoefficient",
     "CCFModelMetrics",
+    "EADErrorMetrics",
+    "EADSegmentError",
+    "EADSensitivityCheck",
+    "EADTemporalStability",
+    "EADValidationPolicy",
+    "EADValidationReport",
     "OffBalanceAssumption",
     "OffBalanceEADPolicy",
     "OffBalanceEADProjection",
@@ -56,8 +72,10 @@ __all__ = [
     "calculate_realized_ccf",
     "fit_revolving_ccf_model",
     "load_amortized_ead_policy",
+    "load_ead_validation_policy",
     "load_off_balance_ead_policy",
     "load_revolving_ccf_policy",
     "predict_revolving_ccf",
     "project_off_balance_ead",
+    "validate_ead_models",
 ]

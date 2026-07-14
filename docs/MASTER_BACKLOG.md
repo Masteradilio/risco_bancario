@@ -1099,15 +1099,30 @@ Projetar exposição no momento do default para produtos amortizados e rotativos
 
 ### Subtarefas
 
-- [ ] previsto versus realizado.
-- [ ] erro por segmento.
-- [ ] estabilidade temporal.
-- [ ] sensibilidade a utilização e limite.
+- [x] previsto versus realizado.
+- [x] erro por segmento.
+- [x] estabilidade temporal.
+- [x] sensibilidade a utilização e limite.
 
 ### Critérios de aceite
 
-- [ ] EAD é temporal e consistente com o produto.
-- [ ] CCF não é apenas uma constante global.
+- [x] EAD é temporal e consistente com o produto.
+- [x] CCF não é apenas uma constante global.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/ead/validation.py`, política `config/ead_validation/2026.07.1.json`, 7 testes, `docs/models/EAD_VALIDATION_REPORT.md` e `docs/models/EAD_MODEL_CARD.md`.
+- Amortizados: 24 previstos versus realizados com MAE/RMSE zero por produto e ano; resultado é reconciliação do gerador, não validação preditiva independente.
+- CCF holdout: 4 linhas de 2022–2023, média realizada 0,044672, prevista 0,037665, MAE 0,039723 e RMSE 0,054894.
+- Segmentos: cada combinação produto/horizonte CCF tem uma observação; não há horizonte de 12 meses nem limite alterado no holdout.
+- Sensibilidade: CCF responde a utilização/horizonte sem direção aprovada; EAD off-balance responde monotonicamente ao limite por construção.
+- Decisão: `not_approved` por volume, cobertura, ausência de eventos de limite, parâmetros off-balance não estimados e evidência não institucional.
+
+### Aceite da fase
+
+- A Fase 8 foi aceita como implementação técnica reproduzível: EAD é temporal e específica ao produto; o CCF varia por produto, utilização e horizonte; limites e exposições off-balance têm regras explícitas.
+- O aceite técnico não aprova CCF ou off-balance: os blockers do relatório/model card impedem uso institucional.
 
 ---
 

@@ -11,14 +11,11 @@ from pathlib import Path
 
 from ...data.synthetic.events import CreditEventHistory
 from ...data.synthetic.longitudinal import LongitudinalPortfolio
-from ...data.synthetic.population import SyntheticPortfolio
+from ...data.synthetic.population import ScheduleRecord, SyntheticPortfolio
 from ...domain.contracts import (
-    AmortizationMethod,
     AmortizationSchedule,
-    AmortizationTerms,
     ModificationResult,
     PrepaymentResult,
-    project_amortized_schedule,
 )
 from ...domain.exceptions import DomainValidationError
 
@@ -227,10 +224,6 @@ def calculate_amortized_ead(
     )
 
 
-def _term_months(start: date, end: date) -> int:
-    return (end.year - start.year) * 12 + end.month - start.month
-
-
 def build_amortized_default_ead_dataset(
     population: SyntheticPortfolio,
     history: LongitudinalPortfolio,
@@ -239,22 +232,22 @@ def build_amortized_default_ead_dataset(
 ) -> AmortizedDefaultEADDataset:
     contracts = {item.contract_id: item for item in population.contracts}
     modifications = {item.contract_id: item for item in history.modifications}
+    schedules: dict[str, list[ScheduleRecord]] = {}
+    for item in population.schedules:
+        schedules.setdefault(item.contract_id, []).append(item)
+    for items in schedules.values():
+        items.sort(key=lambda item: item.due_date)
     records: list[AmortizedDefaultEADRecord] = []
     for default in events.defaults:
         contract = contracts[default.contract_id]
         if default.is_redefault or contract.facility_type != "amortized":
             continue
-        schedule = project_amortized_schedule(
-            AmortizationTerms(
-                contract.contract_id,
-                contract.origination_date,
-                contract.original_amount,
-                _term_months(contract.origination_date, contract.maturity_date),
-                contract.effective_interest_rate,
-                AmortizationMethod.PRICE,
-            )
-        )
-        result = calculate_amortized_ead(schedule, default.default_date, policy)
+        contract_schedule = schedules.get(contract.contract_id, [])
+        if not contract_schedule:
+            raise DomainValidationError("synthetic amortized contract has no schedule")
+        observable = [item for item in contract_schedule if item.due_date < default.default_date]
+        period = observable[-1] if observable else contract_schedule[0]
+        projected_ead = period.opening_balance
         modification = modifications.get(contract.contract_id)
         has_prior_extension = bool(
             modification is not None and modification.modification_date <= default.default_date
@@ -265,9 +258,9 @@ def build_amortized_default_ead_dataset(
                 default.contract_id,
                 contract.product_code,
                 default.default_date,
-                result.ead_at_default,
+                projected_ead,
                 default.exposure_at_default,
-                abs(result.ead_at_default - default.exposure_at_default),
+                abs(projected_ead - default.exposure_at_default),
                 has_prior_extension,
                 policy.policy_version,
                 policy.sha256,

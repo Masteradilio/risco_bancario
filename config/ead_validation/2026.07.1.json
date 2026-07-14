@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_unvalidated",
+  "minimum_amortized_observations": 20,
+  "maximum_amortized_mae": "0.01000000",
+  "minimum_ccf_validation_observations": 100,
+  "maximum_ccf_mae": "0.10000000",
+  "maximum_ccf_rmse": "0.15000000",
+  "minimum_segment_observations": 30,
+  "minimum_ccf_validation_years": 3,
+  "minimum_sensitivity_delta": "0.00010000",
+  "require_limit_change_validation": true,
+  "require_institutional_evidence": true
+}
