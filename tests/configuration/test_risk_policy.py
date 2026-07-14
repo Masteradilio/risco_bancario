@@ -1,17 +1,16 @@
-from copy import deepcopy
-from json import loads
-from pathlib import Path
-from datetime import date, datetime, timezone
 import importlib.util
 import sys
+from copy import deepcopy
+from datetime import UTC, date, datetime
+from json import loads
+from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
 
-from src.infrastructure.configuration import RiskPolicy, load_risk_policy
 from src.domain.staging import Stage
 from src.ecl.calculation import ECLResult, ScenarioECL
-
+from src.infrastructure.configuration import RiskPolicy, load_risk_policy
 
 POLICY_PATH = Path("config/risk_policy/2026.07.1.json")
 
@@ -29,12 +28,15 @@ def test_canonical_policy_loads_with_metadata_and_stable_hash() -> None:
     assert first.configuration_hash == second.configuration_hash
 
 
-@pytest.mark.parametrize("mutation, message", [
-    (lambda data: data["scenarios"][0].update(weight="0.20"), "weights must sum"),
-    (lambda data: data["staging"].update(stage_3_days_past_due=30), "stage 3 threshold"),
-    (lambda data: data["rating_bands"][1].update(lower_inclusive="6"), "contiguous"),
-    (lambda data: data["ccf_by_product"].update(consignado="1.1"), "CCF values"),
-])
+@pytest.mark.parametrize(
+    "mutation, message",
+    [
+        (lambda data: data["scenarios"][0].update(weight="0.20"), "weights must sum"),
+        (lambda data: data["staging"].update(stage_3_days_past_due=30), "stage 3 threshold"),
+        (lambda data: data["rating_bands"][1].update(lower_inclusive="6"), "contiguous"),
+        (lambda data: data["ccf_by_product"].update(consignado="1.1"), "CCF values"),
+    ],
+)
 def test_invalid_policy_is_rejected(mutation, message: str) -> None:
     data = deepcopy(raw_policy())
     mutation(data)
@@ -58,9 +60,19 @@ def test_schema_is_versioned_and_exportable() -> None:
 def test_ecl_result_carries_exact_loaded_configuration_identity() -> None:
     loaded = load_risk_policy(POLICY_PATH)
     result = ECLResult(
-        "R-CFG", "CT-1", date(2026, 7, 14), datetime(2026, 7, 14, 12, tzinfo=timezone.utc),
-        Stage.STAGE_1, "10", "0", "0", "10", (ScenarioECL("base", "1", "10"),),
-        "model-v1", loaded.policy.metadata.policy_version, loaded.configuration_hash,
+        "R-CFG",
+        "CT-1",
+        date(2026, 7, 14),
+        datetime(2026, 7, 14, 12, tzinfo=UTC),
+        Stage.STAGE_1,
+        "10",
+        "0",
+        "0",
+        "10",
+        (ScenarioECL("base", "1", "10"),),
+        "model-v1",
+        loaded.policy.metadata.policy_version,
+        loaded.configuration_hash,
     )
     assert result.configuration_version == "2026.07.1"
     assert result.configuration_hash == loaded.configuration_hash

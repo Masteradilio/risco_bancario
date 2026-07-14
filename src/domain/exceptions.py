@@ -15,4 +15,3 @@ class TemporalConsistencyError(DomainValidationError):
 
 class UnsupportedCurrencyError(DomainValidationError):
     """A monetary value uses a currency not supported by the current scope."""
-

@@ -248,17 +248,27 @@ Eliminar duplicações, organizar o domínio e criar uma base estável para a re
 
 ### Subtarefas
 
-- [ ] Definir versão oficial do Python.
-- [ ] Migrar dependências para `pyproject.toml`.
-- [ ] Configurar Ruff, Black, MyPy/Pyright e Pytest.
-- [ ] Configurar cobertura mínima progressiva.
-- [ ] Criar Makefile ou scripts equivalentes.
-- [ ] Criar comando único de setup e teste.
+- [x] Definir versão oficial do Python.
+- [x] Migrar dependências para `pyproject.toml`.
+- [x] Configurar Ruff, Black, MyPy/Pyright e Pytest.
+- [x] Configurar cobertura mínima progressiva.
+- [x] Criar Makefile ou scripts equivalentes.
+- [x] Criar comando único de setup e teste.
 
 ### Critérios de aceite
 
-- [ ] Ambiente local sobe de forma reproduzível.
-- [ ] Lint, type checking e testes executam em um comando.
+- [x] Ambiente local sobe de forma reproduzível.
+- [x] Lint, type checking e testes executam em um comando.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Runtime oficial: CPython 3.13.7, registrado em `.python-version` e limitado a `>=3.13,<3.14` no `pyproject.toml`.
+- Dependências: produção e grupo `dev` migrados para `pyproject.toml`; `requirements.txt` permanece apenas como entrada de compatibilidade.
+- Comandos: `scripts/setup.ps1` cria/atualiza o venv; `scripts/quality.ps1` executa Black, Ruff, MyPy, cobertura e regressão estável.
+- Cobertura: piso inicial de 70%; núcleo canônico atingiu 90,37% nesta execução.
+- Evidência: setup editável concluído; Black, Ruff e MyPy verdes; 18 testes canônicos e 118 testes de regressão aprovados, com 7 ignorados.
+- Correção de ambiente: `python-jose` e `matplotlib`, ausentes no baseline, foram instalados pelo setup canônico.
 
 ---
 

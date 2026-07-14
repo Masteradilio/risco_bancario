@@ -69,4 +69,3 @@ class ECLResult:
         scenario_ids = [item.scenario_id for item in self.scenario_results]
         if len(scenario_ids) != len(set(scenario_ids)):
             raise DomainValidationError("scenario_ids must be unique")
-

@@ -2,7 +2,6 @@
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from decimal import Decimal
 from enum import IntEnum
 
 from ..conventions import DecimalInput, aware_utc, non_empty, rate
@@ -31,7 +30,9 @@ class RiskSnapshot:
     def __post_init__(self) -> None:
         object.__setattr__(self, "snapshot_id", non_empty(self.snapshot_id, field="snapshot_id"))
         object.__setattr__(self, "contract_id", non_empty(self.contract_id, field="contract_id"))
-        object.__setattr__(self, "policy_version", non_empty(self.policy_version, field="policy_version"))
+        object.__setattr__(
+            self, "policy_version", non_empty(self.policy_version, field="policy_version")
+        )
         if self.days_past_due < 0:
             raise DomainValidationError("days_past_due must be non-negative")
         observed_at = aware_utc(self.observed_at, field="observed_at")
@@ -46,4 +47,3 @@ class RiskSnapshot:
         object.__setattr__(self, "pd_lifetime", pd_lifetime)
         if self.rating is not None:
             object.__setattr__(self, "rating", non_empty(self.rating, field="rating"))
-

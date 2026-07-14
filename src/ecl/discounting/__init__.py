@@ -1,2 +1,1 @@
 """Effective-interest-rate discounting."""
-

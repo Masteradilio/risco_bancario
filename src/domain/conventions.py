@@ -7,13 +7,12 @@ Business dates are ``date`` objects; event timestamps must be timezone-aware.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation, ROUND_HALF_EVEN
-from typing import TypeAlias
+from datetime import UTC, datetime
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 
 from .exceptions import DomainValidationError, TemporalConsistencyError
 
-DecimalInput: TypeAlias = Decimal | int | str
+type DecimalInput = Decimal | int | str
 MONEY_QUANTUM = Decimal("0.01")
 RATE_QUANTUM = Decimal("0.00000001")
 ZERO = Decimal("0")
@@ -63,5 +62,4 @@ def aware_utc(value: datetime, *, field: str) -> datetime:
     """Require an aware timestamp and normalize it to UTC."""
     if value.tzinfo is None or value.utcoffset() is None:
         raise TemporalConsistencyError(f"{field} must be timezone-aware")
-    return value.astimezone(timezone.utc)
-
+    return value.astimezone(UTC)

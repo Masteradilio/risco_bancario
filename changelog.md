@@ -32,6 +32,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionados metadados de vigência, autoria, justificativa, status de evidência e hash SHA-256 determinístico da configuração.
 - Conectados `shared/utils.py` e o gerenciador legado de cenários à política canônica, preservando interfaces de compatibilidade.
 - Tornados obrigatórios a versão e o hash da configuração no contrato de resultado ECL.
+- Padronizado o runtime em CPython 3.13.7 e migradas dependências para `pyproject.toml`, com grupos de produção e desenvolvimento.
+- Configurados Black, Ruff, MyPy, Pytest e cobertura progressiva mínima de 70%.
+- Adicionados scripts PowerShell únicos de setup e qualidade; a primeira execução alcançou 90,37% de cobertura no núcleo canônico.
 
 ---
 

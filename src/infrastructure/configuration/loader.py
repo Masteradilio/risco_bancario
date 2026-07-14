@@ -1,8 +1,8 @@
 """Deterministic policy loading and content hashing."""
 
+import json
 from dataclasses import dataclass
 from hashlib import sha256
-import json
 from pathlib import Path
 
 from .models import RiskPolicy
@@ -22,4 +22,3 @@ def load_risk_policy(path: str | Path) -> LoadedRiskPolicy:
     canonical = json.dumps(raw, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     digest = sha256(canonical.encode("utf-8")).hexdigest()
     return LoadedRiskPolicy(policy=policy, configuration_hash=digest, source_path=source_path)
-

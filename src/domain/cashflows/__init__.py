@@ -3,4 +3,3 @@
 from .models import CashFlow, CashFlowType
 
 __all__ = ["CashFlow", "CashFlowType"]
-

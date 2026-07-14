@@ -3,4 +3,3 @@
 from .models import ECLResult, ScenarioECL
 
 __all__ = ["ECLResult", "ScenarioECL"]
-

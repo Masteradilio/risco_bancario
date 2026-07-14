@@ -1,2 +1,1 @@
 """Versioned external data contracts."""
-

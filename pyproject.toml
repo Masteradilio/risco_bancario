@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "risco-bancario"
+version = "0.1.0"
+description = "Modernização do núcleo de risco bancário e ECL"
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "pandas>=2.0", "numpy>=1.24", "scipy>=1.11", "scikit-learn>=1.3",
+  "xgboost>=2.0", "lightgbm>=4.0", "imbalanced-learn>=0.11", "joblib>=1.3",
+  "shap>=0.43", "fastapi>=0.104", "uvicorn>=0.24", "pydantic>=2.0",
+  "websockets>=12", "python-multipart>=0.0.6", "streamlit>=1.28",
+  "plotly>=5.18", "matplotlib>=3.8", "requests>=2.31", "httpx>=0.25",
+  "python-dotenv>=1.0", "psycopg2-binary>=2.9", "sentence-transformers>=3.0",
+  "tiktoken>=0.5", "openpyxl>=3.1", "pypdf>=4.0", "python-jose[cryptography]>=3.3",
+  "passlib[bcrypt]>=1.7", "seaborn>=0.13", "reportlab>=4.0", "python-docx>=1.0",
+  "python-pptx>=1.0", "XlsxWriter>=3.0", "lxml>=5.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9,<10", "pytest-asyncio>=1.0", "pytest-cov>=6.0",
+  "ruff>=0.12", "black>=25.0", "mypy>=1.16"
+]
+
+[tool.setuptools.packages.find]
+include = ["src*", "shared*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_configs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--strict-config --strict-markers --tb=short"
+filterwarnings = [
+  "ignore::DeprecationWarning",
+  "ignore::FutureWarning",
+  "ignore::PendingDeprecationWarning"
+]
+
+[tool.coverage.run]
+branch = true
+source = ["src"]
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
+skip_empty = true
+

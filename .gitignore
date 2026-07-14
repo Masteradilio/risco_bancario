@@ -35,6 +35,8 @@ env/
 .pytest_cache/
 pytest_cache/
 .cache/
+.coverage
+htmlcov/
 
 # IDE
 .idea/

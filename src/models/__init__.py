@@ -1,2 +1,1 @@
 """Quantitative model implementations."""
-

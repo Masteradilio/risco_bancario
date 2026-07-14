@@ -3,20 +3,20 @@
 from dataclasses import dataclass
 from datetime import date
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from ..conventions import DecimalInput, money, non_empty, rate
 from ..exceptions import DomainValidationError, TemporalConsistencyError, UnsupportedCurrencyError
 
 
-class ContractStatus(str, Enum):
+class ContractStatus(StrEnum):
     ACTIVE = "active"
     CLOSED = "closed"
     DEFAULTED = "defaulted"
     WRITTEN_OFF = "written_off"
 
 
-class GuaranteeType(str, Enum):
+class GuaranteeType(StrEnum):
     FINANCIAL = "financial"
     REAL_ESTATE = "real_estate"
     VEHICLE = "vehicle"
@@ -82,4 +82,3 @@ class Guarantee:
             "enforceable_share",
             rate(self.enforceable_share, field="enforceable_share"),
         )
-

@@ -2,14 +2,13 @@
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from ..conventions import DecimalInput, decimal_from, non_empty, rate
 from ..exceptions import DomainValidationError
 
 
-class ScenarioKind(str, Enum):
+class ScenarioKind(StrEnum):
     BASE = "base"
     UPSIDE = "upside"
     DOWNSIDE = "downside"
@@ -46,4 +45,3 @@ class Scenario:
         names = [variable.name for variable in self.variables]
         if len(names) != len(set(names)):
             raise DomainValidationError("scenario variable names must be unique")
-

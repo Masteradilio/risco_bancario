@@ -2,13 +2,12 @@
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from ..conventions import DecimalInput, money, non_empty
 
 
-class CashFlowType(str, Enum):
+class CashFlowType(StrEnum):
     PRINCIPAL = "principal"
     INTEREST = "interest"
     FEE = "fee"
@@ -34,6 +33,9 @@ class CashFlow:
         object.__setattr__(
             self,
             "amount",
-            money(self.amount, field="amount", allow_negative=self.flow_type is CashFlowType.RECOVERY_COST),
+            money(
+                self.amount,
+                field="amount",
+                allow_negative=self.flow_type is CashFlowType.RECOVERY_COST,
+            ),
         )
-

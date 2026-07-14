@@ -98,7 +98,7 @@ class RiskPolicy(StrictModel):
         bands = sorted(self.rating_bands, key=lambda item: item.lower_inclusive)
         if bands[0].lower_inclusive != 0:
             raise ValueError("rating bands must start at zero")
-        for previous, current in zip(bands, bands[1:]):
+        for previous, current in zip(bands[:-1], bands[1:], strict=True):
             if previous.upper_exclusive != current.lower_inclusive:
                 raise ValueError("rating bands must be contiguous and non-overlapping")
         if bands[-1].upper_exclusive != 101:
