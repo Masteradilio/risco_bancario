@@ -1,6 +1,6 @@
 """
 ECL (Perda Esperada) - FastAPI Application
-REST API para calculo de Expected Credit Loss - BACEN 4966 Compliant.
+REST API para baseline demonstrativo de Expected Credit Loss; conformidade não avaliada.
 
 Endpoints:
 - /health - Health check
@@ -50,7 +50,7 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="ECL API",
-    description="API de Perda Esperada (ECL) - BACEN 4966 Compliant",
+    description="API de baseline demonstrativo de ECL com dados sintéticos; não homologada",
     version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -1023,4 +1023,3 @@ async def calcular_taxa_recuperacao(request: WriteoffTaxaRecuperacaoRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002)
-

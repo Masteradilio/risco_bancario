@@ -1037,7 +1037,7 @@ def calibrar_pd_ttc_para_pit(
     A PD TTC é uma média de longo prazo que não reflete condições econômicas
     atuais. A PD PIT ajusta considerando variáveis macroeconômicas.
     
-    Conformidade: IFRS 9 exige uso de PD PIT para cálculo de ECL.
+    Referência metodológica a verificar: o cálculo deve incorporar informação prospectiva razoável e suportável; esta função não comprova conformidade.
     
     Args:
         df_dados: DataFrame com dados históricos
@@ -1334,4 +1334,3 @@ def calcular_ecl_sob_cenarios(
     logger.info(f"ECL Ponderado (40/30/30): {ecl_ponderado:.2f}")
     
     return df_resultados
-

@@ -1,11 +1,13 @@
 # Relatório de Backtesting: PRINAD v2.0
 *Período: 2025-01 a 2025-11*
 
+> Simulação histórica com dados sintéticos. Não é backtesting institucional, validação OOT independente ou aprovação vigente.
+
 ---
 
 ## Sumário
 
-**Status: ✅ APROVADO**
+**Status histórico:** resultado demonstrativo, não aprovado para uso institucional
 
 Simulação de 12 meses. AUC médio: 100.00%
 

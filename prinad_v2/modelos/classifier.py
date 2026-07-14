@@ -1,7 +1,7 @@
 """
 PRINAD - Classifier Module v2.0
 Complete classification pipeline for credit risk scoring.
-BACEN 4966 / IFRS 9 Compliant.
+Legacy demonstrative implementation; regulatory conformity is not evaluated.
 """
 
 import pandas as pd
@@ -49,7 +49,7 @@ MODELO_DIR = BASE_DIR / "artefatos"
 
 @dataclass
 class ClassificationResult:
-    """Result of a PRINAD classification (BACEN 4966 compliant)."""
+    """Result of a demonstrative PRINAD classification using synthetic inputs."""
     cpf: str
     prinad: float
     rating: str
@@ -119,7 +119,7 @@ class PRINADClassifier:
     """
     Complete PRINAD classification pipeline v2.0.
     Combines ML model prediction with historical penalty.
-    BACEN 4966 / IFRS 9 Compliant.
+    Legacy demonstrative classifier; regulatory conformity is not evaluated.
     """
     
     MODEL_VERSION = "2.0.0"
@@ -184,7 +184,7 @@ class PRINADClassifier:
     
     def classify(self, client_data: Dict[str, Any], include_shap: bool = False) -> ClassificationResult:
         """
-        Classify a single client (BACEN 4966 compliant).
+        Classify a single synthetic client for demonstration.
         
         Args:
             client_data: Dictionary with client data

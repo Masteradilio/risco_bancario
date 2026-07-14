@@ -1,6 +1,6 @@
 """
 PRINAD - FastAPI Application v2.0
-REST API for credit risk classification - BACEN 4966 Compliant.
+REST API for demonstrative credit-risk classification; regulatory conformity is not evaluated.
 
 Endpoints:
 - /health - Health check
@@ -44,7 +44,7 @@ DADOS_DIR = BASE_DIR.parent / "dados"
 # Create FastAPI app
 app = FastAPI(
     title="PRINAD API v2.0",
-    description="API de Classificação de Risco de Crédito - BACEN 4966 Compliant",
+    description="API demonstrativa de classificação de risco com dados sintéticos; conformidade não avaliada",
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc"

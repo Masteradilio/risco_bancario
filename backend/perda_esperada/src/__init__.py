@@ -1,5 +1,5 @@
 """
-Módulo de Perda Esperada (ECL) - BACEN 4966/IFRS 9 Compliant
+Módulo legado de Perda Esperada (ECL) - protótipo demonstrativo não homologado
 
 IMPORTANTE: Este módulo CONSOME os resultados do módulo PRINAD.
 Não duplica cálculos de PD_12m, PD_lifetime ou Stage.

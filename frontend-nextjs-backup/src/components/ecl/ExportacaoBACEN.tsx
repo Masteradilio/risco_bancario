@@ -558,7 +558,7 @@ export function ExportacaoBACEN() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Shield className="h-5 w-5" />
-                            Validador BACEN
+                            Pré-validador local (não oficial)
                         </CardTitle>
                         <CardDescription>
                             Valide arquivos XML antes do envio oficial

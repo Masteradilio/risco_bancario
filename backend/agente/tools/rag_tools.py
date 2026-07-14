@@ -88,7 +88,7 @@ async def _buscar_local(query: str, top_k: int, fonte: str = None) -> Dict[str, 
                 "Art. 21. A mensuração da perda esperada deve considerar informações forward-looking, incluindo cenários macroeconômicos.",
                 "Art. 38. A instituição deve manter documentação que evidencie a metodologia utilizada para mensuração da perda esperada.",
                 "Art. 49. Os créditos baixados como prejuízo devem ser acompanhados pelo período mínimo de 5 anos.",
-                "Art. 7º. A classificação do risco de crédito deve segregar as operações em estágios conforme IFRS 9."
+                "Conteúdo demonstrativo sem citação normativa verificada. Consulte a fonte oficial e a matriz de rastreabilidade antes de usar."
             ]
         },
         "BCB 352": {

@@ -1,9 +1,11 @@
 # PRINAD - Sistema de Classificação de Risco de Crédito
 ## Guia de Apresentação Executiva
 
+> Apresentação legada com dados sintéticos. Não constitui model card aprovado, validação independente, escala oficial de rating ou evidência de conformidade.
+
 > **Versão:** 2.0  
 > **Data:** Janeiro/2026  
-> **Conformidade:** Resolução BACEN 4966/2021 (IFRS 9)
+> **Cobertura regulatória:** não avaliada; referências históricas requerem rastreabilidade
 
 ---
 

@@ -13,7 +13,7 @@ const modules = [
   },
   {
     title: "ECL",
-    description: "Perda Esperada - Cálculo de Expected Credit Loss conforme BACEN 4966",
+    description: "Perda Esperada - baseline demonstrativo com dados sintéticos",
     icon: Calculator,
     href: "/ecl",
     color: "text-green-500",
@@ -44,7 +44,7 @@ export default function HomePage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Sistema de Risco Bancário</h1>
         <p className="text-muted-foreground mt-2">
-          Gestão integrada de risco de crédito conforme BACEN 4966 / IFRS 9
+          Protótipo legado de risco de crédito com dados sintéticos; conformidade não avaliada
         </p>
       </div>
 

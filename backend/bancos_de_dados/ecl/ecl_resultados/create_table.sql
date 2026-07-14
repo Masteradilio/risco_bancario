@@ -78,4 +78,4 @@ INDEX idx_contrato (contrato_id),
     INDEX idx_grupo (grupo_homogeneo),
     INDEX idx_produto (produto)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Resultados de cálculo ECL conforme CMN 4966 / IFRS 9';
+COMMENT='Resultados demonstrativos de cálculo ECL; conformidade não avaliada';

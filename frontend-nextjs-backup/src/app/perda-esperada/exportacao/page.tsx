@@ -289,12 +289,12 @@ export default function ExportacaoPage() {
                 </Card>
 
                 <div className="space-y-6">
-                    {/* Validador BACEN */}
+                    {/* Pré-validador local não oficial */}
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                                 <CheckCircle2 className="h-5 w-5 text-blue-600" />
-                                Validador BACEN (Simulador)
+                                Pré-validador local (simulador não oficial)
                             </CardTitle>
                             <CardDescription>
                                 Validação prévia conforme Manual DOC 3040

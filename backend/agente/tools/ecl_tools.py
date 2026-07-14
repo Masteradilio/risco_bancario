@@ -72,7 +72,9 @@ def calcular_ecl_individual(
         "piso_aplicado": piso_aplicado,
         "provisao_percentual": f"{(ecl_final/saldo)*100:.2f}%",
         "data_calculo": datetime.now().isoformat(),
-        "conformidade": "CMN 4966 / IFRS 9"
+        "conformidade": "NAO_AVALIADA",
+        "dados_sinteticos": True,
+        "limitacao": "Baseline escalar demonstrativo; não usar como provisão institucional."
     }
 
 
@@ -131,7 +133,9 @@ def calcular_ecl_portfolio(
             }
         },
         "total_contratos": random.randint(50000, 150000),
-        "metodologia": "IFRS 9 / CMN 4966"
+        "metodologia": "baseline escalar demonstrativo",
+        "dados_sinteticos": True,
+        "conformidade": "NAO_AVALIADA"
     }
 
 
@@ -217,7 +221,7 @@ def simular_cenario_forward_looking(
 ECL_TOOLS = [
     {
         "name": "calcular_ecl_individual",
-        "description": "Calcula a Perda Esperada (ECL) para um contrato individual conforme IFRS 9 e CMN 4966. Considera estágio, PD, LGD, EAD e aplica pisos mínimos regulatórios.",
+        "description": "Executa um baseline demonstrativo de ECL com dados sintéticos. Não constitui cálculo IFRS 9/CMN 4.966 validado nem provisão institucional.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -279,7 +283,7 @@ ECL_TOOLS = [
     },
     {
         "name": "simular_cenario_forward_looking",
-        "description": "Simula o impacto de cenários macroeconômicos no ECL, aplicando fatores de ajuste Forward Looking conforme CMN 4966.",
+        "description": "Simula fatores macroeconômicos demonstrativos no baseline de ECL; não comprova aderência à CMN 4.966.",
         "parameters": {
             "type": "object",
             "properties": {

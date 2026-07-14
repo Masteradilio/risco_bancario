@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Ferramentas BACEN - Exportação e Conformidade Regulatória
+Ferramentas demonstrativas de exportação e consulta de evidências regulatórias
 """
 
 from typing import Dict, Any, List
@@ -58,12 +58,12 @@ def exportar_xml_bacen(
             "totalizadores": "OK",
             "hash_arquivo": uuid.uuid4().hex
         },
-        "prazo_envio": "15º dia útil do mês subsequente",
-        "conformidade": ["CMN 4966", "BCB 352"],
+        "carater": "DEMONSTRATIVO_COM_DADOS_SINTETICOS",
+        "conformidade": "NAO_AVALIADA",
         "proximos_passos": [
             "Revisar resumo do arquivo",
             "Solicitar aprovação do Gestor",
-            "Transmitir via DDA (Documento Digital de Arrecadação)"
+            "Validar externamente em ambiente institucional antes de qualquer transmissão"
         ],
         "data_geracao": datetime.now().isoformat()
     }
@@ -74,7 +74,7 @@ def validar_conformidade(
     data_base: str = None
 ) -> Dict[str, Any]:
     """
-    Valida conformidade regulatória.
+    Retorna o estado do checklist demonstrativo sem certificar conformidade.
     
     Args:
         tipo: Tipo de validação (ecl, provisao, scr, ifrs9)
@@ -85,69 +85,26 @@ def validar_conformidade(
     """
     data_base = data_base or datetime.now().strftime("%Y-%m-%d")
     
-    # Checklist de conformidade
-    checklist = {
-        "ecl": [
-            {"item": "Metodologia de PD documentada", "status": "OK", "norma": "CMN 4966 Art. 38"},
-            {"item": "LGD por segmento calculado", "status": "OK", "norma": "IFRS 9 B5.5.28"},
-            {"item": "Forward Looking aplicado", "status": "OK", "norma": "CMN 4966 Art. 21"},
-            {"item": "Pisos mínimos verificados", "status": "OK", "norma": "CMN 4966 Art. 25"},
-            {"item": "Transição de estágios documentada", "status": "ATENÇÃO", "norma": "IFRS 9 5.5.3"}
-        ],
-        "provisao": [
-            {"item": "Provisão mínima 0.5%", "status": "OK", "norma": "CMN 4966"},
-            {"item": "Cobertura Stage 3 adequada", "status": "OK", "norma": "IFRS 9"},
-            {"item": "Recuperações líquidas consideradas", "status": "OK", "norma": "CMN 4966 Art. 49"}
-        ],
-        "scr": [
-            {"item": "Arquivo XML válido", "status": "OK", "norma": "BCB 352"},
-            {"item": "Prazo de envio respeitado", "status": "OK", "norma": "BCB 352 Art. 5"},
-            {"item": "Dados de ECL segregados", "status": "OK", "norma": "BCB 352"}
-        ],
-        "ifrs9": [
-            {"item": "Segregação em 3 estágios", "status": "OK", "norma": "IFRS 9 5.5.1"},
-            {"item": "Critérios de cura definidos", "status": "OK", "norma": "IFRS 9 B5.5.27"},
-            {"item": "Write-off acompanhado 5 anos", "status": "OK", "norma": "CMN 4966 Art. 49"}
-        ]
-    }
-    
-    tipo_lower = tipo.lower()
-    items = checklist.get(tipo_lower, checklist["ecl"])
-    
-    # Contar status
-    ok_count = sum(1 for i in items if i["status"] == "OK")
-    atencao_count = sum(1 for i in items if i["status"] == "ATENÇÃO")
-    erro_count = sum(1 for i in items if i["status"] == "ERRO")
-    
-    # Determinar resultado geral
-    if erro_count > 0:
-        resultado = "NÃO CONFORME"
-        cor = "vermelho"
-    elif atencao_count > 0:
-        resultado = "REQUER ATENÇÃO"
-        cor = "amarelo"
-    else:
-        resultado = "CONFORME"
-        cor = "verde"
-    
     return {
         "tipo_validacao": tipo,
         "data_base": data_base,
-        "resultado": resultado,
-        "indicador_cor": cor,
+        "resultado": "NAO_AVALIADO",
+        "indicador_cor": "cinza",
         "resumo": {
-            "total_itens": len(items),
-            "ok": ok_count,
-            "atencao": atencao_count,
-            "erros": erro_count
+            "total_itens": 0,
+            "ok": 0,
+            "atencao": 0,
+            "erros": 0
         },
-        "checklist": items,
+        "checklist": [],
         "recomendacoes": [
-            "Revisar itens com status ATENÇÃO",
-            "Documentar evidências de conformidade",
-            "Manter trilha de auditoria atualizada"
-        ] if atencao_count > 0 else ["Manter monitoramento regular"],
-        "proxima_validacao": "Mensal",
+            "Configurar fontes oficiais versionadas",
+            "Executar testes vinculados à matriz de rastreabilidade",
+            "Submeter o pacote a validação independente"
+        ],
+        "limitacao": "O checklist regulatório ainda não foi implementado; nenhum status de conformidade pode ser emitido.",
+        "dados_sinteticos": True,
+        "proxima_validacao": None,
         "data_validacao": datetime.now().isoformat()
     }
 
@@ -178,7 +135,7 @@ BACEN_TOOLS = [
     },
     {
         "name": "validar_conformidade",
-        "description": "Valida conformidade regulatória com CMN 4966, BCB 352 e IFRS 9. Retorna checklist de itens verificados.",
+        "description": "Consulta o estado do checklist regulatório demonstrativo. Não certifica conformidade e retorna NÃO_AVALIADO enquanto faltarem fontes e evidências versionadas.",
         "parameters": {
             "type": "object",
             "properties": {

@@ -1,10 +1,12 @@
-# REVAMP: Sistema PROLIMITE - Conformidade ECL + Propensão Otimizada
+# REVAMP legado: sistema PROLIMITE e baseline de ECL
+
+> Documento histórico substituído por `docs/MASTER_BACKLOG.md`. Fórmulas escalares, multiplicadores de lifetime PD, LGD máxima e thresholds abaixo são aproximações demonstrativas, não metodologia vigente nem parâmetros regulatórios validados.
 
 ## 1. Síntese das Pesquisas
 
 ### ECL / Resolução 4966
-- **Fórmula Central**: `ECL = PD × LGD × EAD`
-- **3 Estágios**: Stage 1 (12m ECL), Stage 2 (Lifetime ECL), Stage 3 (Default - LGD máxima)
+- **Baseline didático legado**: `PD × LGD × EAD`
+- **Motor-alvo**: cálculo por período, cenário e desconto; Stage 3 por cash shortfall, sem LGD máxima automática
 - **RAROC**: Risk-Adjusted Return On Capital → operação só é aprovada se RAROC > mínimo
 - **Capital Alocado**: ECL × Fator Conservador (1.5-2.0)
 - **Arrasto**: Se um produto vai para Stage 3, TODOS produtos do cliente migram

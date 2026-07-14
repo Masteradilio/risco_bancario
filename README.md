@@ -30,20 +30,20 @@ Motor de classificação de risco baseado em Machine Learning (XGBoost/LightGBM)
 | Funcionalidade | Descrição |
 |----------------|-----------|
 | **PRINAD Score** | Probabilidade de inadimplência (0-100%) |
-| **Rating** | 11 níveis (A1 → DEFAULT) conforme BACEN 4966 |
-| **PD 12 meses** | Probabilidade calibrada para horizonte de 1 ano |
-| **PD Lifetime** | Probabilidade para vida útil do instrumento |
-| **Stage IFRS 9** | Classificação automática em Estágio 1, 2 ou 3 |
+| **Rating legado** | 11 níveis demonstrativos (A1 → DEFAULT), sem calibração regulatória comprovada |
+| **PD 12 meses** | Estimativa demonstrativa para horizonte de 1 ano |
+| **PD Lifetime** | Aproximação legada para vida útil, a ser substituída por curvas temporais |
+| **Stage** | Classificação demonstrativa em Estágio 1, 2 ou 3 |
 
-**Métricas do Modelo:**
+**Métricas históricas do protótipo sintético (não são evidência de performance em dados reais):**
 | Métrica | Valor | Status |
 |---------|-------|--------|
-| AUC-ROC | 0.9986 | ✅ Excelente |
-| Gini | 0.9972 | ✅ Excelente |
-| Precision | 0.9535 | ✅ Meta atingida |
-| Recall | 0.9713 | ✅ Meta atingida |
+| AUC-ROC | 0.9986 | Dado sintético legado; validação pendente |
+| Gini | 0.9972 | Dado sintético legado; validação pendente |
+| Precision | 0.9535 | Dado sintético legado; validação pendente |
+| Recall | 0.9713 | Dado sintético legado; validação pendente |
 
-**Escala de Rating:**
+**Escala de rating legada e demonstrativa (não representa escala oficial ou política de concessão):**
 | Rating | Faixa PRINAD | Descrição | Ação |
 |--------|--------------|-----------|------|
 | A1 | 0-4.99% | Risco Mínimo | Aprovação automática |
@@ -61,11 +61,12 @@ Motor de classificação de risco baseado em Machine Learning (XGBoost/LightGBM)
 
 ### 2. 📉 ECL (Perda Esperada / Expected Credit Loss)
 
-Calculador de provisionamento conforme normas contábeis internacionais e locais, com fluxo de trabalho completo desde o cálculo até o reporte regulatório.
+Protótipo de cálculo a ser reconstruído para alinhamento rastreável às normas aplicáveis, com fluxo demonstrativo até a pré-validação regulatória.
 
 | Componente | Descrição |
 |------------|-----------|
-| **Fórmula Central** | `ECL = PD × LGD × EAD` |
+| **Baseline legado** | `PD × LGD × EAD`, mantido apenas como aproximação didática |
+| **Motor-alvo** | Soma descontada de `PD marginal × LGD do período × EAD do período`, calculada integralmente por cenário |
 | **Pipeline Integrado** | Execução sequencial de estágios, LGD, EAD e cálculo final |
 | **Workflow Guiado** | Integração lógica: Pipeline -> Validação -> Exportação XML |
 | **Transparência Legal** | Cards explicativos com referência direta aos artigos da CMN 4966 |
@@ -78,11 +79,11 @@ Calculador de provisionamento conforme normas contábeis internacionais e locais
 **3 Estágios IFRS 9:**
 | Estágio | Horizonte ECL | Condição |
 |---------|---------------|----------|
-| Stage 1 | 12 meses | Risco não aumentou significativamente |
+| Stage 1 | ECL lifetime associada a defaults possíveis nos próximos 12 meses | Risco não aumentou significativamente |
 | Stage 2 | Lifetime | Aumento significativo do risco (Trigger SICR) |
-| Stage 3 | Lifetime + LGD máxima | Ativo com problema de recuperação (Default) |
+| Stage 3 | Lifetime por cash shortfall descontado | Ativo com problema de recuperação de crédito |
 
-**CCF por Produto:**
+**CCF legado do protótipo (constantes demonstrativas, não parâmetros regulatórios validados):**
 | Produto | CCF |
 |---------|-----|
 | Consignado | 100% |
@@ -112,7 +113,7 @@ Sistema de propensão e realocação dinâmica de limites de crédito.
 | AUMENTAR | PRINAD < 75% + Propensão > 55% + Margem + Comprometimento < 65% | +25% |
 | MANTER | Demais casos | Sem alteração |
 
-**LGD por Produto (Basel III):**
+**LGD legada do protótipo (constantes demonstrativas, não parâmetros contábeis ou regulatórios validados):**
 | Produto | LGD Base | LGD Downturn |
 |---------|----------|--------------|
 | Consignado | 35% | 44% |
@@ -124,12 +125,12 @@ Sistema de propensão e realocação dinâmica de limites de crédito.
 
 ### 4. 📤 Exportação Regulatória BACEN
 
-Suite completa de conformidade para geração e validação de arquivos regulatórios.
+Fluxo demonstrativo de geração e pré-validação de arquivos regulatórios, ainda sem homologação externa.
 
 | Funcionalidade | Descrição |
 |----------------|-----------|
-| **Documento 3040** | XML conforme leiaute SCR3040 v5.0+ |
-| **Validador BACEN** | Simulador integrado de validação (Sintática + Semântica) |
+| **Documento 3040** | XML demonstrativo; versionamento oficial de leiaute ainda será implementado |
+| **Pré-validador local** | Simulador de verificações sintáticas e semânticas; não é ferramenta oficial do Banco Central |
 | **Etapas de Validação** | Checagem de Estrutura, COSIF, Regras CMN 4966 e Totais |
 | **Tag Res4966** | Geração automática da seção `<ContInstFinRes4966>` |
 | **Histórico de Envios** | Controle de remessas, status e protocolos |
@@ -336,7 +337,7 @@ Em produção, substitua os dados mockados pela integração real com a API do S
 │              │                                                         │
 │              ▼                                                         │
 │  ╔═══════════════════════════════════════════════════════════╗        │
-│  ║     ECL = PD × LGD × EAD (por estágio IFRS 9)             ║        │
+│  ║     Baseline legado: PD × LGD × EAD                       ║        │
 │  ╚═══════════════════════════════════════════════════════════╝        │
 │              │                                                         │
 │              ▼                                                         │

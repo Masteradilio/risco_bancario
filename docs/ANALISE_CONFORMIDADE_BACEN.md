@@ -1,4 +1,6 @@
-# Análise de Conformidade BACEN - Módulos perda_esperada e prinad
+# Avaliação histórica de cobertura - módulos perda_esperada e PRINAD
+
+> **Documento legado, não normativo.** Esta avaliação de 8 de janeiro de 2026 não constitui certificação, validação independente ou parecer de conformidade. Percentuais e selos autodeclarados foram removidos. Citações de artigos e parâmetros abaixo ainda precisam ser conferidas contra fontes oficiais vigentes e vinculadas à matriz de rastreabilidade. Dados, métricas e exemplos do protótipo são sintéticos ou demonstrativos.
 
 **Data da Análise:** 2026-01-08  
 **Versão do Sistema:** v2.1  
@@ -12,28 +14,26 @@
 
 ## 📊 Resumo Executivo
 
-| Aspecto | Status | Cobertura |
-|---------|--------|-----------|
-| **PRINAD (PD)** | ✅ Conforme | 95% |
-| **ECL (Perda Esperada)** | ✅ Conforme | 90% |
-| **Estágios IFRS 9** | ✅ Conforme | 100% |
-| **Grupos Homogêneos** | ✅ Conforme | 90% |
-| **Forward Looking** | ⚠️ Parcial | 75% |
-| **LGD Segmentado** | ✅ Conforme | 85% |
-| **Triggers de Migração** | ✅ Conforme | 95% |
-| **Reestruturações** | ✅ Conforme | 90% |
-| **Exportação BACEN** | ✅ Conforme | 85% |
-| **Write-off e Cura** | ⚠️ Parcial | 70% |
-
-**Nota Geral de Conformidade: 88%**
+| Aspecto | Evidência histórica | Situação para modernização |
+|---------|---------------------|----------------------------|
+| **PRINAD (PD)** | Código e testes estruturais | Requer dados longitudinais, calibração e OOT |
+| **ECL (Perda Esperada)** | Produto escalar demonstrativo | Requer motor por período, cenário e desconto |
+| **Estágios** | Regras heurísticas | Requer política única relativa à originação |
+| **Grupos Homogêneos** | Agrupamentos implementados | Requer validação estatística |
+| **Forward Looking** | Multiplicadores fixos | Requer trajetórias e relações macro-risco |
+| **LGD Segmentado** | Tabelas e heurísticas | Requer workout LGD descontada |
+| **Triggers de Migração** | Regras distribuídas | Requer consolidação e evidência |
+| **Reestruturações** | Fluxos parciais | Requer golden cases e rastreabilidade |
+| **Exportação regulatória** | XML demonstrativo | Requer leiaute, XSD e críticas versionadas |
+| **Write-off e Cura** | Funções e testes estruturais | Requer validação de fonte e integração |
 
 ---
 
-## ✅ Requisitos Atendidos
+## Implementações históricas a verificar
 
 ### 1. Classificação em 3 Estágios IFRS 9 (Art. 37, 38, 40 da CMN 4966)
 
-**Requisito Legal:**
+**Interpretação histórica a confirmar:**
 > Art. 37: Os instrumentos financeiros devem ser alocados em três estágios para fins de mensuração da provisão para perdas esperadas:
 > - Estágio 1: ECL 12 meses
 > - Estágio 2: ECL lifetime (aumento significativo de risco)
@@ -51,7 +51,7 @@ ClassificationResult:
 # - Stage 3: Rating D-DEFAULT (PRINAD 85-100%)
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -71,7 +71,7 @@ ECLCompleteResult:
     horizonte_ecl: str   # "12_meses" ou "lifetime"
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -109,7 +109,7 @@ REGRAS_AUMENTO_RISCO_POR_CLASSIFICACAO = {
 # - Atraso > 90 dias → Estágio 3
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -130,7 +130,7 @@ def aplicar_triggers_atraso():
     palavras_chave_reneg = r'(?:CONFISS[AÃ]O|RENEGOCIA[CÇ][AÃ]O)'
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -156,7 +156,7 @@ def aplicar_arrasto_contraparte():
     df_triggers.loc[condicao_arrasto, col_estagio_atual] = 3
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -179,7 +179,7 @@ class GruposHomogeneosConsolidado:
         # 4-5 grupos por segmento (Parcelado, Rotativo, Consignado)
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -208,7 +208,7 @@ def calcular_ecl_completo():
     ecl_final = aplicar_piso_minimo(ecl_antes_piso, stage, carteira)
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -235,7 +235,7 @@ class LGDSegmentado:
         # - Ocupação
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -261,7 +261,7 @@ class SistemaReestruturacao:
         df_result.loc[mask_reestr, 'PROVISAO_REESTRUTURACAO'] = 1.0
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -283,7 +283,7 @@ def gerar_xml_doc3040():
     # - Compactação ZIP
 ```
 
-**Status:** ✅ **CONFORME**
+**Status:** implementação histórica sem validação regulatória independente.
 
 ---
 
@@ -313,7 +313,7 @@ class ModeloForwardLooking:
 - Falta ponderação de probabilidades por cenário
 - Modelo atual usa apenas cenário único
 
-**Status:** ⚠️ **PARCIAL (75%)**
+**Status:** implementação parcial; cobertura regulatória não mensurada.
 
 ---
 
@@ -341,7 +341,7 @@ def definir_criterios_cura_reestruturacao():
   - Integração com dados de pagamento contínuo
   - Flag de "em período de cura"
 
-**Status:** ⚠️ **PARCIAL (70%)**
+**Status:** implementação parcial; cobertura regulatória não mensurada.
 
 ---
 
@@ -362,7 +362,7 @@ def definir_criterios_cura_reestruturacao():
 - Falta sistema de rastreamento de ativos baixados por 5 anos
 - Falta integração com cobrança para acompanhamento pós-baixa
 
-**Status:** ⚠️ **PARCIAL (65%)**
+**Status:** implementação parcial; cobertura regulatória não mensurada.
 
 ---
 
@@ -481,16 +481,16 @@ def definir_criterios_cura_reestruturacao():
 
 ## 🔍 Conclusão
 
-O sistema apresenta **88% de conformidade** com os requisitos da Resolução CMN 4.966/2021 e BCB 352/2023. Os principais gaps identificados são:
+O documento histórico identificou componentes implementados, mas não oferece método válido para medir conformidade. Os principais gaps registrados são:
 
 1. **Forward Looking Multi-Cenário** - Impacto regulatório médio
 2. **Sistema de Cura Formal** - Impacto regulatório médio
 3. **Rastreamento de Write-off** - Impacto regulatório baixo
 
-Recomenda-se priorizar a implementação do Forward Looking Multi-Cenário, pois é um requisito explícito da norma (Art. 36 §5º) e pode ser questionado em inspeção do Banco Central.
+Recomenda-se conferir a exigência forward-looking na fonte oficial vigente e priorizar cenários completos com evidência, conforme a matriz regulatória a ser construída.
 
 ---
 
-**Elaborado por:** Sistema de Análise de Conformidade  
+**Elaborado por:** avaliação automatizada histórica
 **Aprovado por:** [Pendente]  
 **Data de Aprovação:** [Pendente]

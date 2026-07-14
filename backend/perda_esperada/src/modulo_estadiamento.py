@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Módulo de Estadiamento - Classificação de contratos em estágios conforme IFRS 9
+Módulo legado de estadiamento - regras demonstrativas sem validação IFRS 9 independente
 
 Inclui:
 - Classificação de estágios (1, 2, 3)
@@ -87,7 +87,7 @@ def classificar_estagio_aprimorado(df: pd.DataFrame,
                                  col_id_operacao: str = 'id_operacao',
                                  **kwargs) -> pd.DataFrame:
     """
-    Classifica contratos em estágios conforme IFRS 9
+    Classifica contratos por regras demonstrativas de estágio; conformidade não avaliada.
     
     Estágio 1: Perda esperada de 12 meses
     Estágio 2: Perda esperada de vida toda (aumento significativo do risco)

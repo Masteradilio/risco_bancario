@@ -3,8 +3,8 @@
 Módulo de Testes Estatísticos para Modelos de Risco de Crédito
 
 Este módulo implementa uma bateria completa de testes estatísticos para validação
-dos modelos de risco de crédito, garantindo conformidade com as exigências do BCB
-e robustez na estimativa de parâmetros.
+dos modelos de risco de crédito. Os resultados são evidência técnica parcial e não garantem
+conformidade com exigências do BCB nem robustez institucional.
 
 Testes implementados:
 - Teste de Normalidade (Shapiro-Wilk, Anderson-Darling, Kolmogorov-Smirnov)

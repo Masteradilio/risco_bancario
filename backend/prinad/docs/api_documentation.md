@@ -1,8 +1,10 @@
 # API PRINAD - Documentação Técnica
 
+> API legada para demonstração com dados sintéticos. Respostas não devem ser usadas para decisão de crédito e não comprovam conformidade regulatória.
+
 ## Visão Geral
 
-A API PRINAD fornece endpoints RESTful para classificação de risco de crédito em tempo real, utilizando modelo de machine learning em conformidade com Basel III.
+A API PRINAD fornece endpoints RESTful demonstrativos para classificação de risco com um modelo legado de machine learning; alinhamento com Basileia não foi validado.
 
 **Base URL**: `http://localhost:8000`
 

@@ -30,12 +30,15 @@ const stageData = [
 export default function ECLDashboardPage() {
     return (
         <div className="space-y-6">
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                Dados sintéticos fixos para demonstração. Os valores não são provisão contábil e o protótipo não constitui cálculo homologado.
+            </div>
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="kpi-card">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">ECL Total</p>
+                            <p className="text-sm text-muted-foreground">ECL sintético</p>
                             <p className="text-2xl font-bold mt-1">R$ 2.9M</p>
                         </div>
                         <div className="p-2.5 rounded-xl bg-red-500/10">
@@ -46,7 +49,7 @@ export default function ECLDashboardPage() {
                 <div className="kpi-card">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">PD Médio</p>
+                            <p className="text-sm text-muted-foreground">PD média sintética</p>
                             <p className="text-2xl font-bold mt-1">12.4%</p>
                         </div>
                         <div className="p-2.5 rounded-xl bg-amber-500/10">
@@ -57,7 +60,7 @@ export default function ECLDashboardPage() {
                 <div className="kpi-card">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">LGD Médio</p>
+                            <p className="text-sm text-muted-foreground">LGD média sintética</p>
                             <p className="text-2xl font-bold mt-1">45.2%</p>
                         </div>
                         <div className="p-2.5 rounded-xl bg-primary/10">
@@ -68,7 +71,7 @@ export default function ECLDashboardPage() {
                 <div className="kpi-card">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm text-muted-foreground">EAD Total</p>
+                            <p className="text-sm text-muted-foreground">EAD sintética</p>
                             <p className="text-2xl font-bold mt-1">R$ 124M</p>
                         </div>
                         <div className="p-2.5 rounded-xl bg-emerald-500/10">
@@ -146,11 +149,10 @@ export default function ECLDashboardPage() {
 
             {/* Info Card */}
             <div className="chart-container bg-primary/5 border-primary/20">
-                <h4 className="font-medium text-primary mb-2">📋 Conformidade CMN 4966 - Art. 36</h4>
+                <h4 className="font-medium text-primary mb-2">📋 Metodologia demonstrativa em modernização</h4>
                 <p className="text-sm text-muted-foreground">
-                    A perda esperada (ECL) é calculada considerando três estágios de risco conforme IFRS 9,
-                    aplicando a fórmula: <strong className="text-foreground">ECL = PD × LGD × EAD</strong>.
-                    O horizonte temporal varia entre 12 meses (Stage 1) e lifetime (Stages 2 e 3).
+                    O protótipo legado usa <strong className="text-foreground">PD × LGD × EAD</strong> como aproximação didática.
+                    O motor-alvo calculará cash shortfalls por período e cenário, com desconto e rastreabilidade; esta tela não comprova conformidade.
                 </p>
             </div>
         </div>

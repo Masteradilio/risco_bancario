@@ -8,6 +8,8 @@ Sua investigação sobre risco de crédito para pessoa física exige compreensã
 
 ***
 
+> **Pesquisa exploratória legada.** Exemplos usam dados sintéticos e simplificações didáticas. O documento não é fonte normativa, model card ou evidência de conformidade; referências e premissas devem ser confirmadas na matriz regulatória.
+
 ### 1. O Padrão International ECL: IFRS 9 e o Paradigma da Perda Esperada
 
 #### 1.1 A Ruptura Paradigmática: De "Perda Incorrida" para "Perda Esperada"
@@ -18,7 +20,7 @@ A IFRS 9, adotada em janeiro de 2018 globalmente, introduz o modelo de **"Expect
 
 **Impacto Conceitual**: O lucro de uma operação de crédito deixa de ser simplesmente "juros recebidos menos custos". Passa a ser "juros menos perda esperada menos custos", ajustado pelo risco do cliente desde o momento da concessão.[2][1]
 
-#### 1.2 A Fórmula Fundamental: ECL = PD × LGD × EAD
+#### 1.2 Baseline didático: ECL ≈ PD × LGD × EAD
 
 O cálculo de ECL repousa em três componentes quantificáveis:[4][5][6]
 
@@ -28,7 +30,7 @@ O cálculo de ECL repousa em três componentes quantificáveis:[4][5][6]
 
 **Exposure at Default (EAD)**: O valor total exposto no momento em que o default ocorre, incluindo principal, juros acumulados, e taxas devidas. Para um empréstimo, é o saldo devedor no default; para um cartão de crédito, é o limite utilizado no default (não o limite total aprovado).[6][9][5]
 
-**Interpretação Prática**: Um empréstimo de R$1.000 com PD=20%, LGD=70%, EAD=R$1.000 gera ECL = 20% × 70% × 1.000 = R$140. O banco provisiona R$140 imediatamente na demonstração financeira, reduzindo lucro de forma prospectiva.[10]
+**Interpretação didática**: em um caso escalar sem estrutura temporal, cenários ou desconto, um empréstimo de R$1.000 com PD=20%, LGD=70% e EAD=R$1.000 produz 20% × 70% × 1.000 = R$140. O motor-alvo calcula cash shortfalls por período e cenário; o reconhecimento contábil não pode ser inferido deste exemplo isolado.
 
 #### 1.3 Os Três Estágios Progressivos de Risco (Stages Model)
 
@@ -36,9 +38,9 @@ IFRS 9 estrutura o reconhecimento de ECL em três estágios:[11][12][2]
 
 | Estágio | Condição | ECL Calculada Para | Significado |
 |---------|----------|-------------------|-------------|
-| **1** | Sem aumento significativo de risco desde originação | **12 meses** (não lifetime) | Risco normal; provisão mínima |
+| **1** | Sem aumento significativo de risco desde originação | Perdas lifetime associadas a defaults possíveis nos próximos 12 meses | Risco sem SICR identificado |
 | **2** | Aumento significativo de risco (SICR) desde originação, mas sem default | **Lifetime do instrumento** | Risco elevado; provisão sobe dramaticamente |
-| **3** | Em default ou com evidência clara de impairment | **Lifetime com LGD elevada** (até 100%) | Default real; provisão máxima |
+| **3** | Ativo com problema de recuperação de crédito | **Lifetime por cash shortfall descontado** | Recuperações e fluxos esperados determinam a perda |
 
 A lógica é progressiva: um ativo inicia em Estágio 1. Se sinais de deterioração aparecem (atraso, redução de renda, downgrade de rating), migra para Estágio 2 – e a provisão pula de "12-month ECL" para "lifetime ECL", aumentando drasticamente. Se entra em default, vai para Estágio 3. A reversão (cura) também é possível se o risco reduzir.[13][11]
 
@@ -115,7 +117,7 @@ Onde PD_lifetime é a probabilidade de default ao longo de toda a vida remanesce
 ```
 PPERC = LGD × EAD
 ```
-Com LGD elevada (50-100%), pois o default já ocorreu ou é iminente.
+Stage 3 não implica LGD fixa ou máxima: a perda decorre do valor presente dos cash shortfalls, incluindo recuperações, garantias, custos e prazos esperados.
 
 **Exemplo Numérico**: Um empréstimo pessoal de R$10.000, prazo 5 anos:[26]
 - PD₁₂ₘ (Estágio 1) = 2%
@@ -125,8 +127,8 @@ Com LGD elevada (50-100%), pois o default já ocorreu ou é iminente.
 
 Se migra para Estágio 2:
 - PD_lifetime = 8% (maior porque considera 5 anos)
-- PPERC_Estágio2 = 8% × 40% × 10.000 = R$3.200 (provisão total de lifetime)
-- Aumento de provisão: R$3.200 - R$80 = R$3.120 impactando resultado negat ivamente
+- Baseline escalar do Estágio 2 = 8% × 40% × 10.000 = R$320
+- Diferença do baseline: R$320 - R$80 = R$240. O efeito contábil real depende do cálculo completo e da movimentação do allowance.
 
 #### 2.4 O Modelo Completo vs. Simplificado
 
@@ -205,12 +207,12 @@ Capital Alocado à Operação = ECL × Fator de Conservadorismo (tipicamente 1.5
   - Capital alocado = R$17.50 × 1.8 = R$31.50
   
 - **Cliente B**: Rating C3, PD=5%, LGD=50%, empréstimo R$10.000
-  - ECL = 5% × 50% × 10.000 = R$2.500
-  - Capital alocado = R$2.500 × 1.8 = R$4.500
+  - ECL = 5% × 50% × 10.000 = R$250
+  - Capital hipotético do exemplo = R$250 × 1.8 = R$450
 
 Com capital de R$1.000 disponível:
-- Pode fazer **40 operações como A** (40 × R$31.50 ≈ R$1.260, ligeiramente acima)
-- OU pode fazer **apenas 0.2 operações como B** (não faz nem 1 porque faz 0.22 operações)
+- A divisão puramente aritmética comportaria **31 operações como A** (31 × R$31,50 = R$976,50)
+- OU **2 operações como B** (2 × R$450 = R$900)
 
 **Resultado**: Cliente com alto risco (C3) recebe limite **muito menor** ou é **rejeitado**, porque consome capital em proporção muito maior.[19]
 
@@ -219,8 +221,8 @@ Com capital de R$1.000 disponível:
 **Gatilho 1 – Migração de Estágio**:[22]
 - Cliente em Estágio 1, limite de R$5.000 aprovado, ECL₁₂ₘ = R$80
 - Cliente apresenta atraso de 45 dias → migra para Estágio 2
-- ECL_lifetime salta de R$80 para R$3.200 (30x maior)
-- Banco precisa alocar 30x mais capital para essa operação
+- No exemplo escalar anterior, o valor passa de R$80 para R$320 (4x); isso não substitui uma ECL lifetime período a período.
+- Qualquer efeito de capital exige metodologia separada de ECL.
 - **Resultado**: Limite é reduzido de R$5.000 para R$1.000 (ou cancelado)
 
 **Gatilho 2 – Arrasto para Estágio 3**:[22]
@@ -257,7 +259,7 @@ Limite Final = Min(Limite Máximo, Limite Política Interna)
 ```
 Cliente B com rating downgrade de A para C:
 - Rating A: PD = 1%, ECL = 1% × 40% × 10.000 = R$40 → Capital = R$72
-- Rating C: PD = 4%, ECL = 4% × 40% × 10.000 = R$1.600 → Capital = R$2.880
+- Rating C: PD = 4%, ECL = 4% × 40% × 10.000 = R$160; qualquer inferência de capital exige metodologia separada
 
 Redução de Limite = Capital R$72 vs. R$2.880 = Limite cai para ~2.5% do original
 ```
@@ -324,7 +326,7 @@ Neste caso, **3% dos 9% de juros cobrem especificamente a perda esperada de cré
 | **Rating/PD** | A1 / 0.5% | B / 2.5% | C3 / 5% |
 | **LGD** | 35% | 42% | 50% |
 | **EAD** | R$10.000 | R$10.000 | R$10.000 |
-| **ECL** | 0.175% × 10k = R$17.50 | 1.05% × 10k = R$1.050 | 2.5% × 10k = R$2.500 |
+| **ECL escalar didática** | 0,175% × 10 mil = R$17,50 | 1,05% × 10 mil = R$105 | 2,5% × 10 mil = R$250 |
 | **Spread de Risco** | 0.175% | 1.05% | 2.5% |
 | **Taxa (Selic 5.5%)** | 5.5 + 0.2 + 0.3 = **6.0%** | 5.5 + 1.0 + 0.3 = **6.8%** | 5.5 + 2.5 + 0.3 = **8.3%** |
 | **Diferença vs A1** | - | +80bps | +230bps |
@@ -388,7 +390,7 @@ SOLICITAÇÃO DE CRÉDITO (cliente PF pede R$5.000 empréstimo pessoal)
 │
 ├─ 4. CÁLCULO DE ECL
 │  ├─ ECL₁₂ₘ = 2.5% × 42% × 5.000 = R$52.50 (se Estágio 1)
-│  ├─ ECL_lifetime = 6% × 42% × 5.000 = R$1.260 (seria se Estágio 2)
+│  ├─ Baseline escalar = 6% × 42% × 5.000 = R$126 (ilustração, não ECL lifetime completa)
 │  └─ Classificação: Estágio 1 (cliente adimplente, apesar dos 2 atrasos antigos)
 │
 ├─ 5. ALOCAÇÃO DE CAPITAL
@@ -421,7 +423,7 @@ SOLICITAÇÃO DE CRÉDITO (cliente PF pede R$5.000 empréstimo pessoal)
    │         crédito é zero ou negativa)      │
    │                                          │
    │ CENÁRIO 2: Se banco ignora comprom. PJ  │
-   │ Status: APROVADO R$1.000 (limite reduz) │
+   │ Simulação sem decisão: R$1.000 (limite hipotético) │
    │ Taxa: 6.85% a.a.                        │
    │ Provisão: R$52.50                        │
    └─────────────────────────────────────────┘
@@ -433,7 +435,7 @@ SOLICITAÇÃO DE CRÉDITO (cliente PF pede R$5.000 empréstimo pessoal)
 ```
 Cliente pede R$50.000 empréstimo pessoal
 Rating C, PD 3%, LGD 45%, EAD 50.000
-ECL_lifetime = 3% × 45% × 50.000 = R$6.750
+Baseline escalar = 3% × 45% × 50.000 = R$675
 
 Se banco cobre ECL com spread apenas 1%, e custos são R$2.000:
 Lucro Ajustado = 1.000 - 6.750 - 2.000 = -R$7.750 (NEGATIVO)

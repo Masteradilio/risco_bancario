@@ -503,7 +503,7 @@ export default function AuditoriaPage() {
                                 Relatórios de Conformidade
                             </CardTitle>
                             <CardDescription>
-                                Relatórios regulatórios conforme CMN 4966 e IFRS 9
+                                Relatórios demonstrativos; cobertura regulatória não avaliada
                             </CardDescription>
                         </CardHeader>
                         <CardContent>

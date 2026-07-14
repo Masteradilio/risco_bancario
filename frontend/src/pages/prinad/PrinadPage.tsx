@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 // Tabs simples para navegação interna
 type TabId = 'dashboard' | 'individual' | 'lote'
 
+// Distribuição e importâncias sintéticas fixas para demonstração visual.
 const ratingData = [
     { rating: 'A1', count: 3250, percentage: 22 },
     { rating: 'A2', count: 2890, percentage: 19 },
@@ -78,6 +79,9 @@ export default function PrinadPage() {
 
     return (
         <div className="space-y-6">
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                Ambiente demonstrativo: classificações, métricas e explicações desta tela usam dados sintéticos ou aleatórios e não autorizam decisão de crédito.
+            </div>
             {/* Tabs de Navegação - MAIORES E MAIS CHAMATIVAS */}
             <nav className="flex gap-3 p-2 bg-gradient-to-r from-muted/80 to-muted/40 rounded-xl border border-border">
                 <button
@@ -139,9 +143,9 @@ export default function PrinadPage() {
                             <p className="text-xs text-muted-foreground mt-2">Últimos 30 dias</p>
                         </div>
                         <div className="kpi-card">
-                            <p className="text-sm text-muted-foreground">AUC-ROC</p>
+                            <p className="text-sm text-muted-foreground">AUC-ROC sintético legado</p>
                             <p className="text-2xl font-bold text-primary mt-1">0.9986</p>
-                            <p className="text-xs text-muted-foreground mt-2">Excelente performance</p>
+                            <p className="text-xs text-muted-foreground mt-2">Sem validação OOT independente</p>
                         </div>
                     </div>
 

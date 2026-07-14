@@ -1,5 +1,5 @@
 """
-Pipeline ECL Integrado - BACEN 4966/IFRS 9 Compliant
+Pipeline ECL integrado legado - baseline demonstrativo não homologado
 
 Este pipeline CONSOME os resultados do módulo PRINAD e adiciona
 as funcionalidades específicas do módulo perda_esperada:
@@ -458,7 +458,7 @@ class ECLPipeline:
             limite_total=limite_total
         )
         
-        # 9. Calcular ECL = PD × LGD × EAD
+        # 9. Calcular o baseline escalar legado PD × LGD × EAD
         ecl_calculado = pd_ajustado * lgd_result['lgd_final'] * ead_result['ead']
         
         # 10. Aplicar piso mínimo (Stage 3 apenas)

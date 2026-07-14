@@ -142,16 +142,25 @@ Congelar o estado atual, estabelecer o escopo oficial e impedir que o projeto co
 
 ### Subtarefas
 
-- [ ] Remover selos e frases como “100% compliant”, “validador oficial” e equivalentes.
-- [ ] Substituir por linguagem de alinhamento, referência e preparação para homologação.
-- [ ] Marcar dashboards, métricas e datasets como sintéticos.
-- [ ] Remover percentuais autodeclarados de conformidade sem metodologia.
-- [ ] Corrigir exemplos matemáticos incorretos na documentação.
+- [x] Remover selos e frases como “100% compliant”, “validador oficial” e equivalentes.
+- [x] Substituir por linguagem de alinhamento, referência e preparação para homologação.
+- [x] Marcar dashboards, métricas e datasets como sintéticos.
+- [x] Remover percentuais autodeclarados de conformidade sem metodologia.
+- [x] Corrigir exemplos matemáticos incorretos na documentação.
 
 ### Critérios de aceite
 
-- [ ] Nenhum arquivo promete certificação institucional.
-- [ ] Toda demonstração informa que usa dados sintéticos.
+- [x] Nenhum arquivo promete certificação institucional.
+- [x] Toda demonstração informa que usa dados sintéticos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Escopo da varredura: README, documentação autoral, APIs, agente, bancos, frontends ativo e legado, testes e relatórios gerados; textos oficiais arquivados foram preservados como fontes.
+- Guardrail: a ferramenta `validar_conformidade` mantém a assinatura por compatibilidade, mas retorna `NAO_AVALIADO` até existirem fontes, testes e evidências versionadas.
+- Matemática: exemplos escalares foram identificados como didáticos; erros de ordem de grandeza foram corrigidos e Stage 3 passou a ser descrito por cash shortfall descontado.
+- Evidência: varredura automatizada sem alegações proibidas; 118 testes aprovados e 7 ignorados; sintaxe Python e contratos de guardrail aprovados.
+- Limitação preexistente: o build TypeScript permanece vermelho pelas mesmas categorias registradas em `docs/baseline/CURRENT_STATE_BASELINE.md`.
 
 ---
 

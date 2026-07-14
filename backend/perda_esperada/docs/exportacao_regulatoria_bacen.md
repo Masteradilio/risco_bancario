@@ -108,7 +108,7 @@ A tag `<ContInstFinRes4966>` deve conter elementos adicionais para detalhar est�
 
 Embora o BACEN não exija o envio dos componentes individuais (PD, LGD, EAD), o valor de **VlrPerdaAcumulada** deve ser resultado do seguinte cálculo:[^6][^7][^8]
 
-**ECL = PD × LGD × EAD**
+**Baseline didático legado: ECL ≈ PD × LGD × EAD.** O cálculo alvo deve usar PD marginal, LGD e EAD por período, cenários completos e desconto.
 
 Onde:
 
@@ -369,7 +369,7 @@ Para atender aos requisitos técnicos da Resolução 4966/2021, recomenda-se:
 1. **Integração com Contabilidade (COSIF)**: Automatizar reconciliação de saldos contábeis com valores reportados em VlrContabilBruto
 2. **Modelos de Risco**: Implementar cálculo de PD, LGD, EAD com documentação interna de metodologias
 3. **Alocação de Estágios**: Definir regras objetivas de SICR (aumento significativo de risco de crédito) conforme Art. 37 da Resolução
-4. **Validação Integrada**: Incorporar validador BACEN em pipeline de processamento antes de STA
+4. **Pré-validação integrada**: incorporar verificações locais versionadas antes de qualquer validação oficial externa
 5. **Particionamento**: Implementar quebra automática de arquivos para grandes volumes (>10.000 operações)
 6. **Rastreabilidade**: Manter logs de cada remessa, protocolo e status de processamento
 7. **Testes em Homologação**: Executar testes completos antes do primeiro envio em produção
@@ -543,4 +543,3 @@ O envio de dados ECL para o BACEN conforme a Resolução 4966/2021 exige conform
 [^78]: https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3045-46_Leiaute.xls
 
 [^79]: https://www.bcb.gov.br/estabilidadefinanceira/scrdoc3040_faq
-

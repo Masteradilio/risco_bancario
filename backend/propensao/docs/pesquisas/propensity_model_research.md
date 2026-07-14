@@ -1,5 +1,7 @@
 
-## Modelo de Propensão de Uso de Crédito: Otimização de Limites Alinhado à ECL (Resolução 4966/2021)
+## Modelo de propensão de uso de crédito: pesquisa exploratória legada
+
+> Documento exploratório com exemplos sintéticos e hipóteses não validadas. Não é fonte normativa nem política de concessão. O baseline escalar abaixo não representa o motor ECL alvo, e EAD não pode ser presumida como o limite total para todos os produtos.
 
 Sua questão toca em uma das fronteiras mais sofisticadas da gestão de risco de crédito moderno: como alocar limites dinamicamente com base na **probabilidade real de uso** de cada produto, otimizando simultaneamente a **perda esperada (ECL)** que o banco precisa provisionar. Este é o diferencial competitivo de bancos de primeiro mundo. Vou estruturar uma resposta detalhada sobre a implementação integrada.
 
@@ -12,14 +14,14 @@ Sua questão toca em uma das fronteiras mais sofisticadas da gestão de risco de
 Sob a Resolução 4966/2021, o banco deve reconhecer ECL (Expected Credit Loss) conforme:[1][2]
 
 ```
-ECL = PD × LGD × EAD
+Baseline didático: ECL ≈ PD × LGD × EAD
 ```
 
-**A questão crítica**: O EAD é baseado no **limite aprovado**, não no saldo utilizado. Isto significa:[1]
+**Hipótese simplificada do exemplo legado**: EAD depende do saldo, do limite não utilizado e do comportamento esperado de utilização conforme o produto; não é automaticamente igual ao limite aprovado.
 
 - Cliente tem limite de R$10.000 em crédito pessoal
 - Cliente **não usa** nada (saldo = R$0)
-- Banco ainda provisiona: ECL = PD × LGD × R$10.000
+- Um baseline poderia projetar EAD a partir do limite não utilizado e de CCF comportamental; o motor não deve provisionar automaticamente sobre R$10.000 sem essa projeção.
 
 Este limite não utilizado consome **capital do banco** (capital regulatório alocado) sem gerar receita. Se o banco tem 1 milhão de clientes com limite médio de R$5.000 cada, e 40% **nunca usam**, está alocando capital de forma ineficiente em ~R$2 bilhões de limites inutilizados.[3][4]
 

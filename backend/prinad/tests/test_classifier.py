@@ -1,5 +1,5 @@
 """
-Tests for the Classifier module (BACEN 4966 compliant).
+Tests for the legacy demonstrative Classifier module.
 """
 
 import pytest
@@ -112,7 +112,7 @@ class TestClassificationResult:
     """Test suite for ClassificationResult dataclass."""
     
     def test_to_dict(self):
-        """Test conversion to dictionary (BACEN 4966 compliant)."""
+        """Test conversion of a synthetic classification to dictionary."""
         result = ClassificationResult(
             cpf="12345678901",
             prinad=25.5,

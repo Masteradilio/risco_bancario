@@ -117,7 +117,7 @@ export default function CuraPage() {
                                 antes da reclassificação.
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 41 da Resolução CMN 4966/2021 - Reversão de Estágios
+                                📜 Referência histórica não verificada: art. 41 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

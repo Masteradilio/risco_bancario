@@ -304,7 +304,7 @@ export function LaudoCreditoPDF({ dados }: { dados: DadosLaudo }) {
                     <View style={[styles.summaryBox, { flex: 1 }]}>
                         <Text style={styles.summaryTitle}>ECL CALCULADO</Text>
                         <Text style={styles.summaryValue}>{formatCurrency(dados.ecl.eclFinal)}</Text>
-                        <Text style={styles.summarySubtext}>Perda Esperada conforme IFRS 9</Text>
+                        <Text style={styles.summarySubtext}>Perda esperada demonstrativa com dados sintéticos</Text>
                     </View>
                     <View style={[styles.card, { flex: 1, justifyContent: 'center' }]}>
                         <Text style={styles.label}>RATING DE CRÉDITO</Text>
@@ -410,7 +410,7 @@ export function LaudoCreditoPDF({ dados }: { dados: DadosLaudo }) {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>4. CÁLCULO DA PERDA ESPERADA (ECL)</Text>
                     <View style={styles.card}>
-                        <Text style={styles.cardTitle}>Fórmula: ECL = PD × LGD × EAD</Text>
+                        <Text style={styles.cardTitle}>Baseline didático legado: PD × LGD × EAD</Text>
                         <View style={styles.table}>
                             <View style={styles.tableHeader}>
                                 <Text style={styles.tableHeaderCell}>Componente</Text>

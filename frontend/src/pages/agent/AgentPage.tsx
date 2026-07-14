@@ -109,7 +109,7 @@ const defaultTools: ToolWithPrompt[] = [
     { name: 'simular_cenario_forward_looking', description: 'Simula cenários forward-looking', prompt: 'Simule um cenário forward-looking considerando aumento de 2% na taxa Selic' },
     { name: 'buscar_regulamentacao', description: 'Busca regulamentações BACEN', prompt: 'Busque a regulamentação CMN 4966/2021 sobre provisão para perdas esperadas' },
     { name: 'exportar_xml_bacen', description: 'Exporta XML para BACEN', prompt: 'Exporte o arquivo XML 4060 (SCR) da data-base dezembro/2025' },
-    { name: 'validar_conformidade', description: 'Valida conformidade CMN 4966', prompt: 'Valide a conformidade dos cálculos de ECL com a resolução CMN 4966' },
+    { name: 'validar_conformidade', description: 'Consulta checklist demonstrativo', prompt: 'Mostre o estado das evidências regulatórias e as limitações, sem certificar conformidade' },
     { name: 'ler_arquivo_excel', description: 'Lê arquivos Excel', prompt: 'Leia o arquivo Excel da carteira de crédito e apresente um resumo' },
     { name: 'gerar_grafico', description: 'Gera gráficos e visualizações', prompt: 'Gere um gráfico de evolução da ECL nos últimos 12 meses' },
     { name: 'pesquisar_web', description: 'Pesquisa informações na web', prompt: 'Pesquise as últimas notícias sobre regulamentação bancária do BACEN' },
@@ -285,6 +285,9 @@ export function AgentPage() {
         <div className="flex h-full overflow-hidden bg-background">
             {/* Sidebar - Sessões e Ferramentas */}
             <div className="w-72 bg-card border-r border-border flex flex-col">
+                <div className="border-b border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
+                    DEMONSTRAÇÃO SINTÉTICA — respostas não são parecer, decisão ou validação regulatória.
+                </div>
                 {/* Header */}
                 <div className="p-3 border-b border-border">
                     <button

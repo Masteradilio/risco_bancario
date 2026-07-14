@@ -138,7 +138,7 @@ export default function EstagiosPage() {
                                 <strong> Stage 3</strong> (Inadimplente/Problemático - PD Lifetime).
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 25 a 27 da Resolução CMN 4966/2021 - Caracterização de Ativos Problemáticos
+                                📜 Referência histórica não verificada: arts. 25 a 27 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

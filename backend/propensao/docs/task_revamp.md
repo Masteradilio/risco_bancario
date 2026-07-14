@@ -1,4 +1,6 @@
-# Task: REVAMP PROLIMITE - Conformidade ECL + Propensão
+# Task legada: REVAMP PROLIMITE e baseline de ECL
+
+> Registro histórico do protótipo com dados sintéticos. Checkboxes indicam implementação declarada à época, não aceite do backlog atual, validação quantitativa ou conformidade regulatória.
 
 ## Fase Atual: IMPLEMENTAÇÃO CONCLUÍDA ✅
 
@@ -54,7 +56,7 @@
 - [x] Refatorar `ecl_engine.py` para 3 stages (BACEN 4966)
 - [x] ECL_12m para Stage 1 (usa pd_12m)
 - [x] ECL_lifetime para Stage 2 (usa pd_lifetime)
-- [x] ECL com LGD máxima para Stage 3 (LGD × 1.5)
+- [x] Heurística legada de Stage 3 (LGD × 1,5), hoje considerada incorreta e substituída no estado-alvo por cash shortfall descontado
 - [x] Cálculo de EAD com CCF
 - [x] Integração com StageClassifier
 - [x] 27 testes passando
@@ -121,7 +123,7 @@
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    PROLIMITE Pipeline v2.0                   │
-│               (BACEN 4966 / IFRS 9 Compliant)               │
+│       (protótipo demonstrativo; conformidade não avaliada)   │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ▼

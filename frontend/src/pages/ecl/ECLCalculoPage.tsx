@@ -43,7 +43,7 @@ export default function ECLCalculoPage() {
                     <div>
                         <h4 className="font-medium text-emerald-500">Fórmula ECL</h4>
                         <p className="text-sm text-muted-foreground mt-1">
-                            <strong className="text-foreground">ECL = PD × LGD × EAD</strong>
+                            <strong className="text-foreground">Baseline didático: PD × LGD × EAD</strong>
                         </p>
                         <p className="text-sm text-muted-foreground mt-2">
                             Onde: PD = Probabilidade de Default, LGD = Loss Given Default, EAD = Exposure at Default

@@ -30,7 +30,7 @@ import {
 } from 'recharts'
 import { cn } from '@/lib/utils'
 
-// Dados resumo PRINAD
+// Dados sintéticos fixos para demonstração visual; não são resultados de produção.
 const ratingDistribution = [
     { rating: 'A1-A3', count: 8240, color: '#4ade80' },
     { rating: 'B1-B3', count: 4270, color: '#facc15' },
@@ -115,6 +115,9 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                Ambiente demonstrativo: todos os números desta página são dados sintéticos fixos e não representam carteira, modelo ou provisão institucional.
+            </div>
             {/* Mensagem de boas-vindas */}
             <div className="flex items-center justify-between">
                 <div>
@@ -133,7 +136,7 @@ export default function DashboardPage() {
                 <KPICard
                     title="Classificações PRINAD"
                     value="14.720"
-                    subtitle="Clientes classificados"
+                    subtitle="Clientes sintéticos classificados"
                     trend={8}
                     icon={Target}
                     iconColor="text-violet-500"
@@ -151,9 +154,9 @@ export default function DashboardPage() {
                 />
                 {/* ECL Total */}
                 <KPICard
-                    title="ECL Total (IFRS 9)"
+                    title="ECL demonstrativo"
                     value="R$ 2.9M"
-                    subtitle="Perda esperada provisionada"
+                    subtitle="Valor sintético do protótipo"
                     trend={-3}
                     icon={Calculator}
                     iconColor="text-amber-500"
@@ -291,7 +294,7 @@ export default function DashboardPage() {
                             <BarChart3 className="h-5 w-5 text-violet-500" />
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground">AUC-ROC PRINAD</p>
+                            <p className="text-sm text-muted-foreground">AUC-ROC sintético legado</p>
                             <p className="text-xl font-bold text-violet-500">0.9986</p>
                         </div>
                     </div>
@@ -315,7 +318,7 @@ export default function DashboardPage() {
                             <Layers className="h-5 w-5 text-amber-500" />
                         </div>
                         <div>
-                            <p className="text-sm text-muted-foreground">PD Médio</p>
+                            <p className="text-sm text-muted-foreground">PD média sintética</p>
                             <p className="text-xl font-bold text-amber-500">12.4%</p>
                         </div>
                     </div>

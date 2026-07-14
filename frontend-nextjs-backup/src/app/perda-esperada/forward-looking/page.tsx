@@ -128,7 +128,7 @@ export default function ForwardLookingPage() {
                                 na estimativa de perdas, garantindo que o modelo reaja a expectativas econômicas e não apenas ao passado.
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 36 §5º da Resolução CMN 4966/2021 - Cenários Ponderados
+                                📜 Referência histórica não verificada: art. 36 §5º da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

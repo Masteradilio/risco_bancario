@@ -1,8 +1,10 @@
-# PROLIMITE - Walkthrough Técnico
+# PROLIMITE - walkthrough técnico legado
+
+> Demonstração histórica com dados sintéticos e fórmula escalar simplificada. Não representa a metodologia ECL alvo nem validação contábil/regulatória.
 
 ## Visão Geral
 
-O módulo PROLIMITE implementa propensão a crédito e alocação dinâmica de limites seguindo IFRS 9 e Basel III.
+O módulo PROLIMITE demonstra propensão a crédito e alocação dinâmica de limites; não comprova alinhamento à IFRS 9 ou a Basileia.
 
 ## Arquitetura
 
@@ -20,7 +22,7 @@ O módulo PROLIMITE implementa propensão a crédito e alocação dinâmica de l
 ├─────────────────────────────────────────────────────────────────┤
 │  propensity_model.py ──► Score por produto (XGBoost)            │
 │  lgd_calculator.py ──► LGD Basel III                            │
-│  ecl_engine.py ──► ECL = PD × LGD × EAD                         │
+│  ecl_engine.py ──► baseline didático: PD × LGD × EAD            │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -52,7 +54,7 @@ O módulo PROLIMITE implementa propensão a crédito e alocação dinâmica de l
 - Custos de workout incluídos
 
 ### 3. ecl_engine.py
-- Fórmula: `ECL = PD × LGD × EAD`
+- Aproximação didática legada: `PD × LGD × EAD`
 - Classificação por Stage IFRS 9:
   - Stage 1: PRINAD < 20% (ECL 12m)
   - Stage 2: PRINAD 20-70% (ECL Lifetime)

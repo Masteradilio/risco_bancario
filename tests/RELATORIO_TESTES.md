@@ -1,6 +1,8 @@
 # Relatorio de Testes - Risco Bancario
 # Data: 2026-01-06
 
+> Registro histórico, anterior ao baseline de 14/07/2026. Os resultados abaixo não representam a suíte atual. Métricas de modelo e cenários foram obtidos com dados sintéticos/demonstrativos e não comprovam performance institucional.
+
 ## Resumo
 
 | Modulo | Testes | Passando | Skipped | Falhando |

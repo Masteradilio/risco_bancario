@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Risco Bancário - Sistema de Gestão de Risco de Crédito",
-  description: "Sistema de gestão de risco de crédito com PRINAD, ECL e otimização de limites - BACEN 4966",
+  description: "Protótipo legado de risco de crédito com dados sintéticos; conformidade não avaliada",
 };
 
 export default function RootLayout({

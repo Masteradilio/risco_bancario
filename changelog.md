@@ -19,6 +19,10 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Formalizado em `docs/SCOPE.md` o núcleo de impairment/ECL, suas extensões limitadas, exclusões e fronteiras de módulos.
 - Criado `docs/GLOSSARY.md` para padronizar conceitos quantitativos, contábeis, regulatórios e de governança.
 - Atualizado o README para explicitar dados sintéticos, ausência de homologação e exclusão inicial de hedge accounting.
+- Removidos selos, percentuais autodeclarados e frases que sugeriam certificação, homologação ou conformidade institucional.
+- Marcados frontends, dashboards, métricas, APIs e ferramentas do agente como sintéticos ou demonstrativos, incluindo o frontend legado.
+- Bloqueada a conclusão regulatória hard-coded do agente: o checklist agora retorna `NAO_AVALIADO` até possuir fontes e evidências versionadas.
+- Corrigidos exemplos matemáticos de ECL com erros de ordem de grandeza e substituída a descrição incorreta de Stage 3 por cash shortfall descontado.
 
 ---
 

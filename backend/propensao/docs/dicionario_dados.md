@@ -1,5 +1,7 @@
 # Dicionário de Dados - Sistema PROLIMITE
 
+> Documento legado. Campos e fórmulas descrevem o protótipo com dados sintéticos e não constituem contrato canônico ou metodologia ECL validada.
+
 ## Visão Geral
 
 Este documento descreve todos os campos de dados utilizados pelo sistema PROLIMITE,
@@ -142,7 +144,7 @@ incluindo origem, tipo, e regras de negócio associadas.
 
 ### ECL (Expected Credit Loss)
 ```
-ECL = PD × LGD × EAD
+Baseline didático legado: `PD × LGD × EAD`. O motor-alvo usa fluxos por período, cenário e desconto.
 
 Onde:
 - PD = PRINAD_SCORE / 100

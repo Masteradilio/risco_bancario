@@ -82,7 +82,7 @@ export default function ECLPage() {
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">ECL - Perda Esperada</h1>
                 <p className="text-muted-foreground">
-                    Cálculo de Expected Credit Loss conforme BACEN 4966 / IFRS 9
+                    Baseline demonstrativo de Expected Credit Loss com dados sintéticos
                 </p>
             </div>
 

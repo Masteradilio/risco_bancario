@@ -66,7 +66,7 @@ export default function LGDPage() {
                                 O modelo considera cenários Base e Downturn (estresse).
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 29 da Resolução CMN 4966/2021 - Estimação de LGD
+                                📜 Referência histórica não verificada: art. 29 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

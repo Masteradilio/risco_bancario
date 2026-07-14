@@ -107,7 +107,7 @@ export default function GruposHomogeneosPage() {
                                 para permitir a mensuração coletiva da perda esperada quando a avaliação individual não é viável ou necessária.
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 23 da Resolução CMN 4966/2021 - Metodologias de Mensuração
+                                📜 Referência histórica não verificada: art. 23 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

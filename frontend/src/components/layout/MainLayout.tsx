@@ -22,6 +22,9 @@ export default function MainLayout() {
                         <Outlet />
                     ) : (
                         <div className="max-w-screen-2xl mx-auto animate-fade-in">
+                            <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-700 dark:text-amber-300">
+                                DEMONSTRAÇÃO COM DADOS SINTÉTICOS — não usar para decisão de crédito, contabilização ou reporte oficial.
+                            </div>
                             <Outlet />
                         </div>
                     )}
@@ -30,4 +33,3 @@ export default function MainLayout() {
         </div>
     )
 }
-

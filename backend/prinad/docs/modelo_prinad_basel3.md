@@ -1,8 +1,10 @@
 # Modelo PRINAD - Documentação Técnica
 
+> Documento legado sobre um modelo treinado com dados sintéticos/demonstrativos. Não é model card aprovado, validação independente ou evidência de conformidade com Basileia.
+
 ## Alinhamento com Práticas Internacionais Basel III
 
-Este documento descreve a metodologia do modelo PRINAD (Probabilidade de Inadimplência) desenvolvido para o Banco Comercial, em conformidade com as diretrizes do Acordo de Basileia III e as melhores práticas internacionais de gestão de risco de crédito.
+Este documento descreve a metodologia histórica do protótipo PRINAD. Alegações anteriores de conformidade foram retiradas; metodologia, dados e métricas exigem reconstrução e validação.
 
 ---
 

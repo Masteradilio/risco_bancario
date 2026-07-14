@@ -357,6 +357,9 @@ export default function AnalyticsPage() {
 
     return (
         <div className="p-6 space-y-6">
+            <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-700 dark:text-amber-300">
+                Dados sintéticos/demonstrativos. Na indisponibilidade da API esta tela usa mocks locais; nenhuma métrica representa validação institucional.
+            </div>
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>

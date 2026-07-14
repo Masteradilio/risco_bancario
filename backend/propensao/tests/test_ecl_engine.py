@@ -1,5 +1,5 @@
 """
-Unit tests for ECL Engine v2.0 (BACEN 4966 Compliant).
+Unit tests for the legacy demonstrative ECL Engine v2.0.
 Note: ECL Engine was moved to perda_esperada module.
 These tests are skipped as the module was restructured.
 """

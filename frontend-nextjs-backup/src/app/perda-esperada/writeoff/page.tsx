@@ -143,7 +143,7 @@ export default function WriteoffPage() {
                                 A operação é baixada do balanço, mas deve ser mantida em contas de compensação para controle jurídico e de cobrança por no mínimo 5 anos.
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 49 da Resolução CMN 4966/2021 - Baixa de Ativos
+                                📜 Referência histórica não verificada: art. 49 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>

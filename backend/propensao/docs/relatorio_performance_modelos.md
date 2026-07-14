@@ -1,6 +1,8 @@
 # 📊 Relatório de Performance de Modelos
 *Gerado em: 31/12/2025 20:08*
 
+> Relatório histórico sobre dados sintéticos/demonstrativos. Métricas não representam performance institucional, teste OOT independente ou aprovação vigente.
+
 ---
 
 ## Sumário Executivo

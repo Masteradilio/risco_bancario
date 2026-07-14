@@ -295,7 +295,7 @@ def calcular_ecl_com_piso(
     """
     Calcula ECL e aplica piso mínimo se necessário.
     
-    Fórmula: ECL = PD × LGD × EAD (com piso mínimo para Stage 3)
+    Baseline legado: PD × LGD × EAD com heurística de piso; não representa a metodologia alvo.
     
     Args:
         pd: Probability of Default (0-1)

@@ -387,7 +387,7 @@ export default function PRINADPage() {
                         <Card>
                             <CardHeader>
                                 <CardTitle>Distribuição por Stage IFRS 9</CardTitle>
-                                <CardDescription>Classificação conforme BACEN 4966</CardDescription>
+                                <CardDescription>Classificação sintética demonstrativa; conformidade não avaliada</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <StageDistributionChart data={mockStageData} />

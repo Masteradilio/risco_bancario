@@ -326,7 +326,7 @@ class ECLCalculator:
             from propensao.src.ecl_engine import ECLEngine, get_ecl_engine
             self.ecl_engine = get_ecl_engine()
             self.engine_loaded = True
-            logger.info("ECL Engine v2.0 loaded (BACEN 4966 compliant)")
+            logger.info("ECL Engine v2.0 loaded (legacy demonstrative baseline)")
         except Exception as e:
             logger.warning(f"Could not load ECL Engine: {e}")
             self.ecl_engine = None
@@ -697,7 +697,7 @@ class PipelineRunner:
         self.reallocation_enricher = LimitReallocationEnricher()
         self.action_calculator = LimitActionCalculator()
         
-        logger.info("PipelineRunner v2.0 initialized (BACEN 4966 compliant)")
+        logger.info("PipelineRunner v2.0 initialized (legacy demonstrative baseline)")
     
     def load_base(self) -> pd.DataFrame:
         """Load consolidated base."""

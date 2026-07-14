@@ -119,11 +119,11 @@ export default function CalculoECLPage() {
                             <h3 className="font-semibold text-blue-900 dark:text-blue-100">O que é o Cálculo ECL?</h3>
                             <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
                                 O <strong>ECL (Expected Credit Loss)</strong> é a Perda de Crédito Esperada, calculada pela fórmula
-                                <code className="mx-1 px-1 bg-blue-100 dark:bg-blue-900 rounded">ECL = PD × LGD × EAD</code>, onde PD é a
+                                <code className="mx-1 px-1 bg-blue-100 dark:bg-blue-900 rounded">baseline: PD × LGD × EAD</code>, onde PD é a
                                 Probabilidade de Default, LGD é a Perda Dado o Default e EAD é a Exposição no Default.
                             </p>
                             <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                                📜 Conformidade: Art. 21 a 25 da Resolução CMN 4966/2021 - Mensuração de PECLD
+                                📜 Referência histórica não verificada: arts. 21 a 25 da CMN 4.966/2021
                             </p>
                         </div>
                     </div>
@@ -285,7 +285,7 @@ export default function CalculoECLPage() {
                                     <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg text-sm">
                                         <p className="font-medium mb-1">Fórmula ECL:</p>
                                         <code className="text-xs">
-                                            ECL = PD × LGD × EAD = {formatPct(result.pd_ajustado)} × {formatPct(result.lgd_final)} × {formatCurrency(result.ead)}
+                                            Baseline escalar = PD × LGD × EAD = {formatPct(result.pd_ajustado)} × {formatPct(result.lgd_final)} × {formatCurrency(result.ead)}
                                         </code>
                                     </div>
 

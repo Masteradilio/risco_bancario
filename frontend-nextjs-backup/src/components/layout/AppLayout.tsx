@@ -36,7 +36,7 @@ interface NavItemConfig {
 const navigation: NavItemConfig[] = [
     { name: "Início", href: "/", icon: Home, description: "Dashboard Principal" },
     { name: "PRINAD", href: "/prinad", icon: ChartPie, description: "Probabilidade de Inadimplência" },
-    { name: "Perda Esperada", href: "/perda-esperada", icon: Calculator, description: "ECL - BACEN 4966" },
+    { name: "Perda Esperada", href: "/perda-esperada", icon: Calculator, description: "ECL demonstrativo" },
     { name: "Propensão", href: "/propensao", icon: TrendingUp, description: "Otimização de Limites" },
     { name: "Assistente IA", href: "/ai", icon: Bot, description: "Agente Inteligente" },
     { name: "Relatórios", href: "/relatorios", icon: FileText, description: "Laudos e Exportações", permission: "export:pdf" },
@@ -191,6 +191,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
                 {/* Page Content */}
                 <div className="flex-1 p-6">
+                    <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs text-amber-700 dark:text-amber-300">
+                        FRONTEND LEGADO — dados sintéticos ou mockados; não usar para decisão, contabilização ou reporte oficial.
+                    </div>
                     {children}
                 </div>
             </main>

@@ -63,7 +63,9 @@ def consultar_score_prinad(cpf_cnpj: str) -> Dict[str, Any]:
         "classificacao": descricao,
         "data_consulta": "2026-01-18",
         "modelo": "PRINAD v2.5",
-        "fonte_dados": ["SCR", "Cadastro Interno", "Comportamento"]
+        "fonte_dados": ["gerador mock local"],
+        "dados_sinteticos": True,
+        "limitacao": "Resultado demonstrativo; não usar para decisão de crédito."
     }
 
 
@@ -108,7 +110,9 @@ def classificar_risco_cliente(dados_cliente: Dict[str, Any]) -> Dict[str, Any]:
             "comportamento": "positivo"
         },
         "limite_sugerido": renda * 3,
-        "recomendacao": "aprovado" if score_final >= 600 else "analise_manual"
+        "recomendacao": "DEMONSTRACAO_SEM_DECISAO",
+        "dados_sinteticos": True,
+        "limitacao": "Heurística aleatória; não usar para concessão ou limite."
     }
 
 
@@ -116,7 +120,7 @@ def classificar_risco_cliente(dados_cliente: Dict[str, Any]) -> Dict[str, Any]:
 PRINAD_TOOLS = [
     {
         "name": "consultar_score_prinad",
-        "description": "Consulta o score de risco PRINAD de um cliente pelo CPF ou CNPJ. Retorna score numérico, rating (AAA a C), probabilidade de default e classificação de risco.",
+        "description": "Gera um score PRINAD sintético pelo identificador informado. Resultado demonstrativo, sem consulta ao SCR e vedado para decisão de crédito.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -130,7 +134,7 @@ PRINAD_TOOLS = [
     },
     {
         "name": "classificar_risco_cliente",
-        "description": "Realiza classificação completa de risco de crédito de um cliente com base em seus dados cadastrais e comportamentais.",
+        "description": "Executa uma heurística sintética de demonstração; não realiza classificação institucional nem recomenda concessão.",
         "parameters": {
             "type": "object",
             "properties": {

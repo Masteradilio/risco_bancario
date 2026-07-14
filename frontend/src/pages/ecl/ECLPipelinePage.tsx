@@ -8,7 +8,7 @@ const etapas = [
     { id: 3, nome: 'Grupos Homogêneos', descricao: 'Segmentação por K-means', duracao: '~30s' },
     { id: 4, nome: 'Forward Looking', descricao: 'Aplicação de cenários macro', duracao: '~30s' },
     { id: 5, nome: 'Cálculo LGD/EAD', descricao: 'Parâmetros por produto', duracao: '~1min' },
-    { id: 6, nome: 'Cálculo ECL Final', descricao: 'ECL = PD × LGD × EAD', duracao: '~2min' },
+    { id: 6, nome: 'Baseline ECL legado', descricao: 'Aproximação didática: PD × LGD × EAD', duracao: '~2min' },
     { id: 7, nome: 'Validação', descricao: 'Regras CMN 4966', duracao: '~1min' },
 ]
 
