@@ -56,6 +56,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado motor mensal de cartão e cheque especial, separando limite, saldo e disponibilidade, com drawdown, pagamento mínimo, shortfall e cancelamento reconciliados.
 - Adicionados prepagamento parcial/total e modificações com/sem baixa, com reconciliação de saldo, ganho/perda, preservação da EIR original ou cálculo de nova EIR.
 - Adicionados golden cases manuais Price, SAC e bullet com comparação período a período, tolerância de um centavo e reconciliação contábil automatizada.
+- Formalizada política versionada de default/cura/target com backstop em 91 DPD, indicadores qualitativos, populações, materialidade conservadora e exclusão de POCI dos datasets PD/SICR.
 
 ---
 

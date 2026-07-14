@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "status": "demonstrative_pending_institutional_validation",
+    "sources": [
+      "IFRS 9 B5.5.37",
+      "Resolução CMN 4.966/2021 art. 3",
+      "Resolução BCB 352/2023 art. 3, consolidada com Resolução BCB 504/2025"
+    ]
+  },
+  "backstop_days_past_due": 91,
+  "materiality": {
+    "absolute_amount_brl": "0.00",
+    "relative_to_exposure": "0.00000000",
+    "status": "conservative_zero_threshold_not_regulatory_calibration"
+  },
+  "qualitative_indicators": [
+    "financial_incapacity",
+    "distressed_restructuring",
+    "bankruptcy_or_recovery_proceeding",
+    "restrictive_legal_measure",
+    "significant_liquidity_decline",
+    "material_covenant_breach",
+    "distressed_debt_sale"
+  ],
+  "product_assessment_level": {
+    "personal_loan": "facility",
+    "vehicle_finance": "facility",
+    "mortgage": "facility",
+    "credit_card": "facility",
+    "overdraft": "facility",
+    "credit_commitment": "counterparty",
+    "financial_guarantee": "counterparty",
+    "acquired_distressed": "poci_separate"
+  },
+  "cure": {
+    "minimum_timely_payment_months": 3,
+    "minimum_low_frequency_evidence_days": 90,
+    "redefault_monitor_months": 12,
+    "status": "operational_hypothesis_pending_validation"
+  },
+  "target": {
+    "horizon_months": 12,
+    "exclude_poci": true,
+    "exclude_already_defaulted": true,
+    "require_complete_horizon": true
+  }
+}

@@ -103,8 +103,8 @@ def _first_default_candidate(
     for row in rows:
         if row.balance <= 0 or row.months_on_book < 6:
             continue
-        if row.days_past_due >= 90:
-            return row, "90_days_past_due"
+        if row.days_past_due >= 91:
+            return row, "more_than_90_days_past_due"
         if forced_trigger is not None and row.months_on_book >= forced_months_on_book:
             return row, forced_trigger
         monthly_hazard = 0.0005 + float(row.behavior_score**2) * 0.012

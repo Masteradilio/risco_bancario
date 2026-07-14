@@ -437,7 +437,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - Recuperação: seis fluxos mensais por default inicial, execução de garantia limitada à exposição e custos operacionais/judiciais explícitos.
 - Ciclo de vida: cura com período de observação, redefault posterior, write-off reconciliado e recuperação pós-baixa preservada.
 - Anti-leakage: os eventos são derivados depois do histórico e as tabelas públicas não exportam campos latentes.
-- Evidência: 7 testes aprovados; carteira fixa com 11 defaults iniciais, 3 redefaults, 76 recuperações, 6 curas e 8 write-offs.
+- Evidência: 7 testes aprovados; carteira fixa com 11 defaults iniciais, 4 redefaults, 78 recuperações, 5 curas e 10 write-offs após alinhamento do backstop em 91 DPD.
 
 ## Tarefa 3.5 — Gerar macroeconomia e cenários
 
@@ -480,7 +480,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - SICR: target futuro combina default, atraso de 31 dias e deterioração mínima de dois graus contra a originação.
 - Splits: treino até 2019, validação em 2020, calibração em 2021, OOT em 2022–2023 e backtesting em 2024, sem sorteio entre períodos.
 - Anti-leakage: tabelas de PD/SICR não expõem datas de default, recuperação, EAD realizada ou campos latentes como features.
-- Evidência: 7 testes aprovados; 1.840 linhas PD/SICR, 11 LGD/EAD, 98 defaults 12m, 8 hazards mensais e 236 SICR positivos na carteira fixa.
+- Evidência: 7 testes aprovados; 1.764 linhas PD/SICR sem POCI, 11 LGD/EAD, 23 defaults 12m, 2 hazards mensais e 160 SICR positivos na carteira fixa.
 
 ## Tarefa 3.7 — Qualidade e anti-leakage
 
@@ -648,10 +648,22 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] Definir evento de default por população e produto.
-- [ ] Definir cure e redefault.
-- [ ] Definir materialidade e backstops.
-- [ ] Documentar target e exclusões.
+- [x] Definir evento de default por população e produto.
+- [x] Definir cure e redefault.
+- [x] Definir materialidade e backstops.
+- [x] Documentar target e exclusões.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: política `config/default_policy/2026.07.1.json`, avaliador `src/models/pd/default_definition.py`, testes e `docs/models/DEFAULT_DEFINITION.md`.
+- Default: backstop em 91 DPD para operacionalizar atraso superior a 90 dias e sete indicadores qualitativos que podem antecipar o evento.
+- Populações: varejo por instrumento, compromissos/garantias por contraparte e POCI separado; arrasto final permanece para a Fase 8.
+- Materialidade: limiar zero conservador e explicitamente não calibrado, sem apresentação como requisito regulatório.
+- Cura/redefault: quatro evidências cumulativas, hipótese operacional de três meses, exceção de 90 dias para pagamentos de baixa frequência e monitoramento de redefault por 12 meses.
+- Target: primeiro default em `(t, t+12m]`, excluindo POCI, já defaultados e horizonte incompleto.
+- Integração: gerador passou de `>=90` para `>=91` DPD e datasets PD/SICR deixaram de incluir POCI; pacote Parquet foi regenerado.
+- Evidência: 8 testes aprovados; requisitos IFRS9-DEFAULT-001, CMN4966-DEFAULT-001 e CMN4966-CURE-001 avançaram para `partial` até staging/arrasto.
 
 ## Tarefa 5.2 — Baseline explicável
 

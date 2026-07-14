@@ -92,7 +92,7 @@
           "type": "string"
         }
       ],
-      "sha256": "55e55c4a937bcdfa2d69191c481c7c097f8917843206fab59a042f219aac1203"
+      "sha256": "1adcd91f1f1415d7ae0315a861ef26bde5ad74835839aa12822161e917b7830b"
     },
     "contracts.parquet": {
       "rows": 80,
@@ -179,7 +179,7 @@
       "sha256": "804b55382934f6389b691d9ade68adc8845b6f30d63499db79179f165a1ac2b6"
     },
     "cures.parquet": {
-      "rows": 6,
+      "rows": 5,
       "schema": [
         {
           "name": "cure_id",
@@ -202,10 +202,10 @@
           "type": "int64"
         }
       ],
-      "sha256": "153a4aef4b50f182252329fd5bbe35a7c290aa3567e788588144dc2031852fb4"
+      "sha256": "5fee40d67e6974d5aaaf68d51d53f5e7606f24d71f6f174d5743d48fe67762fe"
     },
     "defaults.parquet": {
-      "rows": 14,
+      "rows": 15,
       "schema": [
         {
           "name": "default_id",
@@ -232,7 +232,7 @@
           "type": "bool"
         }
       ],
-      "sha256": "6e72cdc660ac0f41d92babea9054fe3f62ec864b41448950c9ebdde51c0be837"
+      "sha256": "c0dcf0160af6122d586118bf8d3d6e4e31895c092099945a415eb2dc0e398b44"
     },
     "delinquencies.parquet": {
       "rows": 2431,
@@ -304,7 +304,7 @@
           "type": "string"
         }
       ],
-      "sha256": "dffa68777a74da855e9d5e91a2a70644349202164055145c600f880095b1a8fe"
+      "sha256": "7a6f9e072d5927e57748e44b7882c7d2c6c249c4a4490113f6044aa3a28b87fe"
     },
     "economic_groups.parquet": {
       "rows": 7,
@@ -360,7 +360,7 @@
           "type": "string"
         }
       ],
-      "sha256": "619a3351f41ed730cc02953ed6ce1c92aaa6e7b5733befde73e16a73115dc1d7"
+      "sha256": "577abba0a9bffe36f16fad7d8e9725b5e9973e92432f0fa5312cd20b87fbbbd2"
     },
     "limits_and_drawdowns.parquet": {
       "rows": 2431,
@@ -611,7 +611,7 @@
       "sha256": "5658c3ec90ff3f9fb81fa8a0bfdda95268e246becfc0539a50b2fc4010b995f8"
     },
     "pd_modeling.parquet": {
-      "rows": 1840,
+      "rows": 1764,
       "schema": [
         {
           "name": "observation_date",
@@ -686,10 +686,10 @@
           "type": "string"
         }
       ],
-      "sha256": "734d5892c04e22d59d1b61d63e4093ca56f8bd5ed5203fdc88b1a29c731b6bed"
+      "sha256": "e13d1a14af275df40576994af5493bc03c1c59adcb12da74fed017ad4860b929"
     },
     "recoveries.parquet": {
-      "rows": 76,
+      "rows": 78,
       "schema": [
         {
           "name": "recovery_id",
@@ -732,7 +732,7 @@
           "type": "bool"
         }
       ],
-      "sha256": "081b7a757097b696a5bf247c6a189c2441e9dd2e4b0a0b3f21b02b80a0a24eaa"
+      "sha256": "ff2f1e67c1c0dc11f3ff2609b02956d2e0e17ce5a27156d5fe497b74d9f119fe"
     },
     "regulatory_reporting_input.parquet": {
       "rows": 80,
@@ -849,7 +849,7 @@
       "sha256": "5746052f2b42f9ce2b8ff06a644d473e269b95142592d5f7cf792551bde863b6"
     },
     "sicr_modeling.parquet": {
-      "rows": 1840,
+      "rows": 1764,
       "schema": [
         {
           "name": "observation_date",
@@ -880,10 +880,10 @@
           "type": "string"
         }
       ],
-      "sha256": "da354c7fca5083b5415d7ecd34db0bf70cb10543dbf634de110a0ca2324498c4"
+      "sha256": "09f62b92da84c84d07fdb7ed96de49f4de26374caaa2dd6d9603ca157935cc3b"
     },
     "writeoffs.parquet": {
-      "rows": 8,
+      "rows": 10,
       "schema": [
         {
           "name": "writeoff_id",
@@ -910,7 +910,7 @@
           "type": "string"
         }
       ],
-      "sha256": "4543ddf26a1a3388b86a1144ab5146aee507aba2cdd365539038a6af8b918b1e"
+      "sha256": "ca732c8372c2b10f88ff54c242e94bcc11ea65f417ccf990e7de8c45676b4be6"
     }
   },
   "macroeconomic_policy_sha256": "ddf94d2b12e8a97355763f7e545cb4e71b9cf5cc5e98c2ba37fc1811d03cba71",

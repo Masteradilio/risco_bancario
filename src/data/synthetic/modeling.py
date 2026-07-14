@@ -143,6 +143,8 @@ def build_modeling_datasets(
     rating_rank = {rating: index for index, rating in enumerate(RATING_ORDER)}
     for contract_id, rows in snapshots_by_contract.items():
         contract = contracts[contract_id]
+        if contract.acquired_credit_impaired:
+            continue
         contract_defaults = defaults_by_contract.get(contract_id, [])
         first_default_date = min(
             (item.default_date for item in contract_defaults), default=date.max
