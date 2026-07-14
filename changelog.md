@@ -68,6 +68,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionada máquina de transição com ledger de estágio, cura cumulativa, bloqueio de retorno prematuro e identificação de redefault.
 - Implementado fluxo POCI separado com identificação, credit-adjusted EIR, mudança de lifetime ECL e golden cases de perda/ganho.
 - Publicada validação de staging com PSI, migrações, sensibilidade, comparação de definições e erros futuros; regra proxy reprovada no OOT.
+- Criado dataset workout LGD por coorte/default com recuperações, custos, garantias, cura, write-off, janela e censura explícita.
 
 ---
 

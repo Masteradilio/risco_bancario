@@ -921,10 +921,20 @@ Calcular LGD a partir de recuperações líquidas e descontadas.
 
 ### Subtarefas
 
-- [ ] Criar default cohorts.
-- [ ] Vincular recuperações, custos, garantias, cura e write-off.
-- [ ] Definir janela de workout.
-- [ ] Tratar observações censuradas.
+- [x] Criar default cohorts.
+- [x] Vincular recuperações, custos, garantias, cura e write-off.
+- [x] Definir janela de workout.
+- [x] Tratar observações censuradas.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/lgd/workout.py`, 6 testes e `docs/models/LGD_WORKOUT_DATASET.md`.
+- Coortes: uma linha por default/redefault observado, agrupada por trimestre e vinculada ao contrato/produto.
+- Evidência: cash flows brutos/custos/líquidos, garantia, cura e write-off permanecem rastreáveis por default.
+- Workout: janela padrão de 24 meses e cutoff explícito em 1º de dezembro de 2025.
+- Censura: 7 de 32 defaults têm janela incompleta; nenhum evento posterior ao cutoff entra no dataset.
+- Carteira: 12 write-offs, 10 curas, 6 abertos completos, 4 abertos censurados, 25 com cash flow e 20 com garantia.
 
 ## Tarefa 7.2 — LGD realizada
 
