@@ -93,6 +93,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementada estratégia simplificada separada para S4/S5, com exceções autorizadas, Anexo II completo, adicionais de ativos problemáticos e bloqueio de mistura com a metodologia completa.
 - Adicionados cadastro governado de modelo de negócio, avaliação SPPI explicável, classificação entre custo amortizado/FVOCI/FVTPL, elegibilidade ao impairment e reclassificação prospectiva.
 - Integradas decisões documentadas de modificação/desreconhecimento ao motor contratual e criado ledger cronológico de write-off parcial/total e recuperação pós-baixa.
+- Gerado pacote sintético de disclosure com allowance por estágio, movimentos, transferências, rating/segmento, sensitividades, overlays, hash e fronteiras explícitas entre ECL, piso e capital IRB.
 
 ---
 

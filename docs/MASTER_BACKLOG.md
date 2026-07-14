@@ -1409,16 +1409,16 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 
 ### Subtarefas
 
-- [ ] Gerar reconciliação de allowance por estágio.
-- [ ] Gerar movimentações e transferências de estágio.
-- [ ] Gerar exposição por rating e segmento.
-- [ ] Gerar sensibilidades e overlays.
-- [ ] Gerar pacote de disclosure sintético.
+- [x] Gerar reconciliação de allowance por estágio.
+- [x] Gerar movimentações e transferências de estágio.
+- [x] Gerar exposição por rating e segmento.
+- [x] Gerar sensibilidades e overlays.
+- [x] Gerar pacote de disclosure sintético.
 
 ### Critérios de aceite
 
-- [ ] O sistema diferencia claramente IFRS 9, CMN 4.966, piso regulatório e capital IRB.
-- [ ] Não há uso direto de LGD downturn regulatória como LGD contábil sem ajuste e documentação.
+- [x] O sistema diferencia claramente IFRS 9, CMN 4.966, piso regulatório e capital IRB.
+- [x] Não há uso direto de LGD downturn regulatória como LGD contábil sem ajuste e documentação.
 
 ---
 
