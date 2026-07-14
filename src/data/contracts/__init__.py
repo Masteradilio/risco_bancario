@@ -1,0 +1,2 @@
+"""Versioned external data contracts."""
+

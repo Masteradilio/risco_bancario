@@ -25,6 +25,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Corrigidos exemplos matemáticos de ECL com erros de ordem de grandeza e substituída a descrição incorreta de Stage 3 por cash shortfall descontado.
 - Mapeadas as duplicações de PRINAD, artefatos, frontends, constantes e regras quantitativas em `docs/architecture/DUPLICATION_MAP.md`.
 - Definidas fontes canônicas de transição e de destino, com congelamento do legado e plano de migração baseado em testes de caracterização.
+- Criado o esqueleto canônico em `src/`, separando domínio, dados, modelos, ECL, regulação, validação, aplicação e infraestrutura.
+- Adicionados modelos imutáveis para cliente, contraparte, contrato, garantia, fluxo de caixa, snapshot, cenário e resultado ECL.
+- Formalizadas em ADR as convenções de `Decimal`, `ROUND_HALF_EVEN`, percentuais decimais, datas de negócio e timestamps UTC.
 
 ---
 

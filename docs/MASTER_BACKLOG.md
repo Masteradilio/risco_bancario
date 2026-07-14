@@ -198,17 +198,26 @@ Eliminar duplicações, organizar o domínio e criar uma base estável para a re
 
 ### Subtarefas
 
-- [ ] Criar pacote `src/` com os domínios definidos no relatório de auditoria.
-- [ ] Criar modelos tipados para cliente, contraparte, contrato, garantia, snapshot, cenário e resultado ECL.
-- [ ] Usar `Decimal` para moeda.
-- [ ] Definir convenções de datas, timezone, percentuais e arredondamento.
-- [ ] Criar exceções de domínio explícitas.
-- [ ] Criar ADR da arquitetura.
+- [x] Criar pacote `src/` com os domínios definidos no relatório de auditoria.
+- [x] Criar modelos tipados para cliente, contraparte, contrato, garantia, snapshot, cenário e resultado ECL.
+- [x] Usar `Decimal` para moeda.
+- [x] Definir convenções de datas, timezone, percentuais e arredondamento.
+- [x] Criar exceções de domínio explícitas.
+- [x] Criar ADR da arquitetura.
 
 ### Critérios de aceite
 
-- [ ] O domínio não depende de FastAPI, banco, frontend ou arquivos CSV.
-- [ ] Tipos e invariantes são testados.
+- [x] O domínio não depende de FastAPI, banco, frontend ou arquivos CSV.
+- [x] Tipos e invariantes são testados.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: arquitetura de pacotes em `src/`, modelos em `src/domain`, contrato de resultado em `src/ecl/calculation` e `docs/architecture/ADR-001-domain-architecture.md`.
+- Convenções: BRL em `Decimal`, centavos com `ROUND_HALF_EVEN`, percentuais como frações entre zero e um, datas de negócio em `date` e timestamps aware normalizados para UTC.
+- Isolamento: inspeção AST confirmou ausência de imports de FastAPI, Pydantic, pandas, NumPy, banco e CSV em `src/domain`.
+- Evidência: 8 testes de domínio aprovados, cobrindo tipos, imutabilidade, arredondamento, percentuais, datas, cenários, snapshots e resultados ECL.
+- Limite: thresholds e parâmetros quantitativos não foram migrados; serão configuração versionada na Tarefa 1.3.
 
 ## Tarefa 1.3 — Configuração e regras fora do código
 
