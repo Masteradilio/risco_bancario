@@ -868,10 +868,20 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Identificar ativos adquiridos ou originados com problema de crédito.
-- [ ] Implementar credit-adjusted EIR.
-- [ ] Calcular variação de lifetime ECL.
-- [ ] Criar golden cases POCI.
+- [x] Identificar ativos adquiridos ou originados com problema de crédito.
+- [x] Implementar credit-adjusted EIR.
+- [x] Calcular variação de lifetime ECL.
+- [x] Criar golden cases POCI.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/poci.py`, 2 golden cases CSV, 6 testes e `docs/models/POCI_MEASUREMENT.md`.
+- População: adquiridos e originados credit-impaired são identificados separadamente e permanecem fora de PD/SICR comuns.
+- Taxa: credit-adjusted EIR reconcilia preço e fluxos esperados iniciais pelas datas efetivas.
+- Mensuração: lifetime ECL inicial/atual usa a mesma EIR; variação positiva é perda e negativa é ganho de impairment.
+- Golden cases: taxa de 10%, perda adicional de 10 e mudança favorável de -5 reconciliam manualmente.
+- Governança: fluxos desalinhados ou acima do contratual falham; saída permanece `synthetic_unapproved`.
 
 ## Tarefa 6.6 — Validação de staging
 

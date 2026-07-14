@@ -66,6 +66,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado motor SICR versionado com variações de lifetime PD, downgrade, watchlist, eventos, atraso, low-credit-risk e razões auditáveis.
 - Unificados default operacional e Stage 3, com UTP, reestruturação em dificuldade e arrasto por contraparte sujeito a exceções documentadas.
 - Adicionada máquina de transição com ledger de estágio, cura cumulativa, bloqueio de retorno prematuro e identificação de redefault.
+- Implementado fluxo POCI separado com identificação, credit-adjusted EIR, mudança de lifetime ECL e golden cases de perda/ganho.
 
 ---
 
