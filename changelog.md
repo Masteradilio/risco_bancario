@@ -95,6 +95,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Integradas decisões documentadas de modificação/desreconhecimento ao motor contratual e criado ledger cronológico de write-off parcial/total e recuperação pós-baixa.
 - Gerado pacote sintético de disclosure com allowance por estágio, movimentos, transferências, rating/segmento, sensitividades, overlays, hash e fronteiras explícitas entre ECL, piso e capital IRB.
 - Adicionado manifesto mensal verificável de estágio/allowance e fechadas as evidências de staging, default, cura e ECL para os perímetros condicionais CMN 4.966 e BCB 352.
+- Criado contrato de entrada fail-closed do Documento 3040, com catálogo de campos, formatos, condições, referências de domínio e linhagem obrigatória por valor, eliminando defaults silenciosos de datas, porte, COSIF, CEP e códigos.
 
 ---
 

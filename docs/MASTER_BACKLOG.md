@@ -1440,11 +1440,28 @@ Substituir o simulador heurístico por um gerador e pré-validador versionado, s
 
 ### Subtarefas
 
-- [ ] Definir todos os campos obrigatórios e condicionais.
-- [ ] Definir domínios e formatos.
-- [ ] Mapear origem de cada campo.
-- [ ] Rejeitar ausência ou inconsistência.
-- [ ] Remover datas, portes, COSIFs, CEPs e códigos default silenciosos.
+- [x] Definir todos os campos obrigatórios e condicionais.
+- [x] Definir domínios e formatos.
+- [x] Mapear origem de cada campo.
+- [x] Rejeitar ausência ou inconsistência.
+- [x] Remover datas, portes, COSIFs, CEPs e códigos default silenciosos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: contrato fail-closed em `src/regulatory/doc3040/contract.py`, catálogo de
+  campos, API pública, testes e `docs/regulatory/DOC3040_INPUT_CONTRACT.md`.
+- Cobertura: cabeçalho, clientes, operações, vencimentos, garantias, informações
+  adicionais/Sicor, CMN 4.966, estágios, perdas, IPOCs conectados e agregações.
+- Linhagem: todo escalar presente exige sistema, campo de origem e evidência; opcionais e
+  condicionais devem ser explicitamente fornecidos ou marcados ausentes.
+- Guardrails: sem defaults para datas, porte, COSIF, CEP ou códigos; condições PJ,
+  exterior, atraso, parcelas, Sicor, totalizadores, datas e unicidade falham de forma
+  explícita.
+- Versionamento: formatos e referências de domínio estão catalogados, mas o conteúdo dos
+  domínios permanece bloqueado até o registry por data-base da Tarefa 12.2.
+- Evidência: 11 testes direcionados aprovados; geração XML, XSD e críticas permanecem
+  fora do aceite desta tarefa.
 
 ## Tarefa 12.2 — Versionamento de leiaute
 
