@@ -1400,10 +1400,10 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 
 ### Subtarefas
 
-- [ ] Implementar regras de modificação sem derecognition.
-- [ ] Implementar derecognition.
-- [ ] Implementar write-off parcial e total.
-- [ ] Implementar recuperações pós-baixa.
+- [x] Implementar regras de modificação sem derecognition.
+- [x] Implementar derecognition.
+- [x] Implementar write-off parcial e total.
+- [x] Implementar recuperações pós-baixa.
 
 ## Tarefa 11.5 — Disclosures
 
