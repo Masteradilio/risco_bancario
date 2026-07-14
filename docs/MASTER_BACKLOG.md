@@ -422,12 +422,22 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Gerar datas de default.
-- [ ] Gerar fluxos de recuperação mensais.
-- [ ] Gerar execução de garantias.
-- [ ] Gerar custos judiciais e operacionais.
-- [ ] Gerar curas e redefaults.
-- [ ] Gerar write-offs e recuperações pós-baixa.
+- [x] Gerar datas de default.
+- [x] Gerar fluxos de recuperação mensais.
+- [x] Gerar execução de garantias.
+- [x] Gerar custos judiciais e operacionais.
+- [x] Gerar curas e redefaults.
+- [x] Gerar write-offs e recuperações pós-baixa.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/events.py`, API pública atualizada e `docs/data/SYNTHETIC_CREDIT_EVENTS.md`.
+- Default: evento posterior ao snapshot observável, com exposição na data e gatilho rastreável; redefaults permanecem identificados separadamente.
+- Recuperação: seis fluxos mensais por default inicial, execução de garantia limitada à exposição e custos operacionais/judiciais explícitos.
+- Ciclo de vida: cura com período de observação, redefault posterior, write-off reconciliado e recuperação pós-baixa preservada.
+- Anti-leakage: os eventos são derivados depois do histórico e as tabelas públicas não exportam campos latentes.
+- Evidência: 7 testes aprovados; carteira fixa com 10 defaults iniciais, 2 redefaults, 69 recuperações, 5 curas e 7 write-offs.
 
 ## Tarefa 3.5 — Gerar macroeconomia e cenários
 
