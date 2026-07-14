@@ -1080,9 +1080,20 @@ Projetar exposição no momento do default para produtos amortizados e rotativos
 
 ### Subtarefas
 
-- [ ] Implementar loan commitments.
-- [ ] Implementar financial guarantees.
-- [ ] Modelar probabilidade de utilização.
+- [x] Implementar loan commitments.
+- [x] Implementar financial guarantees.
+- [x] Modelar probabilidade de utilização.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/ead/off_balance.py`, política `config/off_balance_ead_policy/2026.07.1.json`, 7 testes e `docs/models/EAD_OFF_BALANCE.md`.
+- Fronteira: probabilidade de utilização/chamada é condicional e separada da PD da contraparte, evitando dupla contagem conceitual no futuro ECL.
+- Compromissos: hazard mensal parametrizado de utilização, sensível a horizonte, risco e utilização atual, combinado com parcela condicional de 75% do limite disponível.
+- Garantias: probabilidade parametrizada de chamada separada, com parcela condicional de 100% do valor disponível.
+- Limites: usa limite corrente executável; redução e cancelamento não restauram exposição e a EAD é limitada ao valor corrente.
+- Carteira base em 12 meses: 10 compromissos com probabilidade média 0,387290/EAD média R$ 31.489,89 e 10 garantias com 0,262002/R$ 46.934,74.
+- Guardrail: o gerador não possui utilizações/defaults observados desses produtos; status `demonstrative_parameterized_not_estimated`, sem alegação de calibração.
 
 ## Tarefa 8.4 — Validação de EAD
 

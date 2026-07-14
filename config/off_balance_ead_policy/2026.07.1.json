@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_parameterized_not_estimated",
+  "probability_basis": "conditional_utilization_not_counterparty_pd",
+  "assumptions": {
+    "commitment": {
+      "monthly_utilization_probability": "0.04000000",
+      "conditional_utilized_share": "0.75000000",
+      "utilization_sensitivity": "0.50000000"
+    },
+    "financial_guarantee": {
+      "monthly_utilization_probability": "0.02500000",
+      "conditional_utilized_share": "1.00000000",
+      "utilization_sensitivity": "0.00000000"
+    }
+  },
+  "risk_multiplier_bounds": {
+    "minimum": "0.00000000",
+    "maximum": "3.00000000"
+  },
+  "limit_treatment": "use_current_enforceable_limit_not_original_limit"
+}
