@@ -50,6 +50,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Gerados defaults, cobranças, recuperações mensais, execução de garantias, custos, curas, redefaults, write-offs e recuperações pós-baixa com reconciliação e ordem temporal testadas.
 - Adicionados histórico macroeconômico sintético e trajetórias mensais versionadas `upside`, `base`, `downside` e `stress`, com pesos auditáveis e pressão de risco não linear.
 - Construídos datasets point-in-time de PD, hazard, LGD, EAD/CCF e SICR, com targets futuros e splits temporais disjuntos para treino, validação, calibração, OOT e backtesting.
+- Adicionados gate de qualidade sintética, detector de leakage, diagnósticos de distribuição/correlação, data card e dicionário de dados; registrada a tarefa adicional de materialização Parquet exigida pelo estado-alvo.
 
 ---
 

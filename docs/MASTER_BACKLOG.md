@@ -486,11 +486,37 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Criar testes de integridade referencial.
-- [ ] Criar testes de consistência temporal.
-- [ ] Criar detector de feature futura.
-- [ ] Criar análise de distribuição e correlação.
-- [ ] Criar data cards e dicionário de dados.
+- [x] Criar testes de integridade referencial.
+- [x] Criar testes de consistência temporal.
+- [x] Criar detector de feature futura.
+- [x] Criar análise de distribuição e correlação.
+- [x] Criar data cards e dicionário de dados.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/data/synthetic/quality.py`, testes, `docs/data/DATA_CARD_SYNTHETIC_FACTORY.md` e `docs/data/DATA_DICTIONARY.md`.
+- Integridade: referências entre clientes, contratos, snapshots, defaults e eventos são verificadas; órfãos bloqueiam o relatório.
+- Temporalidade: duplicidade mensal, recuperação/cura anterior ao default, reconciliação e janela incompleta de target são detectadas.
+- Anti-leakage: detector bloqueia latentes, targets, defaults, recuperações, write-offs e EAD realizada na lista de features.
+- Diagnóstico: distribuição e correlação de dez features numéricas de PD são calculadas sem usar correlação como critério de seleção.
+- Cobertura: data card registra composição, proveniência, usos, proibições, qualidade e limitações; dicionário define entidades, eventos, macro e targets.
+- Evidência: 8 testes aprovados, incluindo falhas injetadas de referência e temporalidade, OOT real, documentação e cobertura PD/LGD/EAD/SICR/Stage 3/POCI.
+
+## Tarefa 3.8 — Materializar artefatos e manifesto da fábrica
+
+### Justificativa de inclusão
+
+O estado-alvo em `PROJECT_AUDIT_AND_TARGET_STATE.md` exige datasets Parquet obrigatórios, tabela de insumo regulatório e manifesto reproduzível, mas esses entregáveis não estavam explicitados nas tarefas originais da Fase 3. Esta tarefa fecha a lacuna antes de aceitar a fase.
+
+### Subtarefas
+
+- [ ] Materializar os datasets Parquet obrigatórios em diretório de saída versionado.
+- [ ] Derivar pagamentos, atrasos e limites/drawdowns sem duplicar a fonte canônica.
+- [ ] Criar insumo regulatório sintético de origem sem inventar campos de leiaute Doc3040.
+- [ ] Gerar manifesto com seed, versões, schemas, contagens e SHA-256.
+- [ ] Garantir reprodução byte a byte e documentar o comando de geração.
+- [ ] Testar integridade dos arquivos materializados.
 
 ### Critérios de aceite da fase
 
