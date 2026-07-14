@@ -301,16 +301,26 @@ Transformar requisitos normativos em itens testáveis, versionados e auditáveis
 
 ### Subtarefas
 
-- [ ] Criar `docs/regulatory/TRACEABILITY_MATRIX.csv` ou formato tabular equivalente.
-- [ ] Mapear impairment, ECL, SICR, default, cura, write-off, forward-looking, desconto, POCI e disclosure.
-- [ ] Mapear requisitos CMN/BCB aplicáveis.
-- [ ] Mapear Documento 3040, XSD e críticas.
-- [ ] Vincular requisito a código, teste e evidência.
+- [x] Criar `docs/regulatory/TRACEABILITY_MATRIX.csv` ou formato tabular equivalente.
+- [x] Mapear impairment, ECL, SICR, default, cura, write-off, forward-looking, desconto, POCI e disclosure.
+- [x] Mapear requisitos CMN/BCB aplicáveis.
+- [x] Mapear Documento 3040, XSD e críticas.
+- [x] Vincular requisito a código, teste e evidência.
 
 ### Critérios de aceite
 
-- [ ] Todo requisito implementado possui teste associado.
-- [ ] Todo requisito não aplicável possui justificativa.
+- [x] Todo requisito implementado possui teste associado.
+- [x] Todo requisito não aplicável possui justificativa.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregável: `docs/regulatory/TRACEABILITY_MATRIX.csv`, com 22 requisitos atômicos e identificadores estáveis.
+- Cobertura: impairment/ECL, SICR, default, cura, write-off, forward-looking, desconto, POCI, disclosure, CMN 4.966, BCB 352 e Documento 3040.
+- Estados: requisitos foram classificados como planejados, parciais ou não aplicáveis; nenhum requisito quantitativo foi declarado implementado sem teste e evidência.
+- Não aplicáveis: hedge accounting e transmissão oficial do Documento 3040 possuem justificativa e evidência de escopo.
+- Guardrail Doc3040: a matriz exige proveniência do schema e registra que a página consultada lista XSD 3045, não um XSD 3040.
+- Evidência: 5 testes de contrato da matriz aprovados, cobrindo unicidade, tópicos, fontes, evidências parciais e justificativas de não aplicabilidade.
 
 ## Tarefa 2.3 — Testes regulatórios executáveis
 

@@ -37,6 +37,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionados scripts PowerShell únicos de setup e qualidade; a primeira execução alcançou 90,37% de cobertura no núcleo canônico.
 - Criado catálogo de fontes regulatórias oficiais com vigência observada, data de consulta, processo de atualização e política de direitos autorais.
 - Registrada explicitamente a diferença entre os artefatos operacionais do Documento 3040 e o XSD 3045 listado na página oficial consultada.
+- Criada matriz de rastreabilidade com requisitos atômicos, aplicabilidade, estado real, código, teste, evidência e fase responsável.
+- Adicionado teste de contrato que bloqueia fontes órfãs, IDs duplicados, implementação sem evidência e não aplicabilidade sem justificativa.
 
 ---
 
