@@ -887,17 +887,27 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Stability index por período.
-- [ ] taxa de migração entre estágios.
-- [ ] sensibilidade a thresholds.
-- [ ] comparação de definições SICR.
-- [ ] falsos positivos/negativos em eventos futuros.
+- [x] Stability index por período.
+- [x] taxa de migração entre estágios.
+- [x] sensibilidade a thresholds.
+- [x] comparação de definições SICR.
+- [x] falsos positivos/negativos em eventos futuros.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/sicr/validation.py`, 6 testes e `docs/models/SICR_VALIDATION_REPORT.md`.
+- OOT: 233 linhas/37 eventos; regra relativa 2 notches/31 DPD não marca casos, com recall 0 e FNR 1, blocker explícito.
+- Estabilidade/migração: taxa Stage 2 e PSI iguais a zero em todos os períodos, com 208 migrações 1→1; resultado é degeneração, não estabilidade válida.
+- Sensibilidade: um notch produz taxa 0,4893, recall 0,6757 e FPR 0,4541, sem promoção pelo OOT.
+- Comparação: regra absoluta B1+ tem recall 0,1892/FPR 0,6582 e concordância 0,4163 com a relativa.
+- Erros: contratos falsos positivos/negativos são listados; evidência permanece `synthetic_proxy_without_approved_pd` e `not_approved`.
 
 ### Critérios de aceite
 
-- [ ] Existe somente um motor de estágio.
-- [ ] Toda decisão possui justificativa, versão e evidência.
-- [ ] Stage 2 é relativo à originação, não apenas ao nível atual.
+- [x] Existe somente um motor de estágio.
+- [x] Toda decisão possui justificativa, versão e evidência.
+- [x] Stage 2 é relativo à originação, não apenas ao nível atual.
 
 ---
 

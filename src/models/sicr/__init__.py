@@ -27,20 +27,35 @@ from .stage3 import (
     Stage3Decision,
     assess_stage3,
 )
+from .validation import (
+    DefinitionComparison,
+    SICRConfusion,
+    SICRValidationReport,
+    StabilityPeriod,
+    StageMigration,
+    ThresholdSensitivity,
+    validate_sicr_staging,
+)
 
 __all__ = [
     "OriginationBaselineLedger",
     "OriginationRiskBaseline",
     "LowCreditRiskPolicy",
     "CounterpartyDefaultEvidence",
+    "DefinitionComparison",
     "SICRAssessmentInput",
     "SICRDecision",
+    "SICRConfusion",
     "SICRPolicy",
+    "SICRValidationReport",
+    "StabilityPeriod",
     "Stage3AssessmentInput",
     "Stage3Decision",
     "StageHistoryLedger",
     "StageHistoryRecord",
     "StageTransitionContext",
+    "StageMigration",
+    "ThresholdSensitivity",
     "assess_sicr",
     "assess_stage3",
     "decide_stage_transition",
@@ -48,4 +63,5 @@ __all__ = [
     "load_origination_ledger",
     "save_origination_ledger",
     "load_sicr_policy",
+    "validate_sicr_staging",
 ]
