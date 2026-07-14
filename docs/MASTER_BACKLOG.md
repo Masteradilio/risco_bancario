@@ -1041,9 +1041,20 @@ Projetar exposição no momento do default para produtos amortizados e rotativos
 
 ### Subtarefas
 
-- [ ] Usar cronograma de saldo por período.
-- [ ] Incorporar prepagamento e modificação.
-- [ ] Calcular EAD no período de default.
+- [x] Usar cronograma de saldo por período.
+- [x] Incorporar prepagamento e modificação.
+- [x] Calcular EAD no período de default.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/ead/amortized.py`, política `config/ead_policy/2026.07.1.json`, 7 testes e `docs/models/EAD_AMORTIZED.md`.
+- Temporalidade: EAD usa o saldo de abertura da última competência observável antes do default, coerente com default anterior ao pagamento agendado.
+- Ajustes: resultados canônicos de prepagamento parcial/total e modificação substituem o cronograma somente quando efetivos até o default; eventos futuros não vazam.
+- Componentes: a política sintética inclui principal sacado e exclui explicitamente juros corridos e parcela não utilizada de operações amortizadas.
+- Reconciliação: 24 defaults iniciais — 8 veículos, 8 mortgages e 8 acquired distressed — reconciliam ao centavo, com EAD total de R$ 3.090.369,67.
+- Modificação sintética: uma extensão pré-default é identificada, mas não reamortizada sem fluxos revisados; o caminho canônico completo é coberto por golden case.
+- Limitação: regra e dados são demonstrativos e não validam componentes de EAD institucionais.
 
 ## Tarefa 8.2 — CCF de produtos rotativos
 

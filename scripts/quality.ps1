@@ -9,7 +9,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python -m ruff check @Targets
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $Python -m mypy src/domain src/data/synthetic src/models/pd src/models/sicr src/models/lgd src/ecl/calculation src/infrastructure/configuration src/regulatory/traceability
+    & $Python -m mypy src/domain src/data/synthetic src/models/pd src/models/sicr src/models/lgd src/models/ead src/ecl/calculation src/infrastructure/configuration src/regulatory/traceability
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python -m pytest tests/domain tests/configuration tests/regulatory tests/data tests/models --cov=src --cov-report=term-missing
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

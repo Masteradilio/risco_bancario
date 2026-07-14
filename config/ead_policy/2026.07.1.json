@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_unvalidated",
+  "amortized_balance_basis": "last_observable_period_opening_before_default",
+  "default_timing": "before_scheduled_payment_on_default_date",
+  "include_accrued_interest": false,
+  "include_undrawn_amount_for_amortized": false,
+  "prepayment_treatment": "effective_on_event_date_replace_with_revised_schedule",
+  "modification_treatment": "effective_on_event_date_replace_with_revised_schedule"
+}
