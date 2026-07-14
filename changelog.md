@@ -58,6 +58,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionados golden cases manuais Price, SAC e bullet com comparação período a período, tolerância de um centavo e reconciliação contábil automatizada.
 - Formalizada política versionada de default/cura/target com backstop em 91 DPD, indicadores qualitativos, populações, materialidade conservadora e exclusão de POCI dos datasets PD/SICR.
 - Adicionados baselines explicáveis de PD logística 12m e hazard mensal, métricas de discriminação/calibração, coeficientes auditáveis e rating provisório derivado da calibração.
+- Avaliados challengers de gradient boosting calibrado, survival boosting e matrizes de transição; registry preserva champion provisório e bloqueios sem declarar aprovação.
 
 ---
 

@@ -691,10 +691,22 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] Avaliar gradient boosting calibrado.
-- [ ] Avaliar survival gradient boosting, quando adequado.
-- [ ] Avaliar matrizes de transição para segmentos pequenos.
-- [ ] Manter modelo champion e challengers.
+- [x] Avaliar gradient boosting calibrado.
+- [x] Avaliar survival gradient boosting, quando adequado.
+- [x] Avaliar matrizes de transição para segmentos pequenos.
+- [x] Manter modelo champion e challengers.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/pd/candidates.py`, API, testes e `docs/models/PD_CANDIDATES.md`.
+- Boosting 12m: estimador ajustado em treino e calibrador isotonic ajustado somente em calibração; validação pré-calibração ficou abaixo da logística.
+- Auditoria OOT: challenger calibrado obteve ROC AUC 0,7554, AP 0,4129 e Brier 0,1493, mas PD média 0,3075 versus taxa 0,1750; não foi promovido.
+- Survival boosting: ROC AUC 0,3430/AP 0,0421 com 3 eventos de validação, status `insufficient_hazard_events`.
+- Transições: 34 células empíricas mensais produto/rating, estimadas somente em treino e normalizadas por origem, sem preenchimento silencioso.
+- Registry: logística é champion provisório `not_approved`; boosting, survival e matrizes permanecem challengers com bloqueios explícitos.
+- Governança: OOT não selecionou hiperparâmetros/champion e foi consumido uma única vez; alterações posteriores exigem especificação congelada e backtesting futuro.
+- Evidência: 5 testes aprovados para calibração reservada, survival, matrizes, registry e métricas.
 
 ## Tarefa 5.4 — Separação temporal e calibração
 
