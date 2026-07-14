@@ -701,10 +701,10 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 - Data: 14 de julho de 2026.
 - Entregáveis: `src/models/pd/candidates.py`, API, testes e `docs/models/PD_CANDIDATES.md`.
 - Boosting 12m: estimador ajustado em treino e calibrador isotonic ajustado somente em calibração; validação pré-calibração ficou abaixo da logística.
-- Auditoria OOT: challenger calibrado obteve ROC AUC 0,7554, AP 0,4129 e Brier 0,1493, mas PD média 0,3075 versus taxa 0,1750; não foi promovido.
-- Survival boosting: ROC AUC 0,3430/AP 0,0421 com 3 eventos de validação, status `insufficient_hazard_events`.
-- Transições: 34 células empíricas mensais produto/rating, estimadas somente em treino e normalizadas por origem, sem preenchimento silencioso.
-- Registry: logística é champion provisório `not_approved`; boosting, survival e matrizes permanecem challengers com bloqueios explícitos.
+- Auditoria OOT após split 0.2.0: challenger calibrado obteve ROC AUC 0,7246, AP 0,2610 e Brier 0,0980, com Log Loss 1,4292; não foi promovido.
+- Survival boosting: ROC AUC 0,5614/AP 0,0287 com 3 eventos de validação, status `insufficient_hazard_events`.
+- Transições: 25 células empíricas mensais produto/rating, estimadas somente em treino e normalizadas por origem, sem preenchimento silencioso.
+- Registry: logística é referência provisória `oot_failed_not_approved`; boosting, survival e matrizes permanecem challengers e não há champion aprovado.
 - Governança: OOT não selecionou hiperparâmetros/champion e foi consumido uma única vez; alterações posteriores exigem especificação congelada e backtesting futuro.
 - Evidência: 5 testes aprovados para calibração reservada, survival, matrizes, registry e métricas.
 
@@ -752,20 +752,31 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] AUC, Gini, KS e PR-AUC.
-- [ ] Brier Score e Log Loss.
-- [ ] calibration plot e expected calibration error.
-- [ ] testes binomiais por rating.
-- [ ] observado versus esperado.
-- [ ] estabilidade, PSI e backtesting.
-- [ ] análise de viés e segmentos.
+- [x] AUC, Gini, KS e PR-AUC.
+- [x] Brier Score e Log Loss.
+- [x] calibration plot e expected calibration error.
+- [x] testes binomiais por rating.
+- [x] observado versus esperado.
+- [x] estabilidade, PSI e controle de backtesting pendente de maturação.
+- [x] análise de viés e segmentos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/pd/validation.py`, 6 testes, `docs/models/PD_VALIDATION_REPORT.md` e `docs/models/PD_MODEL_CARD.md`.
+- OOT congelado: 233 linhas/27 eventos; AUC 0,5000, Gini/KS 0,0000, PR-AUC 0,1159, Brier 0,1342, Log Loss 0,4498 e ECE 0,1782.
+- Calibração: um único bin de PD 0,2941 contra taxa 0,1159; testes binomiais rejeitam A2, B1 e B2 a 5%, sem correção de multiplicidade.
+- Segmentos: 14 cortes por rating, produto e safra; ausência de atributos protegidos impede conclusão de fairness demográfica.
+- Estabilidade: PSI 6,7903 (`high_shift`) no score não calibrado entre calibração e backtesting futuro.
+- Backtesting: framework e guardrail implementados; performance 2025 permanece `pending_target_maturation`, sem métrica inventada.
+- Decisão: `not_approved`; não existe champion aprovado nem evidência além da simulação demonstrativa.
 
 ### Critérios de aceite
 
-- [ ] O teste OOT nunca é usado no desenvolvimento.
-- [ ] Lifetime PD depende do prazo real e da curva temporal.
-- [ ] Métricas sintéticas são identificadas como sintéticas.
-- [ ] Existe model card completo.
+- [x] O teste OOT nunca é usado no desenvolvimento.
+- [x] Lifetime PD depende do prazo real e da curva temporal.
+- [x] Métricas sintéticas são identificadas como sintéticas.
+- [x] Existe model card completo.
 
 ---
 

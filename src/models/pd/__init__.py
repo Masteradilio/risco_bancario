@@ -41,6 +41,16 @@ from .term_structure import (
     project_pd_term_structure,
     remaining_contract_months,
 )
+from .validation import (
+    BinomialRatingTest,
+    CalibrationBin,
+    DiscriminationMetrics,
+    PDValidationReport,
+    ProbabilisticMetrics,
+    SegmentValidation,
+    StabilityResult,
+    validate_frozen_pd,
+)
 
 __all__ = [
     "CureDecision",
@@ -56,13 +66,20 @@ __all__ = [
     "CandidateRegistryEntry",
     "CalibrationMethodResult",
     "CalibrationSlice",
+    "CalibrationBin",
+    "BinomialRatingTest",
+    "DiscriminationMetrics",
     "ModelMetrics",
     "PDTermPoint",
     "PDTermStructure",
+    "PDValidationReport",
+    "ProbabilisticMetrics",
     "RatingBand",
     "TransitionProbability",
     "TemporalCalibrationResult",
     "TemporalSplitSummary",
+    "SegmentValidation",
+    "StabilityResult",
     "assess_cure",
     "assess_default",
     "build_default_target",
@@ -74,4 +91,5 @@ __all__ = [
     "remaining_contract_months",
     "calibrate_explainable_pd",
     "summarize_temporal_splits",
+    "validate_frozen_pd",
 ]

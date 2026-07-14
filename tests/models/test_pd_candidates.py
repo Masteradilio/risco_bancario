@@ -61,6 +61,9 @@ def test_registry_preserves_provisional_champion_and_challengers(candidates) -> 
     assert "challenger" in roles
     assert "small_segment_challenger" in roles
     assert all(item.approval_status != "approved" for item in comparison.registry)
+    champion = next(item for item in comparison.registry if item.role == "provisional_champion")
+    assert champion.approval_status == "oot_failed_not_approved"
+    assert "no approved champion" in champion.rationale
 
 
 def test_candidate_validation_metrics_are_finite(candidates) -> None:

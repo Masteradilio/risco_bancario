@@ -35,8 +35,8 @@ silenciosamente; smoothing e pooling exigem validação posterior.
 
 ## Registry
 
-- `logistic_12m`: champion provisório por explicabilidade e melhor evidência de
-  validação, status `not_approved`;
+- `logistic_12m`: referência provisória por explicabilidade, status
+  `oot_failed_not_approved`; não existe champion aprovado;
 - `hist_gradient_boosting_12m`: challenger calibrado, OOT avaliado e não aprovado;
 - `hist_gradient_boosting_discrete_hazard`: challenger bloqueado por eventos;
 - `rating_transition_matrix`: challenger para segmentos pequenos, pendente.

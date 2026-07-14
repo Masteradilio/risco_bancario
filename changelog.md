@@ -61,6 +61,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Avaliados challengers de gradient boosting calibrado, survival boosting e matrizes de transição; registry preserva champion provisório e bloqueios sem declarar aprovação.
 - Instituídos splits temporais com embargo, seleção Platt/isotonic sem OOT, calibração segmentada e backtesting futuro sem targets prematuros; a falha OOT permanece blocker explícito.
 - Adicionadas curvas mensais coerentes de hazard, sobrevivência, PD marginal/acumulada e lifetime PD limitada à maturidade contratual real.
+- Publicados validação OOT e model card de PD com discriminação, calibração, testes binomiais, segmentos e PSI; modelo reprovado e backtesting mantido pendente sem targets fabricados.
 
 ---
 

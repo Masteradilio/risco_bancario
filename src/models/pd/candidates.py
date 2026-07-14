@@ -189,8 +189,9 @@ def fit_candidate_models(modeling: ModelingDatasets) -> CandidateComparison:
         CandidateRegistryEntry(
             "logistic_12m",
             "provisional_champion",
-            "not_approved",
-            "Explainable baseline retained until temporal calibration and OOT validation.",
+            "oot_failed_not_approved",
+            "Explainable reference retained after frozen OOT calibration failure; "
+            "no approved champion.",
         ),
         CandidateRegistryEntry(
             boosting.name,
