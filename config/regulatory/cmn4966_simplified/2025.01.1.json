@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "policy_version": "2025.01.1",
+    "effective_from": "2025-01-01",
+    "effective_to": null,
+    "source_ids": ["SRC-CMN4966", "SRC-BCB352", "SRC-IN560"],
+    "source_locator": "CMN 4.966/2021 arts. 50-51; BCB 352/2023 Anexo II; Cosif capítulo 4 itens 5-12",
+    "evidence_status": "official_rules_applicability_requires_institutional_assessment"
+  },
+  "additional_rates_non_problem_by_days_past_due": {
+    "maximum_days": [14, 30, 60, 90],
+    "C1": ["0.014", "0.035", "0.045", "0.050"],
+    "C2": ["0.014", "0.035", "0.060", "0.170"],
+    "C3": ["0.019", "0.035", "0.130", "0.320"],
+    "C4": ["0.019", "0.035", "0.130", "0.320"],
+    "C5": ["0.019", "0.075", "0.150", "0.380"]
+  },
+  "additional_rates_problem_non_delinquent": {
+    "C1": "0.100",
+    "C2": "0.334",
+    "C3": "0.487",
+    "C4": "0.395",
+    "C5": "0.534"
+  },
+  "additional_rates_delinquent": {
+    "C1": "0.045",
+    "C2": "0.034",
+    "C3": "0.037",
+    "C4": "0.045",
+    "C5": "0.034"
+  }
+}

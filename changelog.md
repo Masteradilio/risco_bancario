@@ -90,6 +90,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Consolidado pacote de oito golden cases ECL com resultados manuais exatos, consistência da LGD exibida, modificação pela EIR original e reprodutibilidade multi-cenário.
 - Implementado piso local de provisão pós-ECL com as 22 faixas oficiais do Anexo I da Resolução BCB 352, carteiras C1-C5 e seleção de política por data-base.
 - Separados no contrato de saída ECL calculado, piso regulatório e provisão final, com hash da regra e bloqueio de datas ou enquadramentos silenciosamente inferidos.
+- Implementada estratégia simplificada separada para S4/S5, com exceções autorizadas, Anexo II completo, adicionais de ativos problemáticos e bloqueio de mistura com a metodologia completa.
 
 ---
 

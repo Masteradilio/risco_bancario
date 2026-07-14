@@ -1381,10 +1381,10 @@ Separar corretamente cálculo contábil, regras locais, metodologia simplificada
 
 ### Subtarefas
 
-- [ ] Verificar aplicabilidade vigente para segmentos/instituições.
-- [ ] Implementar como estratégia separada.
-- [ ] Criar casos sintéticos e documentação.
-- [ ] Impedir mistura com metodologia completa.
+- [x] Verificar aplicabilidade vigente para segmentos/instituições.
+- [x] Implementar como estratégia separada.
+- [x] Criar casos sintéticos e documentação.
+- [x] Impedir mistura com metodologia completa.
 
 ## Tarefa 11.3 — Classificação e mensuração
 
