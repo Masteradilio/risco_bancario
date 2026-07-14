@@ -1136,11 +1136,20 @@ Calcular riscos e ECL completos por cenário, com relações macroeconômicas de
 
 ### Subtarefas
 
-- [ ] Criar schema de trajetória macro por período.
-- [ ] Suportar cenários base, otimista, pessimista e stress.
-- [ ] Validar soma dos pesos.
-- [ ] Versionar cenários e aprovação.
-- [ ] Criar cache e snapshot para fontes externas.
+- [x] Criar schema de trajetória macro por período.
+- [x] Suportar cenários base, otimista, pessimista e stress.
+- [x] Validar soma dos pesos.
+- [x] Versionar cenários e aprovação.
+- [x] Criar cache e snapshot para fontes externas.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: domínio de trajetórias em `src/domain/scenarios`, serviço em `src/application/services/scenarios.py`, política `config/scenario_service/2026.07.1.json`, 7 testes e `docs/models/SCENARIO_SERVICE.md`.
+- Fonte preservada: trajetórias sintéticas `1.0.0`, com 60 meses por cenário entre janeiro de 2026 e dezembro de 2030.
+- Pesos probabilísticos: otimista 0,15, base 0,70 e pessimista 0,15; stress 0,00 e separado da ponderação.
+- Governança: versão/hash obrigatórios; estado `approved` exige aprovador e data. A versão vigente permanece `not_approved` e `synthetic_demonstrative_only`.
+- Fontes externas: cache JSON content-addressed, timestamp UTC e verificação de integridade; nenhuma chamada externa ocorre dentro do cálculo determinístico.
 
 ## Tarefa 9.2 — Relações macro-risco
 

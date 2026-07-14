@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "schema_version": "1.0.0",
+    "policy_version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "author": "risco_bancario maintainers",
+    "approval_status": "not_approved",
+    "approved_by": null,
+    "approval_date": null,
+    "evidence_status": "synthetic_demonstrative_only",
+    "justification": "Initial governed service over the existing deterministic synthetic macroeconomic paths; institutional approval and external source validation remain pending."
+  },
+  "source": {
+    "kind": "synthetic_snapshot",
+    "policy_version": "1.0.0",
+    "path": "config/synthetic/macroeconomic_scenarios/1.0.0.json"
+  },
+  "scenario_names": {
+    "upside": "Otimista",
+    "base": "Base",
+    "downside": "Pessimista",
+    "stress": "Stress"
+  }
+}

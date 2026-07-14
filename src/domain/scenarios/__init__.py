@@ -1,5 +1,21 @@
 """Versioned macroeconomic scenario entities."""
 
-from .models import MacroVariable, Scenario, ScenarioKind
+from .models import (
+    MacroTrajectoryPoint,
+    MacroVariable,
+    Scenario,
+    ScenarioApprovalStatus,
+    ScenarioKind,
+    ScenarioSet,
+    ScenarioTrajectory,
+)
 
-__all__ = ["MacroVariable", "Scenario", "ScenarioKind"]
+__all__ = [
+    "MacroTrajectoryPoint",
+    "MacroVariable",
+    "Scenario",
+    "ScenarioApprovalStatus",
+    "ScenarioKind",
+    "ScenarioSet",
+    "ScenarioTrajectory",
+]

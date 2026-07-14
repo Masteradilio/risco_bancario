@@ -77,6 +77,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Criado CCF rotativo realizado e modelado por produto, utilização e horizonte, preservando valores brutos, tratando denominador zero e limites reduzidos/cancelados sem promover a pequena amostra sintética.
 - Implementadas projeções parametrizadas e versionadas de utilização para compromissos e garantias financeiras, separadas da PD e limitadas ao valor corrente executável, sem alegar estimação inexistente.
 - Publicados validação e model card de EAD/CCF com reconciliação amortizada, holdout rotativo, erros por segmento/ano e sensibilidades; CCF e off-balance permanecem não aprovados.
+- Criado serviço governado de cenários com trajetórias macro mensais tipadas, quatro cenários, validação de pesos, versão/aprovação e cache verificável para snapshots externos; a fonte sintética permanece não aprovada.
 
 ---
 
