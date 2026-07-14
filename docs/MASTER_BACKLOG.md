@@ -1313,11 +1313,20 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Reconciliar por período.
-- [ ] Reconciliar por cenário.
-- [ ] Reconciliar contrato, cliente, produto e carteira.
-- [ ] Reconciliar ECL bruto, overlay, piso e ECL final.
-- [ ] Criar ledger de execução imutável.
+- [x] Reconciliar por período.
+- [x] Reconciliar por cenário.
+- [x] Reconciliar contrato, cliente, produto e carteira.
+- [x] Reconciliar ECL bruto, overlay, piso e ECL final.
+- [x] Criar ledger de execução imutável.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/validation/reconciliation/ecl_ledger.py`, 8 testes e `docs/models/ECL_RECONCILIATION_LEDGER.md`.
+- Golden case: cenários ponderados R$ 28 + R$ 21 = contratos R$ 13 + R$ 36 = ECL econômico do portfólio R$ 49.
+- Camadas: overlays R$ 1, pisos somados R$ 20 e ECLs finais contratuais somados R$ 55, sem reaplicar piso no agregado.
+- Ledger: objetos congelados, SHA-256 determinístico independente da ordem e encadeamento opcional pelo hash anterior.
+- Fail-closed: duplicidade, pesos, cobertura de cenário, metadata, timestamp, ajuste e qualquer diferença de reconciliação bloqueiam a execução.
 
 ## Tarefa 10.7 — Golden cases ECL
 
