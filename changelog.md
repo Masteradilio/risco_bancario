@@ -79,6 +79,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Publicados validação e model card de EAD/CCF com reconciliação amortizada, holdout rotativo, erros por segmento/ano e sensibilidades; CCF e off-balance permanecem não aprovados.
 - Criado serviço governado de cenários com trajetórias macro mensais tipadas, quatro cenários, validação de pesos, versão/aprovação e cache verificável para snapshots externos; a fonte sintética permanece não aprovada.
 - Parametrizadas relações macroeconômicas versionadas e não lineares para PD, LGD, EAD e CCF por segmento, com coeficientes sintéticos integralmente documentados e sem alegação de estimação.
+- Implementado ECL mensal integral por cenário com hazard/sobrevivência, LGD, EAD, CCF e desconto específicos, seguido de ponderação dos valores de ECL e stress separado.
 
 ---
 

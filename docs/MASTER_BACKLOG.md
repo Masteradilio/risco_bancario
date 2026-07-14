@@ -1174,10 +1174,19 @@ Calcular riscos e ECL completos por cenário, com relações macroeconômicas de
 
 ### Subtarefas
 
-- [ ] Gerar curvas PD/LGD/EAD específicas por cenário.
-- [ ] Calcular ECL integral de cada cenário.
-- [ ] Ponderar valores de ECL.
-- [ ] Não ponderar apenas fatores médios.
+- [x] Gerar curvas PD/LGD/EAD específicas por cenário.
+- [x] Calcular ECL integral de cada cenário.
+- [x] Ponderar valores de ECL.
+- [x] Não ponderar apenas fatores médios.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/scenario_engine.py`, 7 testes e `docs/models/SCENARIO_ECL.md`.
+- Mecânica: hazard/sobrevivência/PD marginal, LGD, EAD sacada, CCF sobre não sacado e desconto são calculados por mês e cenário.
+- Golden case neutro de 2 meses: perdas de R$ 7,50 e R$ 6,75, total R$ 14,25, reconciliado manualmente.
+- Caso sintético de 3 meses: ECL otimista R$ 20,21, base R$ 20,97, pessimista R$ 22,89, ponderado R$ 21,14 e stress separado R$ 27,37.
+- Guardrail: a ponderação ocorre sobre os ECLs integrais; não existe média prévia de fatores. A integração específica de Stage pertence à Fase 10.
 
 ## Tarefa 9.4 — Sensibilidade e overlays
 
