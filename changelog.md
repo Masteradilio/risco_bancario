@@ -81,6 +81,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Parametrizadas relações macroeconômicas versionadas e não lineares para PD, LGD, EAD e CCF por segmento, com coeficientes sintéticos integralmente documentados e sem alegação de estimação.
 - Implementado ECL mensal integral por cenário com hazard/sobrevivência, LGD, EAD, CCF e desconto específicos, seguido de ponderação dos valores de ECL e stress separado.
 - Adicionados sensitividades versionadas de pesos/trajetórias, relatório de stress e framework de management overlays pós-modelo com aprovação, vigência e reversão auditáveis.
+- Implementado ECL Stage 1 por contrato, período e cenário, limitado a defaults possíveis em 12 meses, com LGD lifetime condicional e desconto pela EIR original.
 
 ---
 

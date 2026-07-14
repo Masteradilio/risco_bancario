@@ -1227,10 +1227,18 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Usar defaults possíveis nos próximos 12 meses.
-- [ ] Aplicar perdas lifetime associadas a esses defaults.
-- [ ] Calcular por período, cenário e contrato.
-- [ ] Descontar pela EIR original.
+- [x] Usar defaults possíveis nos próximos 12 meses.
+- [x] Aplicar perdas lifetime associadas a esses defaults.
+- [x] Calcular por período, cenário e contrato.
+- [x] Descontar pela EIR original.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/stage1.py`, desconto em `src/ecl/discounting/effective_interest.py`, 7 testes e `docs/models/STAGE1_ECL.md`.
+- Horizonte: 1 a 12 defaults mensais possíveis, limitado ao prazo remanescente; LGD de cada período é lifetime condicional ao default.
+- Caso de 12 meses: ECL otimista R$ 33,60, base R$ 36,95, pessimista R$ 46,45, ponderado R$ 37,87 e stress separado R$ 76,60.
+- Desconto: EIR original de 12% produz fator 0,99060040 no mês 1 e 0,89285714 no mês 12; golden PV de R$ 112 em 12 meses = R$ 100.
 
 ## Tarefa 10.2 — Cálculo Stage 2
 

@@ -25,6 +25,12 @@ from .sensitivity import (
     load_scenario_sensitivity_policy,
     run_scenario_sensitivities,
 )
+from .stage1 import (
+    Stage1ContractInput,
+    Stage1ECLResult,
+    Stage1RiskPeriod,
+    calculate_stage1_ecl,
+)
 
 __all__ = [
     "ECLResult",
@@ -39,9 +45,13 @@ __all__ = [
     "ScenarioSensitivityPolicy",
     "ScenarioSensitivityReport",
     "SensitivityResult",
+    "Stage1ContractInput",
+    "Stage1ECLResult",
+    "Stage1RiskPeriod",
     "TrajectoryShock",
     "WeightSensitivityCase",
     "calculate_probability_weighted_scenario_ecl",
+    "calculate_stage1_ecl",
     "classify_poci",
     "credit_adjusted_eir",
     "measure_poci_change",
