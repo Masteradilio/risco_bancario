@@ -74,6 +74,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionada projeção versionada de garantia com valor, enforceability, haircut, custos, prazo, desconto, sensibilidades e controle explícito que impede somar a projeção ao cash flow de execução já observado.
 - Publicados validação e model card de LGD com previsto versus realizado, MAE/RMSE, faixas, coortes, produtos e downturn separado; o candidato foi reprovado por erro, amostra e ausência de OOT independente.
 - Implementada EAD de produtos amortizados por saldo temporal de cronograma, com prepagamento, modificação, corte no default, política versionada e reconciliação integral da carteira sintética.
+- Criado CCF rotativo realizado e modelado por produto, utilização e horizonte, preservando valores brutos, tratando denominador zero e limites reduzidos/cancelados sem promover a pequena amostra sintética.
 
 ---
 

@@ -1060,10 +1060,21 @@ Projetar exposição no momento do default para produtos amortizados e rotativos
 
 ### Subtarefas
 
-- [ ] Construir dataset de limite e drawdown antes do default.
-- [ ] Calcular CCF realizado.
-- [ ] Modelar CCF por produto, utilização e horizonte.
-- [ ] Tratar limites reduzidos/cancelados.
+- [x] Construir dataset de limite e drawdown antes do default.
+- [x] Calcular CCF realizado.
+- [x] Modelar CCF por produto, utilização e horizonte.
+- [x] Tratar limites reduzidos/cancelados.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/ead/revolving_ccf.py`, política `config/ccf_policy/2026.07.1.json`, 7 testes e `docs/models/EAD_REVOLVING_CCF.md`.
+- Desenvolvimento: carteira separada e determinística com seed 91, 400 clientes e 2 contratos por cliente, pois a carteira principal contém apenas um default rotativo.
+- Dataset: 12 defaults, 25 linhas — 15 cartões e 10 overdrafts — em horizontes exatos de 3/6/12 meses; 11 horizontes sem histórico foram omitidos.
+- CCF: média 0,056834 e faixa 0–0,272929; bruto preservado, target limitado e denominador zero tratado como indefinido/excluído.
+- Modelo: Ridge por produto, utilização, horizonte, interação e status de limite; 21 linhas de treino, MAE in-sample 0,025137 e RMSE 0,033649, sem alegação de validação.
+- Limites: redução, cancelamento e aumento possuem tratamento explícito e golden cases, mas todos os 25 casos estimados ficaram `unchanged`; o efeito não é identificável.
+- Guardrail: apenas uma linha tem horizonte de 12 meses e quatro ficam para validação; modelo `demonstrative_not_approved`.
 
 ## Tarefa 8.3 — EAD de compromissos e garantias
 
