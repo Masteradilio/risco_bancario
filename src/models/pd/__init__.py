@@ -34,6 +34,13 @@ from .default_definition import (
     build_default_target,
     load_default_policy,
 )
+from .term_structure import (
+    PDTermPoint,
+    PDTermStructure,
+    monthly_hazards_from_horizon_pd,
+    project_pd_term_structure,
+    remaining_contract_months,
+)
 
 __all__ = [
     "CureDecision",
@@ -50,6 +57,8 @@ __all__ = [
     "CalibrationMethodResult",
     "CalibrationSlice",
     "ModelMetrics",
+    "PDTermPoint",
+    "PDTermStructure",
     "RatingBand",
     "TransitionProbability",
     "TemporalCalibrationResult",
@@ -60,6 +69,9 @@ __all__ = [
     "load_default_policy",
     "fit_explainable_baselines",
     "fit_candidate_models",
+    "monthly_hazards_from_horizon_pd",
+    "project_pd_term_structure",
+    "remaining_contract_months",
     "calibrate_explainable_pd",
     "summarize_temporal_splits",
 ]

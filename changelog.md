@@ -60,6 +60,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionados baselines explicáveis de PD logística 12m e hazard mensal, métricas de discriminação/calibração, coeficientes auditáveis e rating provisório derivado da calibração.
 - Avaliados challengers de gradient boosting calibrado, survival boosting e matrizes de transição; registry preserva champion provisório e bloqueios sem declarar aprovação.
 - Instituídos splits temporais com embargo, seleção Platt/isotonic sem OOT, calibração segmentada e backtesting futuro sem targets prematuros; a falha OOT permanece blocker explícito.
+- Adicionadas curvas mensais coerentes de hazard, sobrevivência, PD marginal/acumulada e lifetime PD limitada à maturidade contratual real.
 
 ---
 

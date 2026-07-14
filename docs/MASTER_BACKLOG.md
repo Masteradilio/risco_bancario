@@ -732,11 +732,21 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] Gerar hazard mensal.
-- [ ] Gerar sobrevivência.
-- [ ] Gerar PD marginal.
-- [ ] Gerar PD acumulada 12m e lifetime.
-- [ ] Garantir monotonicidade e limites.
+- [x] Gerar hazard mensal.
+- [x] Gerar sobrevivência.
+- [x] Gerar PD marginal.
+- [x] Gerar PD acumulada 12m e lifetime.
+- [x] Garantir monotonicidade e limites.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/pd/term_structure.py`, API, 8 casos de teste e `docs/models/PD_TERM_STRUCTURE.md`.
+- Matemática: hazard condicional deriva de intensidade acumulada; sobrevivência, PD marginal e PD acumulada reconciliam período a período.
+- Horizonte: PD 12m usa `min(12, prazo remanescente)` e lifetime termina na maturidade contratual real, sem prazo fixo de cinco anos.
+- Forma temporal: multiplicadores mensais positivos suportam curva não plana e preservam a PD acumulada do horizonte.
+- Guardrails: probabilidades são limitadas, sobrevivência não cresce, PD acumulada não diminui e entradas inválidas falham fechadas.
+- Governança: curvas carregam status `synthetic_unapproved_input`; coerência matemática não supera o blocker OOT da Tarefa 5.4.
 
 ## Tarefa 5.6 — Validação de PD
 
