@@ -940,11 +940,22 @@ Calcular LGD a partir de recuperações líquidas e descontadas.
 
 ### Subtarefas
 
-- [ ] Calcular EAD no default.
-- [ ] Descontar recuperações pela taxa apropriada.
-- [ ] Subtrair custos.
-- [ ] Calcular LGD de cura e de perda.
-- [ ] Tratar LGD negativa ou superior a 100% conforme política documentada.
+- [x] Calcular EAD no default.
+- [x] Descontar recuperações pela taxa apropriada.
+- [x] Subtrair custos.
+- [x] Calcular LGD de cura e de perda.
+- [x] Tratar LGD negativa ou superior a 100% conforme política documentada.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/lgd/realized.py`, política `config/lgd_policy/2026.07.1.json`, 7 testes e `docs/models/LGD_REALIZED.md`.
+- Mensuração: recuperações e custos são descontados por dias corridos à EIR contratual; a EAD é a registrada no evento de default.
+- Cura: o residual nominal após recuperações brutas é reconhecido como valor restaurado na data da cura, sem dupla contagem dos fluxos já observados.
+- Governança: LGD bruta permanece auditável; a variável de modelagem é limitada a 0%–100% com ação explícita e política versionada/hashada.
+- Censura: 7 de 32 observações são provisórias; a estatística de aceite usa apenas os 25 workouts completos.
+- Evidência sintética: LGD média completa de 52,2805414%, sendo 17,3693342% para cura e 71,9180954% para perda; nenhuma observação da carteira exigiu limite.
+- Limitação: convenção e métricas são demonstrativas, não validadas com recuperações institucionais.
 
 ## Tarefa 7.3 — Modelagem
 

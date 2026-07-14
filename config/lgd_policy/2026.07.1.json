@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_unvalidated",
+  "discount_rate": "contractual_effective_interest_rate",
+  "cure_treatment": "residual_exposure_as_recovery_at_cure_date",
+  "lower_bound": "0.00000000",
+  "upper_bound": "1.00000000",
+  "out_of_bounds_treatment": "bound_for_modeling_preserve_raw"
+}
