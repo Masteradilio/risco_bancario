@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 DESIGN = Path("docs/data/SYNTHETIC_DATA_DESIGN.md")
 
 
@@ -28,6 +27,5 @@ def test_target_is_future_derived_and_generator_is_separate() -> None:
 def test_latent_fields_are_forbidden_in_public_exports() -> None:
     text = DESIGN.read_text(encoding="utf-8")
     assert "prefixo `_latent`" in text
-    assert "Exportação usa allowlists" in text
+    assert "allowlists de schema" in text
     assert "nenhum dataset público ou de modelagem" in text
-
