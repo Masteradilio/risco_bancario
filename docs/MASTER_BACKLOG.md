@@ -807,13 +807,23 @@ Criar um único motor oficial de classificação de estágio.
 
 ### Subtarefas
 
-- [ ] Comparar lifetime PD atual e de originação.
-- [ ] Implementar variação absoluta e relativa.
-- [ ] Implementar downgrade em notches.
-- [ ] Implementar watchlist e eventos qualitativos.
-- [ ] Implementar backstop de atraso.
-- [ ] Implementar low-credit-risk exemption configurável.
-- [ ] Produzir razão de decisão detalhada.
+- [x] Comparar lifetime PD atual e de originação.
+- [x] Implementar variação absoluta e relativa.
+- [x] Implementar downgrade em notches.
+- [x] Implementar watchlist e eventos qualitativos.
+- [x] Implementar backstop de atraso.
+- [x] Implementar low-credit-risk exemption configurável.
+- [x] Produzir razão de decisão detalhada.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `config/sicr_policy/2026.07.1.json`, `src/models/sicr/engine.py`, 10 testes e `docs/models/SICR_ENGINE.md`.
+- Comparação: lifetime PD atual versus baseline persistido, com diferença absoluta, razão relativa e downgrade em notches.
+- Gatilhos diretos: 31 DPD, downgrade, watchlist, concessão/forbearance e eventos qualitativos.
+- Isenção: low-credit-risk é configurável e só suprime gatilhos quantitativos; nunca sobrepõe gatilho direto.
+- Explicabilidade: decisão inclui gatilhos ativos/suprimidos, razões, versão/hash da política e status da evidência.
+- Governança: thresholds são hipóteses `demonstrative_unvalidated`, não limites normativos ou calibrados.
 
 ## Tarefa 6.3 — Stage 3 e default
 

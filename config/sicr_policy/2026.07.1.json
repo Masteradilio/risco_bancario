@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0.0",
+  "policy_version": "2026.07.1",
+  "effective_from": "2026-07-14",
+  "evidence_status": "demonstrative_unvalidated",
+  "justification": "Initial transparent SICR hypotheses for synthetic tests; institutional calibration and approval are pending.",
+  "absolute_lifetime_pd_increase": "0.05",
+  "relative_lifetime_pd_ratio": "2.00",
+  "downgrade_notches": 2,
+  "days_past_due_backstop": 31,
+  "rating_order": ["A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3", "D", "DEFAULT"],
+  "low_credit_risk": {
+    "enabled": true,
+    "eligible_ratings": ["A1", "A2", "A3"],
+    "maximum_current_lifetime_pd": "0.02"
+  }
+}
