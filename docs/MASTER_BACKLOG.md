@@ -282,11 +282,20 @@ Transformar requisitos normativos em itens testáveis, versionados e auditáveis
 
 ### Subtarefas
 
-- [ ] Criar `docs/regulatory/SOURCE_REGISTER.md`.
-- [ ] Registrar IFRS 9 vigente, CMN 4.966 consolidada, BCB 352 vigente e documentação Doc3040.
-- [ ] Registrar data de consulta e vigência.
-- [ ] Definir processo de atualização regulatória.
-- [ ] Não copiar material protegido sem autorização.
+- [x] Criar `docs/regulatory/SOURCE_REGISTER.md`.
+- [x] Registrar IFRS 9 vigente, CMN 4.966 consolidada, BCB 352 vigente e documentação Doc3040.
+- [x] Registrar data de consulta e vigência.
+- [x] Definir processo de atualização regulatória.
+- [x] Não copiar material protegido sem autorização.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregável: `docs/regulatory/SOURCE_REGISTER.md`.
+- Fontes: páginas primárias da IFRS Foundation e do Banco Central do Brasil, com links, consulta, estado observado, uso e limitações.
+- Processo: revisão mensal e pré-release, comparação de vigência/normas vinculadas, manifesto e SHA-256 para artefatos operacionais e atualização da rastreabilidade.
+- Direito autoral: nenhum texto integral protegido da IFRS foi copiado; o catálogo mantém somente referência e síntese própria.
+- Achado: a página consultada do Doc3040 lista XSD do documento 3045; nenhum XSD 3040 foi presumido.
 
 ## Tarefa 2.2 — Matriz de requisitos
 

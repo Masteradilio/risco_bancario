@@ -35,6 +35,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Padronizado o runtime em CPython 3.13.7 e migradas dependências para `pyproject.toml`, com grupos de produção e desenvolvimento.
 - Configurados Black, Ruff, MyPy, Pytest e cobertura progressiva mínima de 70%.
 - Adicionados scripts PowerShell únicos de setup e qualidade; a primeira execução alcançou 90,37% de cobertura no núcleo canônico.
+- Criado catálogo de fontes regulatórias oficiais com vigência observada, data de consulta, processo de atualização e política de direitos autorais.
+- Registrada explicitamente a diferença entre os artefatos operacionais do Documento 3040 e o XSD 3045 listado na página oficial consultada.
 
 ---
 
