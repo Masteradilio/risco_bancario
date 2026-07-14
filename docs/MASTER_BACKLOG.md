@@ -353,18 +353,29 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 
 ### Subtarefas
 
-- [ ] Definir entidades e relacionamentos.
-- [ ] Definir variáveis latentes internas ao gerador.
-- [ ] Garantir que variáveis latentes não sejam exportadas para modelagem.
-- [ ] Definir ciclos macroeconômicos.
-- [ ] Definir dinâmica de renda, emprego, utilização, atraso e default.
-- [ ] Definir mecanismo de recuperação, garantia, renegociação e cura.
-- [ ] Criar documento `docs/data/SYNTHETIC_DATA_DESIGN.md`.
+- [x] Definir entidades e relacionamentos.
+- [x] Definir variáveis latentes internas ao gerador.
+- [x] Garantir que variáveis latentes não sejam exportadas para modelagem.
+- [x] Definir ciclos macroeconômicos.
+- [x] Definir dinâmica de renda, emprego, utilização, atraso e default.
+- [x] Definir mecanismo de recuperação, garantia, renegociação e cura.
+- [x] Criar documento `docs/data/SYNTHETIC_DATA_DESIGN.md`.
 
 ### Critérios de aceite
 
-- [ ] O target decorre de eventos futuros, não de uma classe estática usada para gerar features.
-- [ ] O gerador é separado do pipeline de modelagem.
+- [x] O target decorre de eventos futuros, não de uma classe estática usada para gerar features.
+- [x] O gerador é separado do pipeline de modelagem.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregável: `docs/data/SYNTHETIC_DATA_DESIGN.md`.
+- Causalidade: snapshots usam somente estado disponível até `t`; default é sorteado mensalmente para períodos futuros e o target é derivado após a simulação.
+- Anti-leakage: latentes ficam em estado privado e exportações usam allowlists; o builder de modelagem só consome tabelas públicas.
+- Temporalidade: horizonte padrão de 120 meses, safras/snapshots mensais e regimes de expansão, estabilidade, recessão e recuperação.
+- Escopo: renda, emprego, utilização, pagamento, atraso, default, garantias, renegociação, cura, redefault, cobrança, recuperação e write-off.
+- Limite: distribuições e coeficientes serão configuração versionada nas tarefas de implementação; não representam instituição real.
+- Evidência: 3 testes de contrato do desenho aprovados e incluídos no comando geral de qualidade.
 
 ## Tarefa 3.2 — Gerar população e contratos
 

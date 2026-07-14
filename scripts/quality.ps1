@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $Python = Join-Path $Root "venv\Scripts\python.exe"
-$Targets = @("src", "tests/domain", "tests/configuration", "tests/regulatory")
+$Targets = @("src", "tests/domain", "tests/configuration", "tests/regulatory", "tests/data")
 
 Push-Location $Root
 try {
@@ -11,7 +11,7 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python -m mypy src/domain src/ecl/calculation src/infrastructure/configuration src/regulatory/traceability
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-    & $Python -m pytest tests/domain tests/configuration tests/regulatory --cov=src --cov-report=term-missing
+    & $Python -m pytest tests/domain tests/configuration tests/regulatory tests/data --cov=src --cov-report=term-missing
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python -m pytest backend/bancos_de_dados/tests backend/prinad/tests -q
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

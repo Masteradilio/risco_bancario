@@ -41,6 +41,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionado teste de contrato que bloqueia fontes órfãs, IDs duplicados, implementação sem evidência e não aplicabilidade sem justificativa.
 - Criada estrutura de testes com IDs regulatórios em nomes e metadados Pytest.
 - Adicionados relatório automático de cobertura regulatória e gate de release; 20 requisitos incompletos bloqueiam corretamente a promoção atual.
+- Documentado o desenho causal e temporal da fábrica sintética, com entidades, relógio mensal, regimes macroeconômicos e dinâmica de crédito.
+- Definido guardrail de anti-leakage: latentes privados, exportação por allowlist e targets derivados exclusivamente de eventos futuros.
 
 ---
 
