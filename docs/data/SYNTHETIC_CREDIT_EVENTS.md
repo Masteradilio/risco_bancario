@@ -36,11 +36,15 @@ taxas observadas, calibração institucional ou política contábil aprovada.
 
 Com `seed=91`, 40 clientes e dois contratos por cliente, a suíte fixa produziu:
 
-- 11 defaults iniciais e 4 redefaults;
-- 33 ações de cobrança;
-- 66 recuperações mensais em caixa e 2 execuções de garantia;
-- 5 curas;
-- 10 write-offs e 10 recuperações pós-baixa.
+- 25 defaults iniciais e 7 redefaults;
+- 75 ações de cobrança;
+- 150 recuperações mensais em caixa e 16 execuções de garantia;
+- 12 curas;
+- 20 write-offs e 20 recuperações pós-baixa.
+
+Choques determinísticos de cobertura em contratos longos não-POCI distribuem
+eventos entre os cortes temporais. Eles servem à testabilidade do pipeline, não
+representam frequência ou calibração observada e nunca são exportados como feature.
 
 Sete testes verificam reprodutibilidade, ordem temporal, fluxo mensal, custos,
 execução de garantia, cura/redefault, reconciliação de baixa e anti-leakage.

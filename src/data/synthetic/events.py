@@ -140,11 +140,18 @@ def generate_credit_events(
         )
         forced_trigger = None
         forced_months_on_book = 36
+        contract_number = int(contract.contract_id[-4:])
         if force_collateral_shock:
             forced_trigger = "idiosyncratic_collateral_shock"
         elif force_ccf_shock:
             forced_trigger = "liquidity_drawdown_shock"
             forced_months_on_book = 6
+        elif contract.product_code == "mortgage":
+            forced_trigger = "longitudinal_coverage_shock"
+            forced_months_on_book = 12 + (contract_number % 3) * 12
+        elif contract.product_code == "vehicle_finance":
+            forced_trigger = "longitudinal_coverage_shock"
+            forced_months_on_book = 18 + (contract_number % 3) * 12
         candidate = _first_default_candidate(
             rows,
             rng,

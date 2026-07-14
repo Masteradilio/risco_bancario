@@ -69,7 +69,7 @@
       "sha256": "e4cc11cc4baf1326ea16b88448f1682bbe6ee856b456a08bd6705c95213ea704"
     },
     "collections.parquet": {
-      "rows": 33,
+      "rows": 75,
       "schema": [
         {
           "name": "collection_id",
@@ -92,7 +92,7 @@
           "type": "string"
         }
       ],
-      "sha256": "1adcd91f1f1415d7ae0315a861ef26bde5ad74835839aa12822161e917b7830b"
+      "sha256": "6dd46105a0b85323e97b12bba643f7ddef0095f2479dc5cdf9735fe8bfccc4af"
     },
     "contracts.parquet": {
       "rows": 80,
@@ -179,7 +179,7 @@
       "sha256": "804b55382934f6389b691d9ade68adc8845b6f30d63499db79179f165a1ac2b6"
     },
     "cures.parquet": {
-      "rows": 5,
+      "rows": 12,
       "schema": [
         {
           "name": "cure_id",
@@ -202,10 +202,10 @@
           "type": "int64"
         }
       ],
-      "sha256": "5fee40d67e6974d5aaaf68d51d53f5e7606f24d71f6f174d5743d48fe67762fe"
+      "sha256": "6fa467075bc3367c1c1f35629da4699ae42b32896faccbaefdc745329324e474"
     },
     "defaults.parquet": {
-      "rows": 15,
+      "rows": 32,
       "schema": [
         {
           "name": "default_id",
@@ -232,7 +232,7 @@
           "type": "bool"
         }
       ],
-      "sha256": "c0dcf0160af6122d586118bf8d3d6e4e31895c092099945a415eb2dc0e398b44"
+      "sha256": "7341aa7c0c66cf88db022f50329d9171925aca46334b3cab7387be13c6c4ead9"
     },
     "delinquencies.parquet": {
       "rows": 2431,
@@ -253,7 +253,7 @@
       "sha256": "94e720b09908b594aec61bf1eff287b55c2ccbab8242ae16c8579a3f25eff468"
     },
     "ead_modeling.parquet": {
-      "rows": 11,
+      "rows": 25,
       "schema": [
         {
           "name": "default_id",
@@ -304,7 +304,7 @@
           "type": "string"
         }
       ],
-      "sha256": "7a6f9e072d5927e57748e44b7882c7d2c6c249c4a4490113f6044aa3a28b87fe"
+      "sha256": "fb27ca393f4c37b22aff8c254e4ae04f0d607448cd89f05743f781d0b446df21"
     },
     "economic_groups.parquet": {
       "rows": 7,
@@ -321,7 +321,7 @@
       "sha256": "aa6bf51049b8cd23aa37c37ad6a4d301365b089fedec1bd0869ce4650e571bfe"
     },
     "lgd_modeling.parquet": {
-      "rows": 11,
+      "rows": 25,
       "schema": [
         {
           "name": "default_id",
@@ -360,7 +360,7 @@
           "type": "string"
         }
       ],
-      "sha256": "577abba0a9bffe36f16fad7d8e9725b5e9973e92432f0fa5312cd20b87fbbbd2"
+      "sha256": "685da6752695b8f4d87608af6cce4b1ed1b7eadd488042ae45d7b0a84af77b8f"
     },
     "limits_and_drawdowns.parquet": {
       "rows": 2431,
@@ -611,7 +611,7 @@
       "sha256": "5658c3ec90ff3f9fb81fa8a0bfdda95268e246becfc0539a50b2fc4010b995f8"
     },
     "pd_modeling.parquet": {
-      "rows": 1764,
+      "rows": 1299,
       "schema": [
         {
           "name": "observation_date",
@@ -686,10 +686,10 @@
           "type": "string"
         }
       ],
-      "sha256": "e13d1a14af275df40576994af5493bc03c1c59adcb12da74fed017ad4860b929"
+      "sha256": "05dc13aabee866bd5104b0d48625598b58cbf76c3d11605723898ace7f8beab1"
     },
     "recoveries.parquet": {
-      "rows": 78,
+      "rows": 186,
       "schema": [
         {
           "name": "recovery_id",
@@ -732,7 +732,7 @@
           "type": "bool"
         }
       ],
-      "sha256": "ff2f1e67c1c0dc11f3ff2609b02956d2e0e17ce5a27156d5fe497b74d9f119fe"
+      "sha256": "ad01e0f239a65aa31e50b5e1d1841501f0f9a53f23687b63ebe7d871f028ee90"
     },
     "regulatory_reporting_input.parquet": {
       "rows": 80,
@@ -849,7 +849,7 @@
       "sha256": "5746052f2b42f9ce2b8ff06a644d473e269b95142592d5f7cf792551bde863b6"
     },
     "sicr_modeling.parquet": {
-      "rows": 1764,
+      "rows": 1299,
       "schema": [
         {
           "name": "observation_date",
@@ -880,10 +880,10 @@
           "type": "string"
         }
       ],
-      "sha256": "09f62b92da84c84d07fdb7ed96de49f4de26374caaa2dd6d9603ca157935cc3b"
+      "sha256": "30c46fcdb395cf5d1c13e7771db69d836ce60c9950d1d5404fbd20c682c92920"
     },
     "writeoffs.parquet": {
-      "rows": 10,
+      "rows": 20,
       "schema": [
         {
           "name": "writeoff_id",
@@ -903,14 +903,14 @@
         },
         {
           "name": "amount",
-          "type": "decimal128(7, 2)"
+          "type": "decimal128(8, 2)"
         },
         {
           "name": "policy_version",
           "type": "string"
         }
       ],
-      "sha256": "ca732c8372c2b10f88ff54c242e94bcc11ea65f417ccf990e7de8c45676b4be6"
+      "sha256": "13227942d25c3476e8908251c2deb2b9ad2e3ca943c8b4260dd62f4b8a196701"
     }
   },
   "macroeconomic_policy_sha256": "ddf94d2b12e8a97355763f7e545cb4e71b9cf5cc5e98c2ba37fc1811d03cba71",

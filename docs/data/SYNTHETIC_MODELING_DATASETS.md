@@ -50,8 +50,8 @@ de variável, threshold ou hiperparâmetro.
 
 ## Evidência de aceitação
 
-Com `seed=91`, 40 clientes e dois contratos por cliente, foram geradas 1.764
-linhas de PD/hazard, 1.764 de SICR, 11 de LGD e 11 de EAD. Há 23 targets de
-default em 12 meses, 2 hazards mensais, 160 targets de SICR e ao menos um target
+Com `seed=91`, 40 clientes e dois contratos por cliente, foram geradas 1.299
+linhas de PD/hazard, 1.299 de SICR, 25 de LGD e 25 de EAD. Há 194 targets de
+default em 12 meses, 16 hazards mensais, 247 targets de SICR e ao menos um target
 de CCF. Sete testes verificam janelas, targets, reconciliação, ordem temporal,
 splits e anti-leakage.

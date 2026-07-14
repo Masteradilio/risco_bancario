@@ -437,7 +437,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - Recuperação: seis fluxos mensais por default inicial, execução de garantia limitada à exposição e custos operacionais/judiciais explícitos.
 - Ciclo de vida: cura com período de observação, redefault posterior, write-off reconciliado e recuperação pós-baixa preservada.
 - Anti-leakage: os eventos são derivados depois do histórico e as tabelas públicas não exportam campos latentes.
-- Evidência: 7 testes aprovados; carteira fixa com 11 defaults iniciais, 4 redefaults, 78 recuperações, 5 curas e 10 write-offs após alinhamento do backstop em 91 DPD.
+- Evidência: 7 testes aprovados; carteira fixa com 25 defaults iniciais, 7 redefaults, 186 recuperações, 12 curas e 20 write-offs após backstop em 91 DPD e cobertura longitudinal.
 
 ## Tarefa 3.5 — Gerar macroeconomia e cenários
 
@@ -480,7 +480,7 @@ Criar dados realistas, temporais e sem leakage para suportar todas as fases do p
 - SICR: target futuro combina default, atraso de 31 dias e deterioração mínima de dois graus contra a originação.
 - Splits: treino até 2019, validação em 2020, calibração em 2021, OOT em 2022–2023 e backtesting em 2024, sem sorteio entre períodos.
 - Anti-leakage: tabelas de PD/SICR não expõem datas de default, recuperação, EAD realizada ou campos latentes como features.
-- Evidência: 7 testes aprovados; 1.764 linhas PD/SICR sem POCI, 11 LGD/EAD, 23 defaults 12m, 2 hazards mensais e 160 SICR positivos na carteira fixa.
+- Evidência: 7 testes aprovados; 1.299 linhas PD/SICR sem POCI, 25 LGD/EAD, 194 defaults 12m, 16 hazards mensais e 247 SICR positivos na carteira fixa.
 
 ## Tarefa 3.7 — Qualidade e anti-leakage
 
@@ -669,10 +669,23 @@ Substituir a PD heurística por modelos temporais calibrados e validáveis.
 
 ### Subtarefas
 
-- [ ] Implementar regressão logística 12m.
-- [ ] Implementar discrete-time hazard.
-- [ ] Comparar desempenho e calibração.
-- [ ] Criar scorecard/rating derivado de PD, sem faixas arbitrárias não calibradas.
+- [x] Implementar regressão logística 12m.
+- [x] Implementar discrete-time hazard.
+- [x] Comparar desempenho e calibração.
+- [x] Criar scorecard/rating derivado de PD, sem faixas arbitrárias não calibradas.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/models/pd/baselines.py`, API, testes e `docs/models/PD_BASELINES.md`.
+- Modelos: regressão logística 12m e hazard logístico mensal usam pipeline numérico/categórico explícito, `class_weight` balanceado e seed fixa.
+- Separação: treino ajusta; validação mede; calibração deriva rating; OOT/backtesting não são consultados nesta tarefa.
+- Métricas: logística 12m obteve ROC AUC 0,7548, AP 0,4271 e Brier 0,1768 na validação sintética; não constituem aprovação.
+- Hazard: ROC AUC 0,6105 e AP 0,0258 com somente 3 eventos de validação; subestimação foi registrada como limitação material.
+- Explicabilidade: coeficientes expandidos são retornados e bloqueiam targets/futuro; não recebem interpretação causal automática.
+- Rating: R1–R5 são quintis da PD no conjunto de calibração com taxa observada, não faixas legadas arbitrárias; promoção depende das Tarefas 5.4–5.6.
+- Dados: choques de cobertura longitudinais não-POCI garantem eventos em todos os splits sem serem exportados como feature; pacote Parquet foi regenerado.
+- Evidência: 5 testes aprovados para targets, métricas, coeficientes, rating e determinismo.
 
 ## Tarefa 5.3 — Modelos candidatos
 
