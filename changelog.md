@@ -52,6 +52,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Construídos datasets point-in-time de PD, hazard, LGD, EAD/CCF e SICR, com targets futuros e splits temporais disjuntos para treino, validação, calibração, OOT e backtesting.
 - Adicionados gate de qualidade sintética, detector de leakage, diagnósticos de distribuição/correlação, data card e dicionário de dados; registrada a tarefa adicional de materialização Parquet exigida pelo estado-alvo.
 - Materializado pacote de aceitação com 24 Parquets e manifesto determinístico; adicionados exportador, comando PowerShell, hashes/schemas e insumo regulatório neutro sem campos Doc3040 inventados.
+- Implementado motor canônico de contratos amortizados Price, SAC e bullet, com taxas fixas/variáveis, tarifas, EIR, convenções de dias e ajustes de calendário.
 
 ---
 

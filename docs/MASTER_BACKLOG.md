@@ -553,11 +553,22 @@ Representar corretamente a vida financeira dos instrumentos.
 
 ### Subtarefas
 
-- [ ] Implementar Price, SAC e bullet.
-- [ ] Projetar principal, juros, tarifas e saldo.
-- [ ] Suportar taxa fixa e variável.
-- [ ] Calcular taxa efetiva de juros.
-- [ ] Suportar feriados e convenção de dias configurável.
+- [x] Implementar Price, SAC e bullet.
+- [x] Projetar principal, juros, tarifas e saldo.
+- [x] Suportar taxa fixa e variável.
+- [x] Calcular taxa efetiva de juros.
+- [x] Suportar feriados e convenção de dias configurável.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: motor canônico `src/domain/contracts/amortization.py`, API de domínio, testes e `docs/contracts/AMORTIZED_CONTRACTS.md`.
+- Métodos: Price, SAC e bullet reconciliam principal e zeram saldo, com resíduo de arredondamento absorvido no último período.
+- Fluxos: cada período separa principal, juros, tarifa e pagamento total, preservando saldos e datas de competência/vencimento.
+- Taxas: contratos fixos bloqueiam resets; contratos variáveis exigem curva e recalculam a prestação Price a cada taxa vigente.
+- EIR: taxa efetiva resolve o valor contábil inicial líquido de tarifa upfront contra fluxos futuros, incluindo tarifas periódicas.
+- Calendário: ACT/365, ACT/360, 30/360 e convenções unadjusted/following/modified following/preceding com feriados explícitos.
+- Evidência: 8 testes aprovados; limitações de carência, prepagamento, modificação, taxas negativas e calendários externos estão documentadas.
 
 ## Tarefa 4.2 — Produtos rotativos
 
