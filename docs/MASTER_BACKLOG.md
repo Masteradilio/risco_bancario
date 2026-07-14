@@ -1295,10 +1295,19 @@ Implementar o núcleo de cálculo período a período, descontado e reconciliáv
 
 ### Subtarefas
 
-- [ ] Definir critérios estatísticos de agrupamento.
-- [ ] Validar homogeneidade.
-- [ ] Impedir agrupamentos baseados apenas em faixas arbitrárias do score.
-- [ ] Permitir cálculo individual para exposições relevantes.
+- [x] Definir critérios estatísticos de agrupamento.
+- [x] Validar homogeneidade.
+- [x] Impedir agrupamentos baseados apenas em faixas arbitrárias do score.
+- [x] Permitir cálculo individual para exposições relevantes.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/ecl/calculation/grouping.py`, política `config/ecl_grouping/2026.07.1.json`, 7 testes e `docs/models/ECL_HOMOGENEOUS_GROUPING.md`.
+- Dimensões: produto, colateral, safra, comportamento e score apenas como complemento; mínimo de duas dimensões não-score.
+- Gates: mínimo 20 contratos, CV máximo PD/LGD/EAD 0,50/0,40/0,75 e concentração individual máxima 25%.
+- Caso válido: CV PD 0,004004, LGD 0,001664, EAD 0,005712 e concentração 0,050471.
+- Roteamento: EAD ≥ R$ 500.000 exige mensuração individual. Limites permanecem sintéticos e `not_approved`.
 
 ## Tarefa 10.6 — Reconciliação
 

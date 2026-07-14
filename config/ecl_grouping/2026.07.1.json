@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "schema_version": "1.0.0",
+    "policy_version": "2026.07.1",
+    "effective_from": "2026-07-14",
+    "evidence_status": "synthetic_demonstrative_not_approved"
+  },
+  "individual_ead_threshold": "500000.00",
+  "minimum_group_size": 20,
+  "minimum_non_score_dimensions": 2,
+  "allowed_dimensions": ["product_code", "collateral_type", "vintage_bucket", "behavioral_risk_bucket", "score_band"],
+  "maximum_coefficient_of_variation": {"pd_12m": "0.50", "lgd": "0.40", "ead": "0.75"},
+  "maximum_single_exposure_share": "0.25"
+}

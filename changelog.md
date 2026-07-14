@@ -85,6 +85,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado ECL Stage 2 lifetime com prazo comportamental, prepagamento, extensão probabilística e modos individual/coletivo governados.
 - Implementado Stage 3 por cash shortfall descontado, com recebimentos, recuperações, garantias, custos, cura, write-off, pós-baixa e juros sobre valor líquido.
 - Integrado POCI a fluxos lifetime por cenário, preservando credit-adjusted EIR, mudanças ponderadas, stress e apresentação de ganho/perda de impairment.
+- Criado agrupamento homogêneo governado para ECL coletivo, com dimensões econômicas, gates de dispersão/concentração e roteamento individual de exposições materiais.
 
 ---
 

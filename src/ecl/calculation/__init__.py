@@ -1,5 +1,17 @@
 """Typed ECL calculation result contracts."""
 
+from .grouping import (
+    ECLGroupingPolicy,
+    ECLMeasurementRoute,
+    GroupingMember,
+    HomogeneityMetric,
+    HomogeneityReport,
+    HomogeneousGroupDefinition,
+    build_homogeneous_group_id,
+    load_ecl_grouping_policy,
+    route_ecl_measurement,
+    validate_homogeneous_group,
+)
 from .models import ECLResult, ScenarioECL
 from .poci import (
     POCICashFlow,
@@ -45,6 +57,12 @@ from .stage2 import (
 
 __all__ = [
     "ECLResult",
+    "ECLGroupingPolicy",
+    "ECLMeasurementRoute",
+    "GroupingMember",
+    "HomogeneityMetric",
+    "HomogeneityReport",
+    "HomogeneousGroupDefinition",
     "BaselineRiskPeriod",
     "POCICashFlow",
     "POCIClassification",
@@ -71,10 +89,14 @@ __all__ = [
     "calculate_probability_weighted_scenario_ecl",
     "calculate_stage1_ecl",
     "calculate_stage2_ecl",
+    "build_homogeneous_group_id",
     "classify_poci",
     "credit_adjusted_eir",
     "measure_poci_change",
     "measure_poci_scenarios",
     "load_scenario_sensitivity_policy",
+    "load_ecl_grouping_policy",
     "run_scenario_sensitivities",
+    "route_ecl_measurement",
+    "validate_homogeneous_group",
 ]
