@@ -112,6 +112,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Publicada API canônica `/api/v1/ecl` para cálculo individual, lote assíncrono persistido, decomposição por período/cenário e consulta de evidência, com schemas estritos e integração ao motor e à linhagem versionados.
 
 - Protegida a API canônica com bcrypt, JWT e sessões revogáveis, RBAC sem permissões implícitas, confirmação de uso único para carteira, rate limit e threat model alinhado aos controles realmente implementados.
+
+- Adicionada trilha de auditoria append-only encadeada por hash, com minimização de payload, eventos positivos/negativos da API e contratos para overrides, overlays, exportações e validações.
 - Publicados os Model Cards de PD, LGD, EAD/CCF e criado o Limitation Register detalhando as restrições e limitações de dados sintéticos observadas na validação.
 
 ---

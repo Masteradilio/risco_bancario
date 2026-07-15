@@ -25,6 +25,7 @@ O OpenAPI fica em `http://127.0.0.1:8000/docs`. Para PostgreSQL, selecione `DATA
 | `POST` | `/api/v1/auth/token` | valida credenciais e emite JWT curto com sessão persistida |
 | `POST` | `/api/v1/auth/logout` | revoga a sessão do token atual |
 | `POST` | `/api/v1/security/confirmations` | cria confirmação de uso único vinculada a ação e hash do payload |
+| `GET` | `/api/v1/audit/events` | AUDITOR/ADMIN consultam eventos encadeados; a leitura também é auditada |
 | `POST` | `/api/v1/ecl/individual` | valida e calcula uma curva, persiste execução/resultados e retorna decomposição por cenário e período |
 | `POST` | `/api/v1/ecl/portfolio` | aceita até 10.000 cálculos e retorna `202` com um job persistido |
 | `GET` | `/api/v1/ecl/jobs/{job_id}` | retorna estado, hash do pedido, resultado ou código de erro não sensível |
@@ -45,3 +46,5 @@ ANALYST calcula individualmente; MANAGER também calcula carteira; AUDITOR lê r
 Para carteira, serialize `PortfolioRequest.model_dump(mode="json")` como JSON canônico, calcule SHA-256 e solicite uma confirmação com ação `ecl:calculate:portfolio`. Envie o identificador retornado em `X-Confirmation-Id`. A confirmação expira, pertence ao usuário e não pode ser reutilizada.
 
 O rate limit local é por login e por usuário/permissão. Ele não substitui controle distribuído no gateway quando houver múltiplos workers.
+
+Entradas e resultados de operações relevantes são registrados por hash na trilha append-only descrita em `docs/architecture/AUDIT_TRAIL.md`.

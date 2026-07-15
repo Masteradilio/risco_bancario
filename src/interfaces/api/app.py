@@ -4,11 +4,12 @@ import hashlib
 import json
 import logging
 from collections.abc import Callable
-from typing import Annotated
+from typing import Annotated, Any
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, status
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from ...audit import AuditService
 from ...infrastructure.database import DatabaseManager, DatabaseSettings, VersionedRepository
 from ...infrastructure.database.repository import canonical_json
 from ...security.auth import AuthenticationError, AuthService, Principal
@@ -43,6 +44,7 @@ def create_app(
     database.apply_migrations()
     security_configuration = security_settings or SecuritySettings.from_env()
     auth = AuthService(database, security_configuration)
+    audit = AuditService(database)
     confirmations = ConfirmationService(database, security_configuration)
     limiter = RateLimiter(
         security_configuration.rate_limit_requests,
@@ -85,6 +87,7 @@ def create_app(
     IndividualPrincipal = Annotated[Principal, Depends(require(Permission.CALCULATE_INDIVIDUAL))]
     PortfolioPrincipal = Annotated[Principal, Depends(require(Permission.CALCULATE_PORTFOLIO))]
     ResultPrincipal = Annotated[Principal, Depends(require(Permission.VIEW_RESULT))]
+    AuditPrincipal = Annotated[Principal, Depends(require(Permission.VIEW_AUDIT))]
     BearerCredentials = Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)]
 
     @application.get("/health", tags=["system"])
@@ -92,23 +95,73 @@ def create_app(
         return {"status": "ok", "api_version": "v1"}
 
     @application.post("/api/v1/auth/token", response_model=TokenResponse, tags=["security"])
-    def login(request: LoginRequest) -> TokenResponse:
+    def login(request: LoginRequest, http_request: Request) -> TokenResponse:
         try:
             limiter.check(f"login:{request.username.casefold()}")
             token = auth.issue_token(request.username, request.password)
         except RateLimitExceeded as exc:
+            audit.record(
+                actor_id="anonymous",
+                actor_role=None,
+                action="AUTH_LOGIN_RATE_LIMITED",
+                resource_type="session",
+                resource_id=hashlib.sha256(request.username.encode()).hexdigest(),
+                input_payload={"username": request.username},
+                result_payload={"error_code": "RATE_LIMITED"},
+                versions={"auth": "v1"},
+                status="DENIED",
+                client_ip=http_request.client.host if http_request.client else None,
+            )
             raise HTTPException(status_code=429, detail="rate limit exceeded") from exc
         except AuthenticationError as exc:
+            audit.record(
+                actor_id="anonymous",
+                actor_role=None,
+                action="AUTH_LOGIN",
+                resource_type="session",
+                resource_id=hashlib.sha256(request.username.encode()).hexdigest(),
+                input_payload={"username": request.username},
+                result_payload={"authenticated": False},
+                versions={"auth": "v1"},
+                status="DENIED",
+                client_ip=http_request.client.host if http_request.client else None,
+            )
             raise HTTPException(status_code=401, detail="invalid credentials") from exc
+        principal = auth.authenticate_token(token)
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="AUTH_LOGIN",
+            resource_type="session",
+            resource_id=principal.user_id,
+            input_payload={"username": request.username},
+            result_payload={"authenticated": True},
+            versions={"auth": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
         return TokenResponse(access_token=token)
 
     @application.post("/api/v1/auth/logout", status_code=204, tags=["security"])
     def logout(
         credentials: BearerCredentials,
         _principal: Annotated[Principal, Depends(current_principal)],
+        http_request: Request,
     ) -> None:
         if credentials is None:
             raise HTTPException(status_code=401, detail="authentication required")
+        audit.record(
+            actor_id=_principal.user_id,
+            actor_role=_principal.role.value,
+            action="AUTH_LOGOUT",
+            resource_type="session",
+            resource_id=_principal.user_id,
+            input_payload={},
+            result_payload={"revoked": True},
+            versions={"auth": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
         auth.revoke(credentials.credentials)
 
     @application.post(
@@ -119,9 +172,22 @@ def create_app(
     def create_confirmation(
         request: ConfirmationRequest,
         principal: PortfolioPrincipal,
+        http_request: Request,
     ) -> ConfirmationResponse:
         confirmation_id = confirmations.issue(
             principal.user_id, request.action, request.payload_hash
+        )
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="CRITICAL_CONFIRMATION_CREATED",
+            resource_type="confirmation",
+            resource_id=confirmation_id,
+            input_payload=request.model_dump(mode="json"),
+            result_payload={"issued": True},
+            versions={"security": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
         )
         return ConfirmationResponse(
             confirmation_id=confirmation_id,
@@ -136,20 +202,81 @@ def create_app(
     def calculate_individual(
         request: ECLCalculationRequest,
         _principal: IndividualPrincipal,
+        http_request: Request,
     ) -> ECLCalculationResponse:
         try:
-            return service.calculate(request)
+            result = service.calculate(request)
         except ValueError as exc:
+            audit.record(
+                actor_id=_principal.user_id,
+                actor_role=_principal.role.value,
+                action="ECL_CALCULATE_INDIVIDUAL",
+                resource_type="contract",
+                resource_id=request.contract_id,
+                input_payload=request.model_dump(mode="json"),
+                result_payload={"error_code": "INPUT_INVALID"},
+                versions={
+                    "models": request.model_versions,
+                    "scenario": request.scenario_version,
+                    "configuration": request.configuration_version,
+                    "code": request.code_commit,
+                },
+                status="FAILED",
+                client_ip=http_request.client.host if http_request.client else None,
+            )
             raise HTTPException(status_code=422, detail=str(exc)) from exc
+        audit.record(
+            actor_id=_principal.user_id,
+            actor_role=_principal.role.value,
+            action="ECL_CALCULATE_INDIVIDUAL",
+            resource_type="contract",
+            resource_id=request.contract_id,
+            execution_id=result.execution_id,
+            input_payload=request.model_dump(mode="json"),
+            result_payload=result.model_dump(mode="json"),
+            versions={
+                "models": request.model_versions,
+                "scenario": request.scenario_version,
+                "configuration": request.configuration_version,
+                "code": request.code_commit,
+            },
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
+        return result
 
-    def process_portfolio(job_id: str, requests: list[ECLCalculationRequest]) -> None:
+    def process_portfolio(
+        job_id: str, requests: list[ECLCalculationRequest], actor_id: str, actor_role: str
+    ) -> None:
         jobs.running(job_id)
         try:
             results = [service.calculate(request).model_dump(mode="json") for request in requests]
             jobs.succeeded(job_id, results)
+            audit.record(
+                actor_id=actor_id,
+                actor_role=actor_role,
+                action="ECL_PORTFOLIO_COMPLETED",
+                resource_type="job",
+                resource_id=job_id,
+                input_payload={"contracts": len(requests)},
+                result_payload={"results": results},
+                versions={"api": "v1"},
+                status="SUCCEEDED",
+            )
         except Exception:
             logger.exception("Portfolio job failed", extra={"job_id": job_id})
             jobs.failed(job_id, "CALCULATION_FAILED")
+            audit.record(
+                actor_id=actor_id,
+                actor_role=actor_role,
+                action="ECL_PORTFOLIO_COMPLETED",
+                resource_type="job",
+                resource_id=job_id,
+                input_payload={"contracts": len(requests)},
+                result_payload={"error_code": "CALCULATION_FAILED"},
+                versions={"api": "v1"},
+                status="FAILED",
+            )
 
     @application.post(
         "/api/v1/ecl/portfolio",
@@ -162,6 +289,7 @@ def create_app(
         background_tasks: BackgroundTasks,
         confirmation_id: Annotated[str, Header(alias="X-Confirmation-Id")],
         principal: PortfolioPrincipal,
+        http_request: Request,
     ) -> JobAcceptedResponse:
         request_json = canonical_json(request.model_dump(mode="json"))
         request_hash = hashlib.sha256(request_json.encode()).hexdigest()
@@ -173,9 +301,51 @@ def create_app(
                 request_hash,
             )
         except ConfirmationError as exc:
+            audit.record(
+                actor_id=principal.user_id,
+                actor_role=principal.role.value,
+                action="CRITICAL_CONFIRMATION_CONSUMED",
+                resource_type="confirmation",
+                resource_id=confirmation_id,
+                input_payload={"action": "ecl:calculate:portfolio", "payload_hash": request_hash},
+                result_payload={"accepted": False},
+                versions={"security": "v1"},
+                status="DENIED",
+                client_ip=http_request.client.host if http_request.client else None,
+            )
             raise HTTPException(status_code=409, detail="critical confirmation invalid") from exc
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="CRITICAL_CONFIRMATION_CONSUMED",
+            resource_type="confirmation",
+            resource_id=confirmation_id,
+            input_payload={"action": "ecl:calculate:portfolio", "payload_hash": request_hash},
+            result_payload={"accepted": True},
+            versions={"security": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
         job_id = jobs.create(request_json)
-        background_tasks.add_task(process_portfolio, job_id, request.calculations)
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="ECL_PORTFOLIO_SUBMITTED",
+            resource_type="job",
+            resource_id=job_id,
+            input_payload=request.model_dump(mode="json"),
+            result_payload={"status": "PENDING"},
+            versions={"api": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
+        background_tasks.add_task(
+            process_portfolio,
+            job_id,
+            request.calculations,
+            principal.user_id,
+            principal.role.value,
+        )
         return JobAcceptedResponse(
             job_id=job_id,
             status="PENDING",
@@ -203,6 +373,7 @@ def create_app(
     def execution_evidence(
         execution_id: str,
         _principal: ResultPrincipal,
+        http_request: Request,
     ) -> dict[str, object]:
         execution = database.fetch_one(
             "SELECT execution_id, execution_key, revision, previous_execution_id, "
@@ -220,6 +391,39 @@ def create_app(
         )
         execution["lineage"] = json.loads(execution.pop("lineage_json"))
         execution["results"] = results
+        audit.record(
+            actor_id=_principal.user_id,
+            actor_role=_principal.role.value,
+            action="ECL_EVIDENCE_READ",
+            resource_type="execution",
+            resource_id=execution_id,
+            execution_id=execution_id,
+            input_payload={"execution_id": execution_id},
+            result_payload={"result_count": len(results)},
+            versions={"api": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
         return execution
+
+    @application.get("/api/v1/audit/events", tags=["audit"])
+    def audit_events(
+        principal: AuditPrincipal,
+        http_request: Request,
+        limit: Annotated[int, Query(ge=1, le=1000)] = 100,
+    ) -> list[dict[str, Any]]:
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="AUDIT_EVENTS_READ",
+            resource_type="audit_log",
+            resource_id="global",
+            input_payload={"limit": limit},
+            result_payload={"authorized": True},
+            versions={"audit": "v1"},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
+        return audit.list_events(limit=limit)
 
     return application

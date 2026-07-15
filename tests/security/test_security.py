@@ -144,3 +144,36 @@ def test_api_enforces_role_and_login_rate_limit(tmp_path: Path) -> None:
     assert first.status_code == 200
     assert second.status_code == 429
     assert forbidden.status_code == 403
+
+
+def test_only_auditor_can_read_hash_chained_api_events(tmp_path: Path) -> None:
+    app = create_app(
+        DatabaseSettings(sqlite_path=tmp_path / "api-audit.sqlite3"),
+        SecuritySettings(jwt_secret=SECRET),
+    )
+    app.state.auth_service.create_user("auditor", "Strong!Pass123", Role.AUDITOR)
+    app.state.auth_service.create_user("manager", "Strong!Pass123", Role.MANAGER)
+    with TestClient(app) as api:
+        auditor_token = api.post(
+            "/api/v1/auth/token",
+            json={"username": "auditor", "password": "Strong!Pass123"},
+        ).json()["access_token"]
+        manager_token = api.post(
+            "/api/v1/auth/token",
+            json={"username": "manager", "password": "Strong!Pass123"},
+        ).json()["access_token"]
+        auditor_response = api.get(
+            "/api/v1/audit/events",
+            headers={"Authorization": f"Bearer {auditor_token}"},
+        )
+        manager_response = api.get(
+            "/api/v1/audit/events",
+            headers={"Authorization": f"Bearer {manager_token}"},
+        )
+
+    assert auditor_response.status_code == 200
+    assert {event["action"] for event in auditor_response.json()} >= {
+        "AUTH_LOGIN",
+        "AUDIT_EVENTS_READ",
+    }
+    assert manager_response.status_code == 403

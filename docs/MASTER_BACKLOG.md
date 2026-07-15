@@ -1816,10 +1816,22 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Logar usuário, ação, entrada, versão e resultado.
-- [ ] Criar trilha imutável para execução ECL.
-- [ ] Registrar overrides e overlays.
-- [ ] Registrar exportações e validações.
+- [x] Logar usuário, ação, entrada, versão e resultado.
+- [x] Criar trilha imutável para execução ECL.
+- [x] Registrar overrides e overlays.
+- [x] Registrar exportações e validações.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: `src/audit`, migration `0004_audit_events.sql`, integração com a API v1 e rota protegida `/api/v1/audit/events`.
+- Minimização: entradas e resultados são preservados por SHA-256; ator, papel, ação, recurso, execução, estado, versões, IP e timestamp compõem o documento canônico sem copiar payload sensível.
+- Imutabilidade: triggers bloqueiam atualização/exclusão e cada evento encadeia o hash anterior; o verificador detecta adulteração mesmo após bypass privilegiado do trigger.
+- Cobertura operacional: login/logout, rate limit, confirmação crítica, cálculo individual, carteira, leitura de evidência e leitura de auditoria são integrados; falhas relevantes também geram evento.
+- Contratos adicionais: overrides, overlays, exportações e validações possuem métodos tipados, justificativa obrigatória quando aplicável e testes dedicados.
+- Segregação: somente AUDITOR e ADMIN possuem `audit:read`; consultar a trilha também é auditado.
+- Documentação: `docs/architecture/AUDIT_TRAIL.md` registra contrato, minimização, cadeia, eventos e limites multiwriter/WORM.
+- Evidência: 30 testes focados aprovados com 93,18% de cobertura nos pacotes auditados; Black, Ruff e MyPy aprovados; regressão canônica com 518 testes aprovados e 91,16% de cobertura; regressão legada com 109 aprovados e 16 ignorados.
 
 ## Tarefa 14.5 — Frontend
 
