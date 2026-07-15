@@ -108,6 +108,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementadas rotinas de monitoramento operacional e estatístico, incluindo cálculo de PSI para drift, alertas de calibração, estabilidade de staging, schema drift e desvio macroeconômico de cenários.
 
 - Criada persistência versionada com migrations SQLite/PostgreSQL checksummed, separação lógica de dados operacionais, registry de modelos, cálculos e auditoria, hashes de linhagem, idempotência, reprocessamento revisionado e preservação exata de valores `Decimal`.
+
+- Publicada API canônica `/api/v1/ecl` para cálculo individual, lote assíncrono persistido, decomposição por período/cenário e consulta de evidência, com schemas estritos e integração ao motor e à linhagem versionados.
 - Publicados os Model Cards de PD, LGD, EAD/CCF e criado o Limitation Register detalhando as restrições e limitações de dados sintéticos observadas na validação.
 
 ---

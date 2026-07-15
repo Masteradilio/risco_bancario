@@ -1772,12 +1772,24 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Versionar endpoints.
-- [ ] Criar endpoints para cálculo individual e carteira.
-- [ ] Criar jobs assíncronos para lote.
-- [ ] Validar schemas de entrada.
-- [ ] Expor decomposição por período/cenário.
-- [ ] Expor relatórios e evidências.
+- [x] Versionar endpoints.
+- [x] Criar endpoints para cálculo individual e carteira.
+- [x] Criar jobs assíncronos para lote.
+- [x] Validar schemas de entrada.
+- [x] Expor decomposição por período/cenário.
+- [x] Expor relatórios e evidências.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: application factory e contratos estritos em `src/interfaces/api`, endpoints `/api/v1/ecl/*` e migration `0002_api_jobs.sql`.
+- Integração: a API usa o motor canônico de cenário e a persistência versionada; o rascunho Antigravity baseado no pipeline legado, `float` e hashes fictícios não foi promovido.
+- Lote: pedidos de até 10.000 contratos retornam `202`; estado, hash, resultado e código de falha ficam persistidos. O executor em processo é uma limitação explícita da versão demonstrativa.
+- Rastreabilidade: respostas expõem cenário/período e a rota de evidência retorna linhagem, revisão e hashes persistidos.
+- Schemas: campos extras, taxas, dinheiro, horizontes, SHA-256, commit e cobertura dos cenários são validados sem defaults silenciosos.
+- Limite: v1 expõe curvas Stage 1/Stage 2 já validadas; Stage 3/POCI HTTP, autenticação, rate limit e fila distribuída permanecem tarefas posteriores.
+- Documentação: `docs/api/ECL_API_V1.md` contém quickstart, endpoints, contratos e limites.
+- Evidência: testes de API e persistência cobrem OpenAPI, cálculo, decomposição, idempotência, evidência, lote, jobs, validação e respostas 404.
 
 ## Tarefa 14.3 — Segurança e segregação
 

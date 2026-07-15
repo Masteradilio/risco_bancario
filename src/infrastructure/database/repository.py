@@ -193,6 +193,10 @@ class VersionedRepository:
         serialized = canonical_json(payload)
         digest = payload_hash(serialized)
         event_id = hashlib.sha256(f"{execution_id}:{event_type}:{digest}".encode()).hexdigest()
+        if self.database.fetch_one(
+            "SELECT event_id FROM audit_lineage_events WHERE event_id = ?", (event_id,)
+        ):
+            return event_id
         self.database.execute(
             "INSERT INTO audit_lineage_events "
             "(event_id, execution_id, event_type, payload_json, payload_hash, occurred_at) "
