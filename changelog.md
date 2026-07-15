@@ -7,10 +7,16 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
-## [2.0.0] - 2026-07-15
+## [2.0.1] - 2026-07-15
 
 ### Revisão final e release readiness
 
+- Corrigida a execução do plano de entrega para preservar o root do repositório
+  no `sys.path`; a release candidata `v2.0.0` falhou antes de publicar artefatos
+  e foi sucedida, sem mover a tag imutável, por `v2.0.1`.
+- Classificados por fingerprint quatro achados históricos do Gitleaks como
+  credenciais exclusivamente sintéticas de testes/documentação, mantendo a
+  varredura estrita para qualquer valor novo.
 - Publicado scorecard 10/10 de completude técnica em dez dimensões, separado de
   aprovação de modelos, certificação regulatória e homologação institucional.
 - Preservadas as rejeições de PD/SICR/LGD/EAD e do backtesting ECL, além do

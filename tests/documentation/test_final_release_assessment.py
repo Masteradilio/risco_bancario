@@ -23,7 +23,7 @@ def test_final_scorecard_covers_every_dimension_with_real_evidence() -> None:
     dimensions = scorecard["dimensions"]
 
     assert scorecard["technical_score"] == "10/10"
-    assert scorecard["release_version"] == "2.0.0"
+    assert scorecard["release_version"] == "2.0.1"
     assert scorecard["scope"] == "synthetic_engineering_completeness_not_institutional_approval"
     assert {item["id"] for item in dimensions} == {
         "architecture",
@@ -47,8 +47,8 @@ def test_release_version_is_consistent_across_package_and_changelog() -> None:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
     changelog = (ROOT / "changelog.md").read_text(encoding="utf-8")
 
-    assert project["version"] == "2.0.0"
-    assert "## [2.0.0] - 2026-07-15" in changelog
+    assert project["version"] == "2.0.1"
+    assert "## [2.0.1] - 2026-07-15" in changelog
 
 
 def test_scorecard_preserves_model_and_regulatory_blockers() -> None:

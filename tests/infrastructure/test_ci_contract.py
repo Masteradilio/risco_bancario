@@ -28,6 +28,7 @@ def test_delivery_is_immutable_environment_scoped_and_supports_release_notes() -
     assert "environment: ${{ needs.plan.outputs.environment }}" in workflow
     assert "packages: write" in workflow
     assert "--generate-notes" in workflow
+    assert "python -m scripts.deploy plan" in workflow
     assert "push: true" in workflow
     assert ":latest" not in workflow
 

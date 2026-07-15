@@ -2315,13 +2315,19 @@ Após Fases 14 a 16:
 - [x] observabilidade.
 - [x] README e quickstart.
 - [x] relatório final de limitações.
-- [x] release versionada (`v2.0.0`).
+- [x] release versionada (`v2.0.1`).
 
 ### Fechamento da modernização
 
 - Data: 15 de julho de 2026.
-- Release: `v2.0.0`, sucessora da release histórica `v1.0.0` e correspondente à
+- Release: `v2.0.1`, sucessora da release histórica `v1.0.0` e correspondente à
   reconstrução canônica descrita neste backlog.
+- A candidata `v2.0.0` foi mantida imutável após a entrega revelar uma invocação
+  sem o root do repositório no `sys.path`; `v2.0.1` contém a correção coberta por
+  contrato automatizado.
+- O scan agregado da primeira integração na `main` identificou quatro strings
+  históricas exclusivamente sintéticas em testes/documentação; os fingerprints
+  exatos foram classificados em `.gitleaksignore`, sem regra ampla de exclusão.
 - Gates locais finais: Black, Ruff, Ruff SAST e MyPy aprovados; 580 testes
   canônicos aprovados com 91,25% de cobertura; 118 testes legados aprovados, 7
   ignorados por dependência opcional; build React aprovado.

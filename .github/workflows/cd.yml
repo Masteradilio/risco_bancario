@@ -45,7 +45,7 @@ jobs:
           image_tag="${REQUESTED_TAG:-$GITHUB_REF_NAME}"
           echo "environment=$environment" >> "$GITHUB_OUTPUT"
           echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
-          python scripts/deploy.py plan --environment "$environment" --image-tag "$image_tag" --commit "$GITHUB_SHA" --output deployment-plan.json
+          python -m scripts.deploy plan --environment "$environment" --image-tag "$image_tag" --commit "$GITHUB_SHA" --output deployment-plan.json
       - name: Store auditable delivery plan
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

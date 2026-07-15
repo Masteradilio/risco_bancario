@@ -2,7 +2,9 @@
 
 ## Resultado
 
-Esta avaliação acompanha a release de modernização `v2.0.0`.
+Esta avaliação acompanha a release de modernização `v2.0.1`. A candidata
+`v2.0.0` foi preservada como tag imutável, mas sua entrega falhou antes da
+publicação por uma invocação de script sem o root do repositório no `sys.path`.
 
 O backlog atingiu **10/10 de completude técnica** nas dez dimensões revisadas
 para o escopo de demonstração sintética. A nota mede se os critérios do estado-alvo
