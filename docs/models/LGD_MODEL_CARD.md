@@ -60,6 +60,10 @@ na validação, com 5 casos cada.
 O status é `not_approved` por erro, amostra, ausência de cobertura de produtos e
 ausência de OOT independente após seleção.
 
+O backtest tecnicamente independente da Fase 13 preserva a rejeição e acrescenta a
+visão monetária: recuperação prevista de 164.759,9973 contra 236.223,9888 realizada.
+Sete workouts abertos permanecem separados e não recebem LGD final.
+
 ## Uso pretendido e usos proibidos
 
 Uso permitido: regressão automatizada, demonstração metodológica e desenho de futura
@@ -74,7 +78,8 @@ conformidade/aprovação.
 - produtos ausentes na validação e segmentos mínimos;
 - valores em 100% e curas difíceis de separar com a amostra atual;
 - parâmetros de garantia e macro são demonstrativos;
-- nenhum dado real, validação independente, fairness ou governança institucional;
+- nenhum dado real, fairness ou governança institucional; a independência disponível é
+  apenas técnica e simulada;
 - sensibilidade downturn sem evidência de relação monotônica na amostra.
 
 ## Monitoramento e promoção futura
@@ -92,4 +97,5 @@ comparação de challengers, aprovação humana e artefato de modelo versionado.
   `config/lgd_validation`;
 - testes: `tests/models/test_lgd_*.py`;
 - relatórios: `LGD_WORKOUT_DATASET.md`, `LGD_REALIZED.md`, `LGD_MODELING.md`,
-  `LGD_COLLATERAL.md` e `LGD_VALIDATION_REPORT.md`.
+  `LGD_COLLATERAL.md`, `LGD_VALIDATION_REPORT.md` e
+  `../validation/LGD_BACKTESTING.md`.

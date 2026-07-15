@@ -1,0 +1,8 @@
+{
+  "version": "2026.07.1",
+  "minimum_closed_observations": 100,
+  "minimum_segment_observations": 30,
+  "maximum_mae": 0.15,
+  "maximum_rmse": 0.20,
+  "required_dimensions": ["cohort", "outcome", "collateral"]
+}

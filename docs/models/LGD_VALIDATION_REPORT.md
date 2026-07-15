@@ -101,3 +101,8 @@ Status: `not_approved`. Blockers:
 Não existe champion LGD aprovado. O Ridge permanece somente candidato provisório
 para regressão técnica até haver dados governados, workouts maduros, novo OOT
 congelado e aprovação humana independente.
+
+O backtest separado da Fase 13 confirma essa decisão e adiciona recuperação monetária,
+coortes abertas, cura, write-off e garantia. Consulte
+`docs/validation/LGD_BACKTESTING.md`; esse novo cálculo é tecnicamente independente,
+mas não transforma o holdout reutilizado em OOT intocado nem aprovação institucional.

@@ -1635,9 +1635,24 @@ Criar evidências de que modelos e cálculos funcionam, permanecem estáveis e p
 
 ### Subtarefas
 
-- [ ] recuperações previstas versus realizadas.
-- [ ] coortes fechadas e abertas.
-- [ ] cura, write-off e garantias.
+- [x] recuperações previstas versus realizadas.
+- [x] coortes fechadas e abertas.
+- [x] cura, write-off e garantias.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: política e cálculo independente em `src/validation/backtesting/lgd.py`,
+  gerador, `docs/validation/LGD_BACKTESTING.md` e evidence pack JSON/Markdown.
+- Fechados: 10 workouts de 2022–2023, com LGD prevista/realizada, recuperação monetária,
+  MAE/RMSE e cortes por coorte, cura/write-off e garantia.
+- Abertos: 7 workouts censurados em quatro coortes de 2024–2025; EAD, recuperações até a
+  data, cura, write-off e garantia são inventariados sem LGD final imputada.
+- Decisão: `rejected`; amostra 10 versus mínimo 100, MAE 35,8173% e RMSE 45,2035%,
+  contra limites de 15% e 20%.
+- Limite: o holdout já participou da seleção, as previsões dos abertos não foram
+  preservadas e toda a evidência é sintética.
+- Evidência de teste: 14 testes direcionados aprovados e artefato golden versionado.
 
 ## Tarefa 13.4 — Backtesting de EAD
 
