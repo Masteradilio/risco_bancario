@@ -2100,9 +2100,22 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 ### Subtarefas
 
-- [ ] Publicar inputs, fórmulas e outputs esperados.
-- [ ] Incluir planilhas ou notebooks de verificação independente.
-- [ ] Automatizar comparação no CI.
+- [x] Publicar inputs, fórmulas e outputs esperados.
+- [x] Incluir planilha de verificação independente.
+- [x] Automatizar comparação no CI.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Publicados oito casos em `docs/golden_cases/golden_cases.json`, preservando a
+  fixture canônica `tests/fixtures/golden/ecl_cases.csv` como baseline do motor.
+- Criada `docs/golden_cases/ecl_golden_cases.xlsx` com inputs editáveis, fórmulas
+  visíveis, schedule independente de modificação e checks reconciliados.
+- Adicionado comparador `Decimal` independente em
+  `src/validation/golden_cases.py`, sem importar o motor ECL, e regressão CI em
+  `tests/validation/test_golden_case_package.py`.
+- Resultado focado: 10 testes aprovados (oito do motor e dois do pacote),
+  tolerância monetária zero e todos os checks da planilha em `OK`.
 
 ## Tarefa 16.3 — Pacote regulatório
 

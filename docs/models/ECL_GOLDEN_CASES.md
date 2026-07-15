@@ -6,6 +6,12 @@
 `tests/models/test_ecl_golden_cases.py` reconstrói cada caso usando as APIs canônicas e
 exige igualdade exata, sem tolerância monetária.
 
+O pacote publicável em `docs/golden_cases/` acrescenta o contrato JSON com todos
+os inputs e fórmulas, uma calculadora `Decimal` independente do motor de produção
+e a planilha `ecl_golden_cases.xlsx`. O teste
+`tests/validation/test_golden_case_package.py` exige que as três representações
+reconciliem no CI.
+
 | Caso | Resultado | Base manual |
 |---|---:|---|
 | Stage 1 amortizado | R$ 9,05 | R$ 5,00 + R$ 4,05 |

@@ -20,6 +20,15 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`, preservando os quatro modelos como
   `not_approved` e distinguindo pré-validação local de validação oficial BCB.
 
+### Golden cases
+
+- Consolidado pacote publicável com oito casos ECL, inputs estruturados,
+  fórmulas independentes em `Decimal`, outputs esperados e tolerância zero.
+- Criada planilha `.xlsx` auditável com schedule de modificação, fórmulas,
+  reconciliação e checks visuais integralmente em `OK`.
+- Automatizada no gate CI a comparação entre JSON, fixture CSV, calculadora
+  independente e resultados do motor canônico.
+
 ### CI e reprodutibilidade
 
 - Criado pipeline obrigatório e multiplataforma com Black, Ruff, MyPy, testes

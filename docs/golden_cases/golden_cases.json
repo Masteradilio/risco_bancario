@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "scope": "synthetic_demonstration",
+  "cases": [
+    {"case_id":"stage1_amortized","formula":"stage_periods","inputs":{"hazards":["0.10","0.10"],"lgd":"0.50","eads":["100","90"],"discount_factors":["1","1"]},"expected":"9.05","tolerance":"0.00"},
+    {"case_id":"stage2_lifetime","formula":"stage_periods_with_prepayment","inputs":{"hazards":["0.10","0.10","0.10"],"lgd":"0.50","eads":["100","100","100"],"discount_factors":["1","1","1"],"prepayment_rate":"0.10"},"expected":"12.33","tolerance":"0.00"},
+    {"case_id":"stage3_cash_shortfall","formula":"cash_shortfall","inputs":{"contractual_cashflow":"100","borrower_cashflow":"60","collateral_recovery":"20","guarantee_recovery":"0","collection_costs":"5"},"expected":"25.00","tolerance":"0.00"},
+    {"case_id":"revolving_ccf","formula":"pd_lgd_ead_with_ccf","inputs":{"pd":"0.10","lgd":"0.50","drawn_ead":"100","undrawn_amount":"100","ccf":"0.50"},"expected":"7.50","tolerance":"0.00"},
+    {"case_id":"secured_contract","formula":"cash_shortfall","inputs":{"contractual_cashflow":"100","borrower_cashflow":"20","collateral_recovery":"0","guarantee_recovery":"50","collection_costs":"0"},"expected":"30.00","tolerance":"0.00"},
+    {"case_id":"poci","formula":"weighted_scenarios","inputs":{"scenario_ecls":["10","20","30","40"],"weights":["0.15","0.70","0.15","0"]},"expected":"20.00","tolerance":"0.00"},
+    {"case_id":"modification","formula":"modified_amortization","inputs":{"original_principal":"12000","original_periods":12,"elapsed_periods":3,"original_rate":"0.12","revised_periods":15,"revised_rate":"0.08","discount_eir":"0.12653090","hazard":"0.01","lgd":"0.40"},"expected":"268.15","tolerance":"0.00"},
+    {"case_id":"multi_scenario","formula":"weighted_scenarios","inputs":{"scenario_ecls":["20.21","20.97","22.89","0"],"weights":["0.15","0.70","0.15","0"]},"expected":"21.14","tolerance":"0.00"}
+  ]
+}

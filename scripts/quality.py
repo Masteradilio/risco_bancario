@@ -69,6 +69,7 @@ MYPY_TARGETS = (
     "src/validation/backtesting",
     "src/validation/model_risk",
     "src/validation/reconciliation",
+    "src/validation/golden_cases.py",
     "scripts/bootstrap_api_user.py",
     "scripts/generate_pd_backtest_report.py",
     "scripts/generate_lgd_backtest_report.py",
