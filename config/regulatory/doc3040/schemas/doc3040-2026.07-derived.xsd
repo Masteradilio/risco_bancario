@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Project-derived structural schema. It is not an official BCB XSD. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:simpleType name="Money"><xs:restriction base="xs:decimal"><xs:fractionDigits value="2"/></xs:restriction></xs:simpleType>
+  <xs:simpleType name="Rate"><xs:restriction base="xs:decimal"><xs:fractionDigits value="7"/></xs:restriction></xs:simpleType>
+  <xs:simpleType name="Month"><xs:restriction base="xs:string"><xs:pattern value="[0-9]{4}-[0-9]{2}"/></xs:restriction></xs:simpleType>
+  <xs:simpleType name="CnpjRoot"><xs:restriction base="xs:string"><xs:pattern value="[0-9]{8}"/></xs:restriction></xs:simpleType>
+  <xs:simpleType name="PostalCode"><xs:restriction base="xs:string"><xs:pattern value="[0-9]{8}"/></xs:restriction></xs:simpleType>
+
+  <xs:element name="Doc3040">
+    <xs:complexType>
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="Cli"/>
+        <xs:element ref="Agreg"/>
+        <xs:element ref="ConIpocs"/>
+      </xs:choice>
+      <xs:attribute name="DtBase" type="Month" use="required"/>
+      <xs:attribute name="CNPJ" type="CnpjRoot" use="required"/>
+      <xs:attribute name="Remessa" type="xs:positiveInteger" use="required"/>
+      <xs:attribute name="Parte" type="xs:positiveInteger" use="required"/>
+      <xs:attribute name="TpArq" type="xs:string"/>
+      <xs:attribute name="NomeResp" type="xs:string" use="required"/>
+      <xs:attribute name="EmailResp" type="xs:string" use="required"/>
+      <xs:attribute name="TelResp" type="xs:string" use="required"/>
+      <xs:attribute name="TotalCli" type="xs:nonNegativeInteger" use="required"/>
+      <xs:attribute name="MetodApPE" type="xs:string"/>
+      <xs:attribute name="MetodDifTJE" type="xs:string"/>
+      <xs:attribute name="TpFundo" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Cli">
+    <xs:complexType>
+      <xs:sequence><xs:element ref="Op" minOccurs="1" maxOccurs="unbounded"/></xs:sequence>
+      <xs:attribute name="Cd" type="xs:string" use="required"/>
+      <xs:attribute name="Tp" type="xs:string" use="required"/>
+      <xs:attribute name="Autorzc" type="xs:string" use="required"/>
+      <xs:attribute name="PorteCli" type="xs:string" use="required"/>
+      <xs:attribute name="TpCtrl" type="xs:string"/>
+      <xs:attribute name="IniRelactCli" type="xs:date" use="required"/>
+      <xs:attribute name="FatAnual" type="Money" use="required"/>
+      <xs:attribute name="CongEcon" type="xs:string"/>
+      <xs:attribute name="NomeCli" type="xs:string"/>
+      <xs:attribute name="TpIdentExt" type="xs:string"/>
+      <xs:attribute name="CodExt" type="xs:string"/>
+      <xs:attribute name="IdLiderBR" type="xs:string"/>
+      <xs:attribute name="IdPais" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Op">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Venc" minOccurs="0"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+        <xs:element name="Gar" minOccurs="0" maxOccurs="unbounded"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+        <xs:element name="Inf" minOccurs="0" maxOccurs="unbounded"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+        <xs:element name="Sicor" minOccurs="0"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+        <xs:element name="ContInstFinRes4966" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Estagio" minOccurs="0" maxOccurs="unbounded"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+              <xs:element name="Perda" minOccurs="0" maxOccurs="unbounded"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element>
+            </xs:sequence>
+            <xs:anyAttribute processContents="skip"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="DetCli" type="xs:string"/>
+      <xs:attribute name="IPOC" type="xs:string" use="required"/>
+      <xs:attribute name="Contrt" type="xs:string" use="required"/>
+      <xs:attribute name="Mod" type="xs:string" use="required"/>
+      <xs:attribute name="OrigemRec" type="xs:string" use="required"/>
+      <xs:attribute name="Indx" type="xs:string" use="required"/>
+      <xs:attribute name="PercIndx" type="Rate" use="required"/>
+      <xs:attribute name="VarCamb" type="xs:string" use="required"/>
+      <xs:attribute name="CEP" type="PostalCode" use="required"/>
+      <xs:attribute name="TaxEft" type="Rate" use="required"/>
+      <xs:attribute name="DtContr" type="xs:date" use="required"/>
+      <xs:attribute name="VlrContr" type="Money"/>
+      <xs:attribute name="NatuOp" type="xs:string" use="required"/>
+      <xs:attribute name="DtVencOp" type="xs:date"/>
+      <xs:attribute name="ProvConsttd" type="Money" use="required"/>
+      <xs:attribute name="DiaAtraso" type="xs:nonNegativeInteger"/>
+      <xs:attribute name="CaracEspecial" type="xs:string"/>
+      <xs:attribute name="DtaProxParcela" type="xs:date"/>
+      <xs:attribute name="VlrProxParcela" type="Money"/>
+      <xs:attribute name="QtdParcelas" type="xs:nonNegativeInteger"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Agreg">
+    <xs:complexType>
+      <xs:sequence><xs:element name="Venc"><xs:complexType><xs:anyAttribute processContents="skip"/></xs:complexType></xs:element></xs:sequence>
+      <xs:attribute name="NatuOp" type="xs:string" use="required"/>
+      <xs:attribute name="Mod" type="xs:string" use="required"/>
+      <xs:attribute name="OrigemRec" type="xs:string" use="required"/>
+      <xs:attribute name="VincME" type="xs:string" use="required"/>
+      <xs:attribute name="FaixaVlr" type="xs:string" use="required"/>
+      <xs:attribute name="Localiz" type="xs:string" use="required"/>
+      <xs:attribute name="TpCli" type="xs:string" use="required"/>
+      <xs:attribute name="TpCtrl" type="xs:string"/>
+      <xs:attribute name="DesempOp" type="xs:string" use="required"/>
+      <xs:attribute name="CaracEspecial" type="xs:string"/>
+      <xs:attribute name="ProvConsttd" type="Money" use="required"/>
+      <xs:attribute name="QtdOp" type="xs:positiveInteger" use="required"/>
+      <xs:attribute name="QtdCli" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ConIpocs">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ipocCon" minOccurs="2" maxOccurs="unbounded">
+          <xs:complexType><xs:attribute name="ipoc" type="xs:string" use="required"/></xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

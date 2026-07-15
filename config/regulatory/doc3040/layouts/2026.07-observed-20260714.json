@@ -41,5 +41,12 @@
   },
   "xsd": null,
   "xsd_status": "official_source_page_lists_xsd_3045_not_3040",
-  "generation_enabled": false
+  "derived_xsd": {
+    "document_code": "3040",
+    "path": "config/regulatory/doc3040/schemas/doc3040-2026.07-derived.xsd",
+    "sha256": "73275951cbdfd95dbda3b2955ffc1355bc46c682720cb09dc68e75411b5ebc54",
+    "derived_from_artifact": "layout_and_domains",
+    "status": "project_derived_structural_schema_not_official_bcb_xsd"
+  },
+  "generation_enabled": true
 }

@@ -34,6 +34,15 @@ class XsdRef:
 
 
 @dataclass(frozen=True, slots=True)
+class DerivedXsdRef:
+    document_code: str
+    path: Path
+    sha256: str
+    derived_from_artifact: str
+    status: str
+
+
+@dataclass(frozen=True, slots=True)
 class DomainCatalogRef:
     artifact: str
     sheets: tuple[str, ...]
@@ -62,6 +71,7 @@ class LayoutVersion:
     critic_catalog: CriticCatalogRef
     xsd: XsdRef | None
     xsd_status: str
+    derived_xsd: DerivedXsdRef | None
     generation_enabled: bool
     manifest_path: Path
 
@@ -166,6 +176,21 @@ def load_layout_manifest(path: Path) -> LayoutVersion:
             source_url=source_url,
             sha256=_hash(_required_text(xsd_payload, "sha256"), "xsd sha256"),
         )
+    derived_payload = payload.get("derived_xsd")
+    derived_xsd = None
+    if derived_payload is not None:
+        if not isinstance(derived_payload, dict):
+            raise DomainValidationError("derived_xsd must be an object or null")
+        derived_from = _required_text(derived_payload, "derived_from_artifact")
+        if derived_from not in artifacts:
+            raise DomainValidationError("derived XSD must reference a declared source artifact")
+        derived_xsd = DerivedXsdRef(
+            document_code=_required_text(derived_payload, "document_code"),
+            path=Path(_required_text(derived_payload, "path")),
+            sha256=_hash(_required_text(derived_payload, "sha256"), "derived_xsd sha256"),
+            derived_from_artifact=derived_from,
+            status=_required_text(derived_payload, "status"),
+        )
     layout = LayoutVersion(
         document_code=_required_text(payload, "document_code"),
         version=_required_text(payload, "version"),
@@ -179,6 +204,7 @@ def load_layout_manifest(path: Path) -> LayoutVersion:
         critic_catalog=critic_ref,
         xsd=xsd,
         xsd_status=_required_text(payload, "xsd_status"),
+        derived_xsd=derived_xsd,
         generation_enabled=payload.get("generation_enabled") is True,
         manifest_path=path,
     )
@@ -190,8 +216,12 @@ def load_layout_manifest(path: Path) -> LayoutVersion:
         )
     if layout.effective_from >= layout.effective_to:
         raise DomainValidationError("layout effective_from must precede effective_to")
-    if layout.generation_enabled and layout.xsd is None:
-        raise DomainValidationError("generation cannot be enabled without a provenanced 3040 XSD")
+    if layout.derived_xsd is not None and layout.derived_xsd.document_code != "3040":
+        raise DomainValidationError("derived XSD must identify document 3040")
+    if layout.generation_enabled and layout.derived_xsd is None:
+        raise DomainValidationError(
+            "generation cannot be enabled without a versioned structural XSD"
+        )
     return layout
 
 
@@ -245,3 +275,15 @@ def load_official_xsd(layout: LayoutVersion, path: Path) -> bytes:
     artifact = ArtifactRef("xsd", xsd.filename, xsd.source_url, xsd.sha256)
     verify_artifact_file(artifact, path)
     return path.read_bytes()
+
+
+def load_derived_xsd(layout: LayoutVersion) -> bytes:
+    if layout.derived_xsd is None:
+        raise DomainValidationError(f"layout {layout.version} has no derived structural XSD")
+    reference = layout.derived_xsd
+    if not reference.path.exists():
+        raise DomainValidationError(f"derived XSD file does not exist: {reference.path}")
+    digest = hashlib.sha256(reference.path.read_bytes()).hexdigest()
+    if digest != reference.sha256:
+        raise DomainValidationError("derived XSD SHA-256 mismatch")
+    return reference.path.read_bytes()

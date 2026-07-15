@@ -19,7 +19,7 @@ O manifesto fica em
 - abas que contêm tabelas de domínio;
 - marcadores vigentes e o marcador futuro que deve ser filtrado;
 - data da última atualização observada da planilha de críticas;
-- estado explícito da proveniência XSD e bloqueio de geração.
+- estado explícito da proveniência XSD oficial e XSD estrutural derivado versionado.
 
 ## Artefatos observados em 14 de julho de 2026
 
@@ -51,14 +51,16 @@ execução pertencem à Tarefa 12.4.
 
 Na consulta registrada, a página oficial do Documento 3040 lista um XSD para o
 documento **3045**, não para o 3040. O registry não substitui nem renomeia esse arquivo.
-O campo `xsd` permanece nulo, `generation_enabled` permanece falso e
-`require_official_xsd()` retorna erro com a causa registrada.
+O campo `xsd` oficial permanece nulo e `require_official_xsd()` retorna erro com a causa
+registrada. Separadamente, `derived_xsd` aponta para o schema estrutural do projeto,
+vinculado ao hash do leiaute oficial e usado apenas na pré-validação local.
 
-O carregador de XSD está implementado para um pacote futuro: exige código de documento
+O carregador de XSD oficial está implementado para um pacote futuro: exige código de documento
 3040, URL oficial, nome e SHA-256 compatíveis. Um XSD 3045 é recusado antes da leitura.
 Assim, o requisito `DOC3040-XSD-001` está implementado como controle de proveniência,
-mas a validação XSD de um XML 3040 continua indisponível até existir um artefato 3040
-identificado e incorporado. O projeto não transforma essa ausência em falsa validação.
+mas a validação XSD **oficial** de um XML 3040 continua indisponível até existir um
+artefato 3040 identificado e incorporado. O XSD derivado não altera esse estado e não é
+apresentado como arquivo do BCB.
 
 ## Evidência
 

@@ -8,6 +8,7 @@ from src.domain.exceptions import DomainValidationError
 from src.regulatory.doc3040 import (
     XsdRef,
     layout_for_reference_month,
+    load_derived_xsd,
     load_layout_registry,
     load_official_xsd,
     verify_artifact_file,
@@ -42,7 +43,9 @@ def test_manifest_versions_domain_and_critic_artifacts_by_hash() -> None:
 
 def test_doc3040_xsd_001_fails_closed_when_official_page_has_no_3040_xsd() -> None:
     layout = load_layout_registry()[0]
-    assert not layout.generation_enabled
+    assert layout.generation_enabled
+    assert layout.derived_xsd is not None
+    assert load_derived_xsd(layout).startswith(b'<?xml version="1.0"')
     with pytest.raises(DomainValidationError, match="lists_xsd_3045_not_3040"):
         layout.require_official_xsd()
 

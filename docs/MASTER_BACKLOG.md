@@ -1517,12 +1517,25 @@ Substituir o simulador heurístico por um gerador e pré-validador versionado, s
 
 ### Subtarefas
 
-- [ ] Validar XML contra XSD.
-- [ ] Validar domínios.
-- [ ] Validar críticas semânticas.
-- [ ] Validar totalizadores.
-- [ ] Validar consistência com carteira e ECL.
-- [ ] Gerar relatório de erros por linha/campo/regra.
+- [x] Validar XML contra XSD.
+- [x] Validar domínios.
+- [x] Validar críticas semânticas.
+- [x] Validar totalizadores.
+- [x] Validar consistência com carteira e ECL.
+- [x] Gerar relatório de erros por linha/campo/regra.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/regulatory/doc3040/validation.py`, XSD estrutural derivado, allowlist
+  de domínios, API, testes e `docs/regulatory/DOC3040_PREVALIDATION.md`.
+- Camadas: XSD derivado com hash, domínios do subconjunto sintético, críticas semânticas
+  locais, totalizadores e reconciliação por IPOC com controle de carteira/ECL.
+- Relatório: regra, severidade, mensagem, linha, campo e XPath; XML/data-base/artefato
+  inválidos falham de forma fechada.
+- Limites: `official_xsd_executed=false` e `official_critics_executed=false`; warnings
+  impedem confundir pré-validação local com o validador ou homologação BCB.
+- Evidência: 7 testes de validação e 23 testes anteriores do Doc3040 aprovados.
 
 ## Tarefa 12.5 — Golden files
 

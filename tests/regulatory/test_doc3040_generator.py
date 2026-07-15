@@ -146,7 +146,7 @@ def test_supported_layout_prohibits_discontinued_cosif() -> None:
 def test_all_applicable_operation_blocks_use_only_sourced_values() -> None:
     guarantee = Guarantee(
         status=sv("01", "guarantee_status"),
-        guarantee_type=sv("0801", "guarantee_type"),
+        guarantee_type=sv("0881", "guarantee_type"),
         identification=sv("GAR-1", "guarantee_id"),
         value_type=sv("01", "guarantee_value_type"),
         percentage=None,
