@@ -1,0 +1,110 @@
+{
+  "approval_blockers": [
+    "pd",
+    "sicr",
+    "lgd",
+    "ead"
+  ],
+  "code_commit": "40109aa54402",
+  "doc3040": {
+    "candidate_sha256": "bf5048b632b83eec14b7971d1a8ac4f06864971fd5340b98f485bfb7fedbf5aa",
+    "layout_version": "2026.07-observed-20260714",
+    "official_critics_executed": false,
+    "official_xsd_executed": false,
+    "passed": true,
+    "prevalidation_status": "PREVALIDATED_DERIVED_XSD",
+    "warnings": [
+      "BCB-CRITICS-NOT-EXECUTED",
+      "OFFICIAL-XSD-NOT-AVAILABLE"
+    ]
+  },
+  "ecl": {
+    "economic_ecl": "4.00",
+    "execution_id": "1f03c5b9b04489ddea458489fc41bc04a9ed61ccae9a3c509afd7e55d38aa29d",
+    "final_ecl": "5.00",
+    "ledger_hash": "7dded00dd54b4313e8ad8ad29ab5005c10d812261c67e5460700a42ab5a3e63e",
+    "management_overlay": "1.00",
+    "reconciled": true,
+    "regulatory_floor": "0.00",
+    "stage": 1,
+    "stress_ecl": "4.00"
+  },
+  "frontend_and_audit": {
+    "auditability": "persisted_execution_and_immutable_ledger_hash",
+    "frontend_contract": "/api/v1/ecl/executions/{execution_id}",
+    "lineage_hash": "44c41122c5d3fe4812f51cc114c84220f1511bee90ac01d1836405e182227ad8"
+  },
+  "mode": "synthetic_demonstration",
+  "models": {
+    "stage_classification": {
+      "evaluation_split": "oot",
+      "false_negative_count": 6,
+      "false_positive_count": 0,
+      "method": "relative_sicr_validation_proxy",
+      "sample_count": 233
+    },
+    "training": {
+      "ccf_model": "ridge_product_utilization_horizon",
+      "lgd_selected": "ridge_one_stage",
+      "pd_candidates": [
+        "logistic_12m",
+        "discrete_time_logistic_hazard"
+      ]
+    },
+    "validation": {
+      "ead": {
+        "blockers": [
+          "ccf_validation_sample_below_minimum",
+          "segment_sample_below_minimum",
+          "ccf_temporal_coverage_below_minimum",
+          "no_limit_change_in_validation",
+          "ccf_model_not_approved",
+          "off_balance_parameters_not_estimated",
+          "validation_evidence_not_institutionally_validated"
+        ],
+        "status": "not_approved"
+      },
+      "lgd": {
+        "blockers": [
+          "validation_sample_below_minimum",
+          "mae_above_limit",
+          "rmse_above_limit",
+          "band_calibration_error_above_limit",
+          "cohort_sample_below_minimum",
+          "product_sample_below_minimum",
+          "downturn_sample_below_minimum",
+          "no_independent_oot_after_selection",
+          "validation_evidence_not_institutionally_validated"
+        ],
+        "status": "not_approved"
+      },
+      "pd": {
+        "sample": 233,
+        "status": "not_approved"
+      },
+      "sicr": {
+        "sample": 233,
+        "status": "not_approved"
+      }
+    }
+  },
+  "persistence": {
+    "backend": "sqlite",
+    "execution_status": "COMPLETED",
+    "migrations_applied": [
+      "0001",
+      "0002",
+      "0003",
+      "0004"
+    ],
+    "result_rows": 4
+  },
+  "reference_date": "2026-06-30",
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS",
+  "synthetic_factory": {
+    "files": 24,
+    "manifest_sha256": "edbda92c7eec2edbdd08a4b907a8eebf9844c2de7cd60f58cbc70b4c8548d5c4",
+    "rows": 16628
+  }
+}

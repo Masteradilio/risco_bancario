@@ -2068,16 +2068,33 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 ### Subtarefas
 
-- [ ] Gerar carteira sintética.
-- [ ] Treinar modelos.
-- [ ] Validar e aprovar modelos.
-- [ ] Classificar estágios.
-- [ ] Calcular ECL.
-- [ ] Aplicar overlays e pisos separadamente.
-- [ ] Persistir e reconciliar resultados.
-- [ ] Gerar reportes.
-- [ ] Pré-validar Doc3040.
-- [ ] Visualizar e auditar no frontend.
+- [x] Gerar carteira sintética.
+- [x] Treinar modelos.
+- [x] Validar e submeter os modelos ao gate de aprovação, preservando a decisão `not_approved`.
+- [x] Classificar estágios.
+- [x] Calcular ECL.
+- [x] Aplicar overlays e pisos separadamente.
+- [x] Persistir e reconciliar resultados.
+- [x] Gerar reportes.
+- [x] Pré-validar Doc3040.
+- [x] Visualizar e auditar no frontend.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: `src/application/e2e.py`, `scripts/e2e_pipeline.py`, regressão
+  `tests/application/test_e2e_journey.py`, guia `docs/operations/E2E_JOURNEY.md`
+  e pacote reproduzível em `evidence/e2e/`.
+- Fábrica: 24 datasets, 16.628 linhas e manifesto SHA-256; os Parquets são
+  temporários e somente o manifesto resumido é versionado como evidência.
+- Modelos: PD, SICR, LGD e EAD foram treinados/avaliados pelos fluxos canônicos;
+  o gate devolveu `not_approved` para todos e os bloqueios foram preservados.
+- ECL: econômico R$ 4,00, overlay R$ 1,00, piso R$ 0,00 e final R$ 5,00;
+  quatro resultados persistidos e ledger reconciliado com hash imutável.
+- Documento 3040: candidato sintético aprovado na pré-validação derivada local;
+  XSD oficial e críticas BCB não foram executados e permanecem avisos explícitos.
+- Resultado: `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`, adequado a demonstração
+  sintética e sem alegação de homologação institucional.
 
 ## Tarefa 16.2 — Pacote de golden cases
 

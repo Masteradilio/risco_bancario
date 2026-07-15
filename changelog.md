@@ -9,6 +9,17 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não lançado]
 
+### Jornada E2E
+
+- Substituído o pipeline legado baseado em SSO simulado, endpoints antigos e
+  tabelas inexistentes por uma jornada canônica reproduzível sobre `src`.
+- Integradas fábrica sintética, estimação e validação de PD/SICR/LGD/EAD,
+  cálculo ECL persistido, overlay, piso, reconciliação, candidato Doc3040 e
+  contrato de visualização por execução no frontend.
+- Publicado pacote em `evidence/e2e/`; a jornada conclui como
+  `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`, preservando os quatro modelos como
+  `not_approved` e distinguindo pré-validação local de validação oficial BCB.
+
 ### CI e reprodutibilidade
 
 - Criado pipeline obrigatório e multiplataforma com Black, Ruff, MyPy, testes

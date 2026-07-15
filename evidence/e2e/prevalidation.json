@@ -1,0 +1,27 @@
+{
+  "derived_xsd_passed": true,
+  "domain_set_id": "2026.07-supported-subset",
+  "issues": [
+    {
+      "field": null,
+      "line": 2,
+      "message": "official BCB critic workbook is versioned but this run executes only the local supported semantic subset",
+      "path": "/Doc3040",
+      "rule_id": "BCB-CRITICS-NOT-EXECUTED",
+      "severity": "warning"
+    },
+    {
+      "field": null,
+      "line": 2,
+      "message": "official_source_page_lists_xsd_3045_not_3040",
+      "path": "/Doc3040",
+      "rule_id": "OFFICIAL-XSD-NOT-AVAILABLE",
+      "severity": "warning"
+    }
+  ],
+  "layout_version": "2026.07-observed-20260714",
+  "official_critics_executed": false,
+  "official_xsd_executed": false,
+  "passed": true,
+  "status": "PREVALIDATED_DERIVED_XSD"
+}
