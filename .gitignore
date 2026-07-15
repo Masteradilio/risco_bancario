@@ -64,6 +64,7 @@ modelo_antigo/
 *.local
 .env
 .env.*
+!.env.example
 
 # Frontend
 frontend/node_modules/

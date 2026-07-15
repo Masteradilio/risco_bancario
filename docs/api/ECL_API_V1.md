@@ -11,7 +11,9 @@ O contrato v1 recebe curvas de risco já produzidas e validadas pelos componente
 ```powershell
 $env:DATABASE_BACKEND = "sqlite"
 $env:DATABASE_SQLITE_PATH = "var/api-demo.sqlite3"
-.\venv\Scripts\python.exe -m uvicorn src.interfaces.api.app:app --host 127.0.0.1 --port 8000
+$env:JWT_SECRET = "substitua-por-segredo-aleatorio-com-32-bytes-ou-mais"
+.\venv\Scripts\python.exe scripts\bootstrap_api_user.py manager MANAGER
+.\venv\Scripts\python.exe -m uvicorn --factory src.interfaces.api.app:create_app --host 127.0.0.1 --port 8000
 ```
 
 O OpenAPI fica em `http://127.0.0.1:8000/docs`. Para PostgreSQL, selecione `DATABASE_BACKEND=postgresql` e forneça `DATABASE_URL`; falhas nunca produzem fallback silencioso.
@@ -20,6 +22,9 @@ O OpenAPI fica em `http://127.0.0.1:8000/docs`. Para PostgreSQL, selecione `DATA
 
 | Método | Rota | Contrato |
 |---|---|---|
+| `POST` | `/api/v1/auth/token` | valida credenciais e emite JWT curto com sessão persistida |
+| `POST` | `/api/v1/auth/logout` | revoga a sessão do token atual |
+| `POST` | `/api/v1/security/confirmations` | cria confirmação de uso único vinculada a ação e hash do payload |
 | `POST` | `/api/v1/ecl/individual` | valida e calcula uma curva, persiste execução/resultados e retorna decomposição por cenário e período |
 | `POST` | `/api/v1/ecl/portfolio` | aceita até 10.000 cálculos e retorna `202` com um job persistido |
 | `GET` | `/api/v1/ecl/jobs/{job_id}` | retorna estado, hash do pedido, resultado ou código de erro não sensível |
@@ -31,4 +36,12 @@ Campos desconhecidos são rejeitados. Taxas ficam entre zero e um, dinheiro usa 
 
 O job muda de `PENDING` para `RUNNING` e termina em `SUCCEEDED` ou `FAILED`. Nesta entrega o executor usa `BackgroundTasks` no mesmo processo, adequado à demonstração local. Reinício, retry distribuído, fila externa, concorrência multiworker e cancelamento serão tratados na infraestrutura de ambientes; o estado e o resultado já ficam persistidos.
 
-Erros de lote são registrados como código estável `CALCULATION_FAILED`; detalhes técnicos permanecem nos logs e não são devolvidos ao cliente. A Tarefa 14.3 adicionará autenticação/RBAC e rate limit antes de qualquer exposição além do ambiente local controlado.
+Erros de lote são registrados como código estável `CALCULATION_FAILED`; detalhes técnicos permanecem nos logs e não são devolvidos ao cliente.
+
+## Segurança e confirmação crítica
+
+ANALYST calcula individualmente; MANAGER também calcula carteira; AUDITOR lê resultados; ADMIN não recebe acesso quantitativo implícito. Aprovação, exportação, auditoria e gestão de usuários são permissões independentes. O contrato completo está em `docs/security/THREAT_MODEL.md`.
+
+Para carteira, serialize `PortfolioRequest.model_dump(mode="json")` como JSON canônico, calcule SHA-256 e solicite uma confirmação com ação `ecl:calculate:portfolio`. Envie o identificador retornado em `X-Confirmation-Id`. A confirmação expira, pertence ao usuário e não pode ser reutilizada.
+
+O rate limit local é por login e por usuário/permissão. Ele não substitui controle distribuído no gateway quando houver múltiplos workers.

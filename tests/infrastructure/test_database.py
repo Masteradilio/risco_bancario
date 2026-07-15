@@ -24,7 +24,7 @@ def database(tmp_path: Path) -> DatabaseManager:
     manager = DatabaseManager(
         DatabaseSettings(backend="sqlite", sqlite_path=tmp_path / "risk.sqlite3")
     )
-    assert manager.apply_migrations() == ("0001", "0002")
+    assert manager.apply_migrations() == ("0001", "0002", "0003")
     return manager
 
 

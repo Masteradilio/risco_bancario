@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 from typing import Any
 
 from fastapi.testclient import TestClient
 
 from src.infrastructure.database import DatabaseSettings
+from src.infrastructure.database.repository import canonical_json
 from src.interfaces.api.app import create_app
+from src.interfaces.api.schemas import PortfolioRequest
+from src.security.rbac import Role
+from src.security.settings import SecuritySettings
 
 
 def calculation_payload(*, execution_key: str = "portfolio:2026-06-30") -> dict[str, Any]:
@@ -60,8 +65,16 @@ def calculation_payload(*, execution_key: str = "portfolio:2026-06-30") -> dict[
 
 
 def client(tmp_path: Path) -> TestClient:
-    app = create_app(DatabaseSettings(backend="sqlite", sqlite_path=tmp_path / "api.sqlite3"))
-    return TestClient(app)
+    app = create_app(
+        DatabaseSettings(backend="sqlite", sqlite_path=tmp_path / "api.sqlite3"),
+        SecuritySettings(jwt_secret="test-secret-that-is-at-least-32-bytes-long"),
+    )
+    auth = app.state.auth_service
+    auth.create_user("manager", "Strong!Pass123", Role.MANAGER)
+    token = auth.issue_token("manager", "Strong!Pass123")
+    api = TestClient(app)
+    api.headers.update({"Authorization": f"Bearer {token}"})
+    return api
 
 
 def test_openapi_exposes_versioned_ecl_product_routes(tmp_path: Path) -> None:
@@ -114,7 +127,18 @@ def test_execution_evidence_exposes_lineage_and_result_hashes(tmp_path: Path) ->
 def test_portfolio_job_is_persisted_and_processed(tmp_path: Path) -> None:
     payload = calculation_payload(execution_key="batch:2026-06-30")
     with client(tmp_path) as api:
-        accepted = api.post("/api/v1/ecl/portfolio", json={"calculations": [payload]})
+        portfolio = {"calculations": [payload]}
+        canonical_portfolio = PortfolioRequest.model_validate(portfolio).model_dump(mode="json")
+        request_hash = hashlib.sha256(canonical_json(canonical_portfolio).encode()).hexdigest()
+        confirmation = api.post(
+            "/api/v1/security/confirmations",
+            json={"action": "ecl:calculate:portfolio", "payload_hash": request_hash},
+        ).json()
+        accepted = api.post(
+            "/api/v1/ecl/portfolio",
+            json=portfolio,
+            headers={"X-Confirmation-Id": confirmation["confirmation_id"]},
+        )
         status_response = api.get(accepted.json()["status_url"])
 
     assert accepted.status_code == 202

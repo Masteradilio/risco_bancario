@@ -1795,11 +1795,22 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Revisar RBAC.
-- [ ] Separar cálculo, aprovação, exportação e auditoria.
-- [ ] Implementar confirmação de operações críticas.
-- [ ] Revisar JWT, sessões, senha e rate limit.
-- [ ] Redigir threat model.
+- [x] Revisar RBAC.
+- [x] Separar cálculo, aprovação, exportação e auditoria.
+- [x] Implementar confirmação de operações críticas.
+- [x] Revisar JWT, sessões, senha e rate limit.
+- [x] Redigir threat model.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: pacote `src/security`, migration `0003_security.sql`, autenticação e autorização integradas à API v1 e bootstrap interativo sem senha em argumentos.
+- RBAC: ANALYST, MANAGER, AUDITOR e ADMIN possuem permissões explícitas sem curinga; cálculo, aprovação, exportação, leitura de auditoria e gestão de usuários permanecem segregados.
+- Autenticação: bcrypt direto, JWT HS256 curto com segredo externo de no mínimo 32 bytes, issuer/audience, claims obrigatórias, `jti`, sessão persistida e logout revogável.
+- Operações críticas: cálculo de carteira exige confirmação curta, de uso único, ligada a usuário, ação e SHA-256 canônico do payload.
+- Abuso: rate limit cobre login e usuário/permissão; a limitação multiworker está documentada e não é ocultada.
+- Threat model: `docs/security/THREAT_MODEL.md` distingue controles implementados, dependências do ambiente e riscos residuais; alegações falsas de NTLM e fallback foram removidas.
+- Evidência: Black, Ruff e MyPy aprovados; 513 testes canônicos aprovados com 91,22% de cobertura; regressão legada com 109 aprovados e 16 ignorados. Os testes de segurança cobrem configuração fail-closed, senha, sessão/revogação, matriz RBAC, confirmação, rate limit e respostas HTTP 401/403/404/429.
 
 ## Tarefa 14.4 — Auditoria
 
