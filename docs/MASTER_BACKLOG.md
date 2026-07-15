@@ -1958,13 +1958,34 @@ Transformar a plataforma em um sistema reproduzível e confiável.
 
 ### Subtarefas
 
-- [ ] logs estruturados.
-- [ ] métricas de API e jobs.
-- [ ] tracing.
-- [ ] dashboards Prometheus/Grafana ou equivalente.
-- [ ] alertas.
-
-## Tarefa 15.4 — Performance
+- [x] logs estruturados.
+- [x] métricas de API e jobs.
+- [x] tracing.
+- [x] dashboards Prometheus/Grafana ou equivalente.
+- [x] alertas.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Logs: formatter JSON UTC reaproveitado e endurecido em
+  `src/infrastructure/logging/`, com serviço/versão/ambiente e correlação
+  allowlisted; payloads, credenciais, clientes e resultados não são logados.
+- Tracing: middleware propaga `traceparent` W3C válido, cria span de servidor e
+  devolve `traceparent`/`X-Request-ID`; jobs acrescentam `job_id` ao contexto.
+- Métricas: `/metrics` expõe contadores e histogramas Prometheus para requests,
+  latência, jobs por status/duração/em andamento e identidade do build; labels usam
+  templates de rota e classes de status para limitar cardinalidade.
+- Jobs: o fluxo real de carteira registra início, sucesso/falha, duração e gauge;
+  falhas antes ou durante o processamento também encerram o sinal de execução.
+- Operação: Prometheus, Grafana provisionado e dashboard entram pelo profile
+  `observability` do compose; regras cobrem indisponibilidade, 5xx, falha de lote e
+  job travado, sem presumir Alertmanager institucional.
+- Evidência: configurações YAML/JSON e compose válidos; 17 testes focados aprovados;
+  pipeline integral verde com 542 testes canônicos, 91,22% de cobertura, 118 testes
+  legados, 7 skips esperados e build frontend.
+- Documentação: `docs/operations/OBSERVABILITY.md`.
+
+## Tarefa 15.4 — Performance
 
 ### Subtarefas
 

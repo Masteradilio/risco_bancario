@@ -31,6 +31,12 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   schema forward-only.
 - Estruturadas release notes automáticas e checklist operacional de promoção,
   evidências, limitações e rollback.
+- Completada a observabilidade da API e dos jobs com logs JSON correlacionados,
+  propagação W3C Trace Context, métricas Prometheus de baixa cardinalidade e sinais
+  explícitos de início/sucesso/falha dos lotes.
+- Provisionados Prometheus, Grafana, dashboard de API/jobs e alertas para
+  indisponibilidade, erro 5xx, falha e travamento de processamento, mantendo
+  roteamento e retenção institucional fora do escopo demonstrativo.
 
 ### Governança e baseline
 

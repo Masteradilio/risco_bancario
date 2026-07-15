@@ -1,1 +1,1 @@
-"""Logging, metrics and tracing adapters."""
+"""Metrics, trace correlation, middleware, and job instrumentation."""

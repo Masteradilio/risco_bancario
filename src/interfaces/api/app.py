@@ -3,6 +3,7 @@
 import hashlib
 import json
 import logging
+import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated, Any
@@ -16,6 +17,8 @@ from ...audit import AuditService
 from ...infrastructure.database import DatabaseManager, DatabaseSettings, VersionedRepository
 from ...infrastructure.database.repository import canonical_json
 from ...infrastructure.database.startup import prepare_database
+from ...infrastructure.observability.context import job_context
+from ...infrastructure.observability.middleware import configure_observability
 from ...security.auth import AuthenticationError, AuthService, Principal
 from ...security.confirmations import ConfirmationError, ConfirmationService
 from ...security.rate_limit import RateLimiter, RateLimitExceeded
@@ -63,6 +66,7 @@ def create_app(
         version="1.0.0",
     )
     application.state.auth_service = auth
+    metrics = configure_observability(application)
     bearer = HTTPBearer(auto_error=False)
 
     def current_principal(
@@ -253,35 +257,70 @@ def create_app(
     def process_portfolio(
         job_id: str, requests: list[ECLCalculationRequest], actor_id: str, actor_role: str
     ) -> None:
-        jobs.running(job_id)
-        try:
-            results = [service.calculate(request).model_dump(mode="json") for request in requests]
-            jobs.succeeded(job_id, results)
-            audit.record(
-                actor_id=actor_id,
-                actor_role=actor_role,
-                action="ECL_PORTFOLIO_COMPLETED",
-                resource_type="job",
-                resource_id=job_id,
-                input_payload={"contracts": len(requests)},
-                result_payload={"results": results},
-                versions={"api": "v1"},
-                status="SUCCEEDED",
-            )
-        except Exception:
-            logger.exception("Portfolio job failed", extra={"job_id": job_id})
-            jobs.failed(job_id, "CALCULATION_FAILED")
-            audit.record(
-                actor_id=actor_id,
-                actor_role=actor_role,
-                action="ECL_PORTFOLIO_COMPLETED",
-                resource_type="job",
-                resource_id=job_id,
-                input_payload={"contracts": len(requests)},
-                result_payload={"error_code": "CALCULATION_FAILED"},
-                versions={"api": "v1"},
-                status="FAILED",
-            )
+        started = time.perf_counter()
+        metrics.job_started("ecl_portfolio")
+        with job_context(job_id):
+            try:
+                jobs.running(job_id)
+                logger.info(
+                    "Portfolio job started",
+                    extra={
+                        "event": "job.started",
+                        "job_type": "ecl_portfolio",
+                        "contract_count": len(requests),
+                    },
+                )
+                results = [
+                    service.calculate(request).model_dump(mode="json") for request in requests
+                ]
+                audit.record(
+                    actor_id=actor_id,
+                    actor_role=actor_role,
+                    action="ECL_PORTFOLIO_COMPLETED",
+                    resource_type="job",
+                    resource_id=job_id,
+                    input_payload={"contracts": len(requests)},
+                    result_payload={"results": results},
+                    versions={"api": "v1"},
+                    status="SUCCEEDED",
+                )
+                jobs.succeeded(job_id, results)
+            except Exception:
+                metrics.job_finished("ecl_portfolio", "failed", time.perf_counter() - started)
+                logger.exception(
+                    "Portfolio job failed",
+                    extra={
+                        "event": "job.failed",
+                        "job_type": "ecl_portfolio",
+                        "job_status": "failed",
+                        "contract_count": len(requests),
+                        "duration_seconds": time.perf_counter() - started,
+                    },
+                )
+                jobs.failed(job_id, "CALCULATION_FAILED")
+                audit.record(
+                    actor_id=actor_id,
+                    actor_role=actor_role,
+                    action="ECL_PORTFOLIO_COMPLETED",
+                    resource_type="job",
+                    resource_id=job_id,
+                    input_payload={"contracts": len(requests)},
+                    result_payload={"error_code": "CALCULATION_FAILED"},
+                    versions={"api": "v1"},
+                    status="FAILED",
+                )
+            else:
+                metrics.job_finished("ecl_portfolio", "succeeded", time.perf_counter() - started)
+                logger.info(
+                    "Portfolio job completed",
+                    extra={
+                        "event": "job.completed",
+                        "job_type": "ecl_portfolio",
+                        "job_status": "succeeded",
+                        "contract_count": len(requests),
+                        "duration_seconds": time.perf_counter() - started,
+                    },
+                )
 
     @application.post(
         "/api/v1/ecl/portfolio",

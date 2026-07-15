@@ -167,6 +167,7 @@ def test_portfolio_job_is_persisted_and_processed(tmp_path: Path) -> None:
             headers={"X-Confirmation-Id": confirmation["confirmation_id"]},
         )
         status_response = api.get(accepted.json()["status_url"])
+        metrics_response = api.get("/metrics")
 
     assert accepted.status_code == 202
     assert len(accepted.json()["job_id"]) == 36
@@ -174,6 +175,10 @@ def test_portfolio_job_is_persisted_and_processed(tmp_path: Path) -> None:
     assert status_body["status"] == "SUCCEEDED"
     assert len(status_body["request_hash"]) == 64
     assert status_body["result"][0]["probability_weighted_ecl"] == "4.00"
+    assert (
+        'risco_jobs_total{job_type="ecl_portfolio",status="succeeded"} 1' in metrics_response.text
+    )
+    assert 'risco_jobs_in_progress{job_type="ecl_portfolio"} 0' in metrics_response.text
 
 
 def test_unknown_fields_and_invalid_stage_one_horizon_are_rejected(tmp_path: Path) -> None:

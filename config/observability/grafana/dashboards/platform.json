@@ -1,0 +1,38 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP requests by status class",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (status_class) (rate(risco_http_requests_total[5m]))", "refId": "A"}]
+    },
+    {
+      "id": 2,
+      "title": "HTTP p95 latency",
+      "type": "timeseries",
+      "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(risco_http_request_duration_seconds_bucket[5m])))", "refId": "A"}]
+    },
+    {
+      "id": 3,
+      "title": "Portfolio jobs by status",
+      "type": "timeseries",
+      "targets": [{"expr": "sum by (status) (increase(risco_jobs_total{job_type=\"ecl_portfolio\"}[1h]))", "refId": "A"}]
+    },
+    {
+      "id": 4,
+      "title": "Jobs in progress",
+      "type": "stat",
+      "targets": [{"expr": "sum(risco_jobs_in_progress)", "refId": "A"}]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "tags": ["risk", "ecl", "synthetic-demo"],
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "Risco Bancário - API e Jobs",
+  "uid": "risco-bancario-platform",
+  "version": 1
+}

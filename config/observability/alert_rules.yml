@@ -1,0 +1,31 @@
+groups:
+  - name: risco-bancario
+    rules:
+      - alert: RiscoApiUnavailable
+        expr: up{job="risco-bancario-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: Canonical risk API is unavailable
+      - alert: RiscoApiHighServerErrorRatio
+        expr: sum(rate(risco_http_requests_total{status_class="5xx"}[5m])) / clamp_min(sum(rate(risco_http_requests_total[5m])), 0.001) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: Server error ratio is above 2 percent
+      - alert: RiscoPortfolioJobFailure
+        expr: increase(risco_jobs_total{job_type="ecl_portfolio",status="failed"}[10m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: An ECL portfolio job failed
+      - alert: RiscoPortfolioJobStuck
+        expr: risco_jobs_in_progress{job_type="ecl_portfolio"} > 0
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: An ECL portfolio job has remained in progress
