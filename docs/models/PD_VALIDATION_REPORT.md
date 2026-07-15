@@ -44,7 +44,9 @@ usado porque a transformação isotonic colapsada seria incapaz de revelar drift
 
 As linhas de 2025 não têm target 12m maduro. O status de backtesting é
 `pending_target_maturation`; AUC, calibração ou O/E de backtesting não são
-calculados nem substituídos por zeros. A execução futura pertence à Fase 13.
+calculados nem substituídos por zeros. A Fase 13 executou separadamente o backtest
+retrospectivo sobre o OOT maduro de 2024 e preservou as 182 linhas operacionais de 2025
+como pendentes; consulte `docs/validation/PD_BACKTESTING.md`.
 
 ## Decisão
 

@@ -101,6 +101,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionada pré-validação Doc3040 em camadas com XSD estrutural derivado e versionado, domínios conservadores, críticas semânticas locais, reconciliação carteira/ECL e relatório por linha/campo/regra, preservando avisos de que XSD e críticas oficiais não foram executados.
 - Publicado pacote golden Doc3040 `2026.07` com XML sintético localmente pré-validado, falhas isoladas de XSD/domínio/semântica, hashes imutáveis e regressão que bloqueia datas-base sem versão observada.
 - Criado framework separado de validação de risco de modelo com segregação técnica entre desenvolvimento e validação, decisões objetivas de aprovação/ressalva/rejeição e relatório reproduzível ancorado em hashes, explicitamente sem representar aprovação institucional.
+- Executado backtesting independente de PD em horizontes de 1m/12m e cortes de rating, produto e safra, com intervalos exatos, testes de cobertura e drift; a evidência sintética rejeita objetivamente o modelo em 12m e mantém 2025 pendente de maturação.
 
 ---
 

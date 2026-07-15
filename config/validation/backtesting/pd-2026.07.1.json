@@ -1,0 +1,10 @@
+{
+  "version": "2026.07.1",
+  "alpha": 0.05,
+  "minimum_aggregate_observations": 30,
+  "minimum_segment_observations": 10,
+  "maximum_absolute_calibration_error": 0.05,
+  "maximum_calibration_drift": 0.03,
+  "required_horizons_months": [1, 12],
+  "required_dimensions": ["rating", "product", "vintage"]
+}

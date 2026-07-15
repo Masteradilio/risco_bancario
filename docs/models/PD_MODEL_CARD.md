@@ -22,8 +22,9 @@ e decisões de concessão ficam fora do uso pretendido.
 ## Dados e separação
 
 Treino usa 2016–2018, validação 2020, calibração 2022 e OOT 2024, com embargos
-anuais entre blocos. O backtesting futuro é 2025 e ainda não possui target 12m
-maduro. Safra de originação é metadado de análise, não feature.
+anuais entre blocos. O OOT de 2024 também foi usado como backtest retrospectivo
+independente; o backtesting operacional de 2025 tem 182 linhas e ainda não possui target
+12m maduro. Safra de originação é metadado de análise, não feature.
 
 Features: saldo, limite, utilização, atraso, score comportamental, rating,
 produto e cinco variáveis macroeconômicas sintéticas observáveis na data-base.
@@ -47,6 +48,11 @@ No OOT sintético (233 linhas, 27 eventos), ROC AUC 0,5000, Gini 0,0000, KS
 calibrada colapsou em 0,2941. O PSI do score não calibrado entre calibração e
 backtesting é 6,7903 (`high_shift`). Esses resultados bloqueiam aprovação.
 
+O backtest independente da Fase 13 confirma a rejeição: em 12m, a PD média de
+29,4118% compara com 11,5880% observado, erro absoluto de 17,8238 p.p. e drift de
+17,8238 p.p. contra a referência. O horizonte de 1m passou somente como diagnóstico
+derivado por hazard constante.
+
 ## Limitações, viés e riscos
 
 - dados, eventos e macroeconomia são inteiramente sintéticos;
@@ -54,15 +60,16 @@ backtesting é 6,7903 (`high_shift`). Esses resultados bloqueiam aprovação.
 - calibrador colapsou sob mudança temporal;
 - ratings R1–R5 e multiplicadores temporais não estão aprovados;
 - não há atributos protegidos, logo fairness demográfica não foi mensurada;
-- backtesting 12m aguarda maturação e não possui métrica de performance;
-- não há validação independente, uso real, homologação ou evidência institucional.
+- o backtesting operacional de 2025 aguarda maturação e não possui métrica de performance;
+- há apenas validação independente técnica simulada; não há função institucional, uso
+  real ou homologação.
 
 ## Monitoramento, retreinamento e governança
 
 Monitorar PSI, distribuição de score, calibração/OE por rating, produto e safra,
 discriminação e qualidade de dados. Não recalibrar ou retreinar a partir do OOT.
-Após maturação, a Fase 13 deve executar backtesting congelado e definir limites
-formais de alerta/recalibração. Qualquer promoção exige dados reais governados,
+Após maturação de 2025, deve ser executada uma nova versão do backtesting congelado; os
+limites formais já estão versionados na política de validação. Qualquer promoção exige dados reais governados,
 validação independente, aprovação humana, versão de artefato e trilha de decisão.
 
 ## Reprodutibilidade e evidências
@@ -72,4 +79,5 @@ validação independente, aprovação humana, versão de artefato e trilha de de
 - dados: `data/synthetic/acceptance-v0.1.0` com manifesto e hashes;
 - testes: `tests/models/test_pd_*.py`;
 - relatórios: `PD_BASELINES.md`, `PD_TEMPORAL_CALIBRATION.md`,
-  `PD_TERM_STRUCTURE.md` e `PD_VALIDATION_REPORT.md`.
+  `PD_TERM_STRUCTURE.md`, `PD_VALIDATION_REPORT.md` e
+  `../validation/PD_BACKTESTING.md`.

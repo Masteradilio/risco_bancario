@@ -1610,10 +1610,26 @@ Criar evidências de que modelos e cálculos funcionam, permanecem estáveis e p
 
 ### Subtarefas
 
-- [ ] previsto versus observado.
-- [ ] por rating, produto, safra e horizonte.
-- [ ] calibration drift.
-- [ ] testes de cobertura e intervalos.
+- [x] previsto versus observado.
+- [x] por rating, produto, safra e horizonte.
+- [x] calibration drift.
+- [x] testes de cobertura e intervalos.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: política versionada, `src/validation/backtesting/pd.py`, gerador,
+  `docs/validation/PD_BACKTESTING.md` e evidence pack JSON/Markdown com hashes.
+- Evidência madura: 233 observações OOT de 2024 em 1m/12m e 30 células agregadas ou
+  segmentadas por rating, produto e safra.
+- Métodos: previsto versus observado, O/E, erro absoluto, Clopper-Pearson, teste binomial
+  exato e drift do erro contra a referência de calibração.
+- Decisão: `rejected`; em 12m, PD média 29,4118%, observado 11,5880%, erro/drift de
+  17,8238 p.p., acima dos limites objetivos.
+- Maturação: 182 linhas de 2025 permanecem sem target e não recebem performance imputada.
+- Limite: o 1m usa hazard constante derivado e toda evidência é sintética, sem aprovação
+  institucional.
+- Evidência de teste: 12 testes direcionados aprovados e artefato golden versionado.
 
 ## Tarefa 13.3 — Backtesting de LGD
 
