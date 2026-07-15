@@ -201,7 +201,7 @@ export default function ExportacaoPage() {
                             Gerar XML ECL
                         </CardTitle>
                         <CardDescription>
-                            Exportação XML conforme Resolução CMN 4966/2021
+                            Tela legada com dados sintéticos; sem validação ou envio oficial
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

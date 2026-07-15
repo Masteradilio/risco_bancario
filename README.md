@@ -17,7 +17,7 @@ Requer Windows PowerShell e Python 3.13. O comando cria o `venv`, instala as
 dependências de desenvolvimento e valida o import canônico:
 
 ```powershell
-.\scripts\setup.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 
 Depois, execute a jornada sintética completa:

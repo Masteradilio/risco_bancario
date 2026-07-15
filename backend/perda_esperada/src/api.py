@@ -645,10 +645,10 @@ def _gerar_operacoes_mock() -> List[OperacaoECL]:
 @app.post("/exportar_bacen", response_model=ExportacaoResponse, tags=["Regulatório BACEN"])
 async def exportar_bacen(request: ExportacaoRequest):
     """
-    Gera arquivo XML Doc3040 para exportação ao BACEN.
+    Gera candidato XML sintético no protótipo legado.
     
-    O arquivo é gerado conforme Resolução CMN 4966/2021 com a tag
-    ContInstFinRes4966 para dados de ECL.
+    A tag histórica ContInstFinRes4966 não comprova leiaute vigente, validação
+    oficial ou aptidão para envio ao BACEN. Use o gerador/pré-validador canônico.
     
     Returns:
         ZIP contendo XML Doc3040 em base64

@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0.0",
+  "review_date": "2026-07-15",
+  "scope": "synthetic_engineering_completeness_not_institutional_approval",
+  "scoring_semantics": "10/10 means every target-state engineering criterion has an implemented, tested and documented artifact in the synthetic demonstration scope. It is not evidence of model approval, regulatory certification or fitness for institutional use.",
+  "technical_score": "10/10",
+  "institutional_release_status": "BLOCKED_PENDING_REAL_DATA_VALIDATION_GOVERNANCE_AND_OFFICIAL_REGULATORY_VALIDATION",
+  "dimensions": [
+    {
+      "id": "architecture",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "demonstrated",
+      "evidence": [
+        "docs/architecture/ADR-001-domain-architecture.md",
+        "docs/architecture/SYSTEM_ARCHITECTURE.md",
+        "docs/architecture/PERSISTENCE_VERSIONING.md",
+        "docs/operations/CI_PIPELINE.md"
+      ],
+      "residual_limit": "Legacy modules remain preserved for regression but are explicitly non-canonical."
+    },
+    {
+      "id": "pd",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "not_approved",
+      "evidence": [
+        "docs/data/SYNTHETIC_LONGITUDINAL.md",
+        "docs/models/PD_MODEL_CARD.md",
+        "docs/models/PD_VALIDATION_REPORT.md",
+        "evidence/validation/pd/2026.07.1/report.json"
+      ],
+      "residual_limit": "The 12-month OOT calibration is rejected and the synthetic sample is not institutionally representative."
+    },
+    {
+      "id": "lgd",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "not_approved",
+      "evidence": [
+        "docs/models/LGD_WORKOUT_DATASET.md",
+        "docs/models/LGD_MODEL_CARD.md",
+        "docs/models/LGD_VALIDATION_REPORT.md",
+        "evidence/validation/lgd/2026.07.1/report.json"
+      ],
+      "residual_limit": "Only 10 holdout workouts are available and that holdout was consumed during model selection."
+    },
+    {
+      "id": "ead",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "not_approved",
+      "evidence": [
+        "docs/models/EAD_AMORTIZED.md",
+        "docs/models/EAD_REVOLVING_CCF.md",
+        "docs/models/EAD_MODEL_CARD.md",
+        "evidence/validation/ead/2026.07.1/report.json"
+      ],
+      "residual_limit": "CCF validation has four observations and off-balance parameters have no observed utilization/default evidence."
+    },
+    {
+      "id": "ecl",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "reconciliation_passed_backtest_rejected",
+      "evidence": [
+        "docs/models/SCENARIO_ECL.md",
+        "docs/models/ECL_RECONCILIATION_LEDGER.md",
+        "docs/golden_cases/golden_cases.json",
+        "evidence/validation/ecl/2026.07.1/report.json",
+        "evidence/e2e/journey.json"
+      ],
+      "residual_limit": "Arithmetic and reconciliation pass, but no mature historical ECL snapshots exist for outcome backtesting."
+    },
+    {
+      "id": "staging",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "not_approved",
+      "evidence": [
+        "docs/models/SICR_ORIGINATION_BASELINE.md",
+        "docs/models/SICR_ENGINE.md",
+        "docs/models/STAGE_HISTORY_AND_CURE.md",
+        "docs/models/SICR_VALIDATION_REPORT.md"
+      ],
+      "residual_limit": "The frozen relative SICR rule has zero recall in the synthetic OOT and cannot be promoted."
+    },
+    {
+      "id": "regulation",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "prevalidated_derived_xsd_only",
+      "evidence": [
+        "docs/regulatory/TRACEABILITY_MATRIX.csv",
+        "docs/regulatory/SOURCE_REGISTER.md",
+        "evidence/regulatory/manifest.json",
+        "evidence/e2e/prevalidation.json"
+      ],
+      "residual_limit": "Official BCB XSD and critics were not executed; six traceability requirements remain partial or planned."
+    },
+    {
+      "id": "validation",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "framework_operational_models_not_approved",
+      "evidence": [
+        "docs/validation/INDEPENDENT_VALIDATION_FRAMEWORK.md",
+        "docs/validation/LIMITATION_REGISTER.md",
+        "docs/validation/MONITORING.md",
+        "evidence/validation/pd/2026.07.1/report.json",
+        "evidence/validation/lgd/2026.07.1/report.json",
+        "evidence/validation/ead/2026.07.1/report.json",
+        "evidence/validation/ecl/2026.07.1/report.json"
+      ],
+      "residual_limit": "The framework correctly blocks promotion; independent institutional validation and mature real outcomes are absent."
+    },
+    {
+      "id": "security",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "baseline_controls_demonstrated_not_independent_pentest",
+      "evidence": [
+        "docs/security/THREAT_MODEL.md",
+        "docs/security/SECURITY_OPERATIONS.md",
+        "docs/architecture/AUDIT_TRAIL.md",
+        "tests/security/test_security.py",
+        "tests/security/test_file_retention_and_pentest.py"
+      ],
+      "residual_limit": "Repository controls and adversarial regressions do not replace an independent production penetration test."
+    },
+    {
+      "id": "experience_and_portfolio",
+      "score": 10,
+      "technical_status": "complete",
+      "decision_status": "portfolio_ready_synthetic_demo",
+      "evidence": [
+        "README.md",
+        "docs/tutorials/ECL_TUTORIAL.md",
+        "docs/portfolio/TECHNICAL_INTERVIEW_GUIDE.md",
+        "docs/demo/screenshots/ecl-evidence-workspace.png",
+        "docs/operations/E2E_JOURNEY.md"
+      ],
+      "residual_limit": "The portfolio demonstrates engineering and governance, not prior institutional deployment or homologation."
+    }
+  ]
+}

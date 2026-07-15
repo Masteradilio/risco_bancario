@@ -12,7 +12,7 @@ def test_portfolio_documentation_is_complete_and_uses_canonical_paths() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     required = (
         "src/interfaces/api",
-        "scripts\\setup.ps1",
+        "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\setup.ps1",
         "scripts\\e2e_pipeline.py",
         "docs/architecture/SYSTEM_ARCHITECTURE.md",
         "docs/tutorials/ECL_TUTORIAL.md",

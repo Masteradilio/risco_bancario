@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
+import pytest
+
+from scripts.e2e_pipeline import resolve_code_version
 from src.application.e2e import run_e2e_journey
 
 
@@ -30,3 +34,27 @@ def test_canonical_e2e_is_reconciled_and_fail_closed(tmp_path: Path) -> None:
     }
     persisted = json.loads((output / "journey.json").read_text(encoding="utf-8"))
     assert persisted == report
+
+
+def test_archive_without_git_metadata_uses_deterministic_source_fingerprint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "module.py").write_text("VALUE = 1\n", encoding="utf-8")
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: subprocess.CompletedProcess(args[0], 128, "", "not a repo"),
+    )
+
+    first = resolve_code_version(None, tmp_path)
+    second = resolve_code_version(None, tmp_path)
+
+    assert len(first) == 12
+    assert first == second
+    assert all(character in "0123456789abcdef" for character in first)
+
+
+def test_explicit_e2e_commit_must_follow_lineage_contract() -> None:
+    with pytest.raises(ValueError, match="lowercase hexadecimal"):
+        resolve_code_version("unknown")

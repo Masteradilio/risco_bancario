@@ -2,9 +2,9 @@ import { FileOutput, Download, CheckCircle, AlertCircle, Clock, Info } from 'luc
 import { cn } from '@/lib/utils'
 
 const envios = [
-    { codigo: 'DOC3040-2026-01', dataBase: '2025-12-31', dataEnvio: '2026-01-08', status: 'ACEITO', protocolo: 'BCB-2026-00123' },
-    { codigo: 'DOC3040-2025-12', dataBase: '2025-11-30', dataEnvio: '2025-12-10', status: 'ACEITO', protocolo: 'BCB-2025-01234' },
-    { codigo: 'DOC3040-2025-11', dataBase: '2025-10-31', dataEnvio: '2025-11-08', status: 'ACEITO', protocolo: 'BCB-2025-01100' },
+    { codigo: 'SINTETICO-2026-01', dataBase: '2025-12-31', dataEnvio: '2026-01-08', status: 'PREVALIDADO_LOCAL', protocolo: 'SEM_PROTOCOLO_OFICIAL' },
+    { codigo: 'SINTETICO-2025-12', dataBase: '2025-11-30', dataEnvio: '2025-12-10', status: 'PREVALIDADO_LOCAL', protocolo: 'SEM_PROTOCOLO_OFICIAL' },
+    { codigo: 'SINTETICO-2025-11', dataBase: '2025-10-31', dataEnvio: '2025-11-08', status: 'PREVALIDADO_LOCAL', protocolo: 'SEM_PROTOCOLO_OFICIAL' },
 ]
 
 export default function ECLExportacaoPage() {
@@ -15,7 +15,7 @@ export default function ECLExportacaoPage() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h3 className="font-semibold">Gerar Doc3040</h3>
-                        <p className="text-sm text-muted-foreground">Exportação conforme Resolução CMN 4966/2021</p>
+                        <p className="text-sm text-muted-foreground">Candidato sintético não homologado para envio oficial</p>
                     </div>
                 </div>
 

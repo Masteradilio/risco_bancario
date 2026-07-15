@@ -12,6 +12,11 @@ separadas, reconcilia o ledger e gera o candidato do Documento 3040.
 .\venv\Scripts\python.exe scripts/e2e_pipeline.py --output evidence/e2e
 ```
 
+Em um clone Git, a linhagem usa o commit curto corrente. Em um source archive
+sem `.git`, o runner calcula um fingerprint SHA-256 determinístico de `src`,
+`config`, `scripts` e `pyproject.toml`; `--commit` permite informar manualmente
+um identificador hexadecimal de 7 a 40 caracteres.
+
 ## Semântica do resultado
 
 O status esperado é `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`. A execução técnica

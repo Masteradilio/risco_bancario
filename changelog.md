@@ -9,6 +9,20 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não lançado]
 
+### Revisão final e release readiness
+
+- Publicado scorecard 10/10 de completude técnica em dez dimensões, separado de
+  aprovação de modelos, certificação regulatória e homologação institucional.
+- Preservadas as rejeições de PD/SICR/LGD/EAD e do backtesting ECL, além do
+  status Doc3040 restrito a `PREVALIDATED_DERIVED_XSD`.
+- Validado setup em source archive limpo com `venv` novo e demo E2E subsequente;
+  corrigido quickstart para a Execution Policy do Windows e adicionado fingerprint
+  determinístico quando o source archive não possui metadados Git.
+- Removidas alegações residuais em TODO, DDL, exportadores e telas legadas;
+  protocolos de BCB fictícios foram substituídos por marcadores sintéticos.
+- Gate final da tarefa aprovado com Black, Ruff/SAST, MyPy, 578 testes canônicos,
+  91,25% de cobertura, 118 regressões legadas, 7 skips e build React.
+
 ### Documentação de portfólio
 
 - Reescrito o README sobre a arquitetura canônica, com quickstart reproduzível,

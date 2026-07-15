@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Módulo de Exportação Regulatória BACEN - Doc3040
-=================================================
+Protótipo legado de exportação Doc3040
+======================================
 
-Gera arquivos XML no formato Doc3040 do Sistema de Informações de Crédito (SCR)
-conforme Resolução CMN 4966/2021 e Instrução Normativa BCB 414.
+Tenta estruturar candidatos XML a partir de referências históricas. Não possui
+prova de leiaute vigente, XSD oficial executado ou críticas oficiais e não deve
+ser usado para transmissão. O caminho canônico está em ``src/regulatory``.
 
 Funcionalidades:
 - Geração de XML Doc3040 com tag ContInstFinRes4966
-- Validação contra schema XSD oficial
+- Validação estrutural local do protótipo
 - Compactação ZIP para envio via STA
 - Particionamento de arquivos grandes
 
@@ -218,7 +219,7 @@ class ExportacaoResult:
 
 class ExportadorBACEN:
     """
-    Gera arquivo XML Doc3040 com dados ECL conforme Resolução CMN 4966/2021.
+    Gera candidato XML sintético no protótipo legado, sem validação oficial.
     
     Uso:
         exportador = ExportadorBACEN(config)

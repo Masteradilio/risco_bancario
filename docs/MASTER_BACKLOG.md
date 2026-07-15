@@ -2174,28 +2174,49 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 ### Subtarefas
 
-- [ ] Avaliar arquitetura.
-- [ ] Avaliar PD.
-- [ ] Avaliar LGD.
-- [ ] Avaliar EAD.
-- [ ] Avaliar ECL.
-- [ ] Avaliar staging.
-- [ ] Avaliar regulação.
-- [ ] Avaliar validação.
-- [ ] Avaliar segurança.
-- [ ] Avaliar experiência e portfólio.
-- [ ] Registrar evidências para cada nota 10/10.
+- [x] Avaliar arquitetura.
+- [x] Avaliar PD.
+- [x] Avaliar LGD.
+- [x] Avaliar EAD.
+- [x] Avaliar ECL.
+- [x] Avaliar staging.
+- [x] Avaliar regulação.
+- [x] Avaliar validação.
+- [x] Avaliar segurança.
+- [x] Avaliar experiência e portfólio.
+- [x] Registrar evidências para cada nota 10/10.
 
 ### Critérios de aceite da release
 
-- [ ] Setup e demo executam do zero.
-- [ ] Todos os testes passam.
-- [ ] Golden cases reconciliam.
-- [ ] OOT e backtesting estão publicados.
-- [ ] Nenhuma afirmação de certificação indevida permanece.
-- [ ] Toda saída regulatória é versionada e pré-validada.
-- [ ] Todo resultado é rastreável a dados, modelo, política, cenário e código.
-- [ ] O projeto está pronto para adaptação a dados reais de uma instituição, sem alegar homologação prévia.
+- [x] Setup e demo executam do zero.
+- [x] Todos os testes passam.
+- [x] Golden cases reconciliam.
+- [x] OOT e backtesting estão publicados.
+- [x] Nenhuma afirmação de certificação indevida permanece.
+- [x] Toda saída regulatória é versionada e pré-validada.
+- [x] Todo resultado é rastreável a dados, modelo, política, cenário e código.
+- [x] O projeto está pronto para adaptação a dados reais de uma instituição, sem alegar homologação prévia.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Semântica: 10/10 mede completude técnica dos critérios de estado-alvo no
+  escopo sintético; não significa aprovação quantitativa ou regulatória.
+- Scorecard: dez dimensões, evidências e limites residuais publicados em
+  `evidence/release/final_scorecard.json` e `docs/FINAL_RELEASE_ASSESSMENT.md`.
+- Decisões preservadas: PD, SICR, LGD e EAD `not_approved`; backtesting ECL
+  rejeitado; Doc3040 `PREVALIDATED_DERIVED_XSD`, sem XSD/críticas oficiais.
+- Setup limpo: source archive do commit `22b1e39` em caminho curto isolado,
+  CPython 3.13, `venv` novo, instalação editável e smoke import aprovados.
+- Demo limpa: jornada E2E reconciliada, persistida e concluída como
+  `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`; evidência resumida em
+  `evidence/release/setup_smoke.json`.
+- Robustez: quickstart passou a contornar Execution Policy explicitamente; o
+  runner E2E usa fingerprint determinístico quando `.git` não está disponível.
+- Gate: Black, Ruff/SAST e MyPy verdes; 578 testes canônicos com 91,25% de
+  cobertura, 118 legados aprovados/7 ignorados e build React aprovado.
+- Claims: TODO obsoleto substituído, DDL/telas/módulos legados qualificados e
+  varredura final limitada a menções negativas ou de guardrail.
 
 ---
 

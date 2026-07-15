@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "executed_at": "2026-07-15",
+  "source_kind": "clean_git_source_archive",
+  "source_commit": "22b1e39",
+  "runtime": "CPython 3.13 on Windows",
+  "setup_command": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\setup.ps1",
+  "setup_status": "passed",
+  "setup_evidence": "fresh venv created, dependencies installed, editable wheel built, canonical import printed setup ok",
+  "demo_command": ".\\venv\\Scripts\\python.exe scripts\\e2e_pipeline.py --commit 22b1e39 --output evidence\\e2e-smoke",
+  "demo_status": "COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS",
+  "approval_blockers": ["pd", "sicr", "lgd", "ead"],
+  "ecl_reconciled": true,
+  "doc3040_status": "PREVALIDATED_DERIVED_XSD",
+  "official_xsd_executed": false,
+  "official_critics_executed": false,
+  "notes": [
+    "Direct PowerShell execution was blocked by local policy; the documented Bypass invocation passed.",
+    "A deeply nested smoke directory exceeded the Windows path limit while installing torch; the isolated short path passed.",
+    "The source-archive lineage fallback was added and covered by unit tests; this recorded run used the explicit source commit."
+  ]
+}

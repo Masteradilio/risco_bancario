@@ -4,8 +4,8 @@ Modelagem de Probabilidade de Default (PD) para Contratos Behavior (em carteira)
 REFATORADO: Este módulo agora IMPORTA os componentes de Forward Looking e Grupos
 Homogêneos dos módulos existentes ao invés de duplicar.
 
-Implementa metodologia Forward Looking com variáveis macroeconômicas e WOE scores
-conforme Resolução CMN 4966 e documentação técnica BIP.
+Implementa heurística legada forward-looking com variáveis macroeconômicas e
+WOE scores. Não representa metodologia calibrada, aprovada ou homologada.
 
 DIFERENÇA DO PRINAD:
 - PRINAD: PD de CONCESSÃO (novos clientes/contratos) - decisão de crédito inicial

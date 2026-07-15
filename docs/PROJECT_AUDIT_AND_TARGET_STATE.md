@@ -109,6 +109,18 @@ A abrangência é um ponto forte. Entretanto, a implementação mistura protóti
 
 Essas notas não são certificação. Elas servem para orientar a priorização técnica.
 
+### 4.1 Revisão final da modernização — 15 de julho de 2026
+
+Os critérios objetivos da seção 13 foram implementados e evidenciados no escopo
+de demonstração sintética. As doze dimensões atingiram 10/10 de **completude
+técnica**: arquitetura e abrangência; PD, LGD e EAD; ECL e staging; forward-looking;
+pré-validação Doc3040; governança/validação; segurança/rastreabilidade; e produto.
+
+Essa revisão não substitui as decisões quantitativas. PD, SICR, LGD e EAD estão
+`not_approved`; o backtest ECL está rejeitado; Doc3040 permanece
+`PREVALIDATED_DERIVED_XSD`. A matriz detalhada, evidências e bloqueios estão em
+`docs/FINAL_RELEASE_ASSESSMENT.md` e `evidence/release/final_scorecard.json`.
+
 ---
 
 ## 5. Pontos fortes que devem ser preservados

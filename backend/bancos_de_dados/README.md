@@ -1,6 +1,11 @@
-# Banco de Dados - Sistema ECL/BACEN 4966
+# Banco de Dados legado — referência de transição
 
-Este diretório contém os scripts DDL de referência para o banco de dados MySQL do sistema de Perda Esperada (ECL) conforme Resolução CMN 4966/2021.
+> Esquemas MySQL históricos preservados para regressão. A persistência canônica
+> está em `src/infrastructure/database`, com migrations SQLite/PostgreSQL. Estes
+> DDLs não são usados pela jornada E2E e não comprovam aderência regulatória.
+
+Este diretório contém scripts DDL MySQL históricos inspirados no protótipo de
+Perda Esperada (ECL) e em conceitos associados à Resolução CMN 4.966/2021.
 
 ## Estrutura de Esquemas
 
@@ -49,9 +54,9 @@ SOURCE ecl/ecl_resultados/ddl_insert.sql;
 - **Charset:** utf8mb4
 - **Collation:** utf8mb4_unicode_ci
 
-## Conformidade Regulatória
+## Referências regulatórias históricas
 
-Este modelo de dados atende aos requisitos de:
-- **CMN 4966/2021** - Perda Esperada IFRS 9
-- **BCB 352/2023** - Critérios contábeis
-- **Doc3040** - Exportação regulatória BACEN
+Os nomes de tabelas mencionam CMN 4.966, BCB 352 e Documento 3040, mas não existe
+matriz de rastreabilidade deste schema legado nem validação de leiaute que permita
+afirmar atendimento. Use `docs/regulatory/TRACEABILITY_MATRIX.csv` e o pacote
+canônico em `evidence/regulatory/` para o escopo efetivamente evidenciado.

@@ -1,4 +1,4 @@
-# Módulo Forward Looking - Conforme Resolução CMN 4966 e Documentação Técnica
+# Protótipo legado forward-looking; não representa política aprovada ou conformidade.
 # Todos os arquivos CSV gerados por este script devem ser salvos em 'relatorios'.
 # Todos os arquivos PKL gerados por este script devem ser salvos em 'artefatos_modelos'.
 
