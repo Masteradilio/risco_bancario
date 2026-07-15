@@ -10,7 +10,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_github_actions_are_immutable_and_required_gates_exist() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    actions = re.findall(r"uses:\s+([^\s#]+)", workflow)
+    delivery = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
+    actions = re.findall(r"uses:\s+([^\s#]+)", workflow + delivery)
 
     assert {"quality:", "dependency-audit:", "secret-scan:", "containers:"} <= set(
         line.strip() for line in workflow.splitlines()
@@ -19,6 +20,16 @@ def test_github_actions_are_immutable_and_required_gates_exist() -> None:
     assert all(re.fullmatch(r"[^@]+@[0-9a-f]{40}", action) for action in actions)
     assert "permissions:\n  contents: read" in workflow
     assert "requirements-ci.lock" in workflow
+
+
+def test_delivery_is_immutable_environment_scoped_and_supports_release_notes() -> None:
+    workflow = (ROOT / ".github/workflows/cd.yml").read_text(encoding="utf-8")
+
+    assert "environment: ${{ needs.plan.outputs.environment }}" in workflow
+    assert "packages: write" in workflow
+    assert "--generate-notes" in workflow
+    assert "push: true" in workflow
+    assert ":latest" not in workflow
 
 
 def test_api_container_is_non_root_and_has_a_healthcheck() -> None:

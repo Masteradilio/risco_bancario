@@ -21,6 +21,7 @@ FORMAT_TARGETS = (
     "tests/validation",
     "tests/infrastructure/test_database.py",
     "tests/infrastructure/test_ci_contract.py",
+    "tests/infrastructure/test_deployment.py",
     "tests/infrastructure/test_quality_pipeline.py",
     "tests/interfaces",
     "tests/security",
@@ -30,6 +31,7 @@ FORMAT_TARGETS = (
     "scripts/generate_lgd_backtest_report.py",
     "scripts/generate_ead_backtest_report.py",
     "scripts/generate_ecl_backtest_report.py",
+    "scripts/deploy.py",
     "scripts/quality.py",
 )
 
@@ -49,6 +51,7 @@ MYPY_TARGETS = (
     "src/application/services",
     "src/infrastructure/configuration",
     "src/infrastructure/database",
+    "src/infrastructure/deployment",
     "src/interfaces/api",
     "src/security",
     "src/audit",
@@ -62,6 +65,7 @@ MYPY_TARGETS = (
     "scripts/generate_lgd_backtest_report.py",
     "scripts/generate_ead_backtest_report.py",
     "scripts/generate_ecl_backtest_report.py",
+    "scripts/deploy.py",
     "scripts/quality.py",
 )
 
@@ -75,6 +79,7 @@ TEST_TARGETS = (
     "tests/validation",
     "tests/infrastructure/test_database.py",
     "tests/infrastructure/test_ci_contract.py",
+    "tests/infrastructure/test_deployment.py",
     "tests/infrastructure/test_quality_pipeline.py",
     "tests/interfaces",
     "tests/security",

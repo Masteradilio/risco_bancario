@@ -25,6 +25,16 @@ class MigrationIntegrityError(RuntimeError):
     """Raised when an applied migration no longer matches its checksum."""
 
 
+class PendingMigrationsError(RuntimeError):
+    """Raised when a runtime configured for validation is not schema-current."""
+
+
+@dataclass(frozen=True, slots=True)
+class MigrationStatus:
+    applied: tuple[str, ...]
+    pending: tuple[str, ...]
+
+
 @dataclass(frozen=True, slots=True)
 class DatabaseSettings:
     """Explicit database settings; the selected backend is never substituted."""
@@ -165,3 +175,49 @@ class DatabaseManager:
                     )
                 applied_now.append(version)
         return tuple(applied_now)
+
+    def migration_status(self) -> MigrationStatus:
+        """Inspect migration checksums without mutating the database schema."""
+        migration_dir = self.migrations_root / self.settings.backend
+        migration_files = sorted(migration_dir.glob("[0-9][0-9][0-9][0-9]_*.sql"))
+        if not migration_files:
+            raise FileNotFoundError(f"No migrations found in {migration_dir}")
+
+        expected = {
+            path.name.split("_", 1)[0]: hashlib.sha256(
+                path.read_text(encoding="utf-8").encode("utf-8")
+            ).hexdigest()
+            for path in migration_files
+        }
+        with self.transaction() as connection:
+            cursor = connection.cursor()
+            if self.settings.backend == "sqlite":
+                cursor.execute(
+                    "SELECT name FROM sqlite_master "
+                    "WHERE type = 'table' AND name = 'schema_migrations'"
+                )
+                exists = cursor.fetchone() is not None
+            else:
+                cursor.execute("SELECT to_regclass('public.schema_migrations')")
+                exists = cursor.fetchone()[0] is not None
+            if not exists:
+                return MigrationStatus(applied=(), pending=tuple(expected))
+            cursor.execute("SELECT version, checksum FROM schema_migrations")
+            applied: Mapping[str, str] = dict(cursor.fetchall())
+
+        for version, checksum in applied.items():
+            if version not in expected or expected[version] != checksum:
+                raise MigrationIntegrityError(f"Migration {version} checksum does not match")
+        return MigrationStatus(
+            applied=tuple(version for version in expected if version in applied),
+            pending=tuple(version for version in expected if version not in applied),
+        )
+
+    def validate_migrations(self) -> tuple[str, ...]:
+        """Fail unless every known immutable migration is already applied."""
+        status = self.migration_status()
+        if status.pending:
+            raise PendingMigrationsError(
+                f"Pending database migrations: {', '.join(status.pending)}"
+            )
+        return status.applied

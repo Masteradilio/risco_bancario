@@ -1,0 +1,34 @@
+name: risco-bancario
+
+services:
+  api:
+    profiles: [local, test, demo]
+    image: ghcr.io/masteradilio/risco_bancario-api:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    env_file:
+      - ${RISK_ENV_FILE:-.env.local}
+    environment:
+      CODE_COMMIT: ${CODE_COMMIT:-unknown}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - risk-data:/app/var
+    restart: unless-stopped
+
+  frontend:
+    profiles: [local, test, demo]
+    image: ghcr.io/masteradilio/risco_bancario-frontend:${IMAGE_TAG:-local}
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  risk-data:

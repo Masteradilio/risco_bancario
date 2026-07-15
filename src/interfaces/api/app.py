@@ -15,6 +15,7 @@ from ...agent.evidence import ExecutionNotFoundError
 from ...audit import AuditService
 from ...infrastructure.database import DatabaseManager, DatabaseSettings, VersionedRepository
 from ...infrastructure.database.repository import canonical_json
+from ...infrastructure.database.startup import prepare_database
 from ...security.auth import AuthenticationError, AuthService, Principal
 from ...security.confirmations import ConfirmationError, ConfirmationService
 from ...security.rate_limit import RateLimiter, RateLimitExceeded
@@ -44,7 +45,7 @@ def create_app(
     security_settings: SecuritySettings | None = None,
 ) -> FastAPI:
     database = DatabaseManager(settings)
-    database.apply_migrations()
+    prepare_database(database)
     security_configuration = security_settings or SecuritySettings.from_env()
     auth = AuthService(database, security_configuration)
     audit = AuditService(database)

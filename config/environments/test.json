@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "test",
+  "database_backend": "sqlite",
+  "migration_mode": "apply",
+  "release_tag_policy": "any",
+  "compose_profile": "test"
+}

@@ -22,6 +22,15 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   regressões nas definições de build.
 - Validado no GitHub Actions o run `29441776705`, integralmente verde no commit
   `37c2732`.
+- Separados os ambientes `local`, `test` e `demo` por perfis versionados e arquivos
+  de configuração sem segredos, com compose canônico para API e frontend.
+- Controlado o ciclo de migrations no startup: desenvolvimento/teste podem aplicar
+  pendências, enquanto `demo` somente valida um schema previamente migrado.
+- Adicionado workflow de entrega de imagens imutáveis no GHCR, plano auditável,
+  proteção contra reutilização de tag, rollback atômico da aplicação e política de
+  schema forward-only.
+- Estruturadas release notes automáticas e checklist operacional de promoção,
+  evidências, limitações e rollback.
 
 ### Governança e baseline
 

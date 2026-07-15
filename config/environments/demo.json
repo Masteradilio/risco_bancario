@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "name": "demo",
+  "database_backend": "postgresql",
+  "migration_mode": "validate",
+  "release_tag_policy": "semver",
+  "compose_profile": "demo"
+}

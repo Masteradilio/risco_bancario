@@ -1926,13 +1926,35 @@ Transformar a plataforma em um sistema reproduzível e confiável.
 
 ### Subtarefas
 
-- [ ] ambientes local, test e demo.
-- [ ] configurações separadas.
-- [ ] migrations automáticas controladas.
-- [ ] rollback.
-- [ ] release notes.
-
-## Tarefa 15.3 — Observabilidade
+- [x] ambientes local, test e demo.
+- [x] configurações separadas.
+- [x] migrations automáticas controladas.
+- [x] rollback.
+- [x] release notes.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Ambientes: perfis estritos e sem segredos em `config/environments/`, exemplos
+  `.env.local.example`, `.env.test.example` e `.env.demo.example`, bancos/caminhos
+  separados e compose canônico em `compose.yaml`.
+- Migrations: startup controlado por `apply`, `validate` ou `disabled`; `demo`
+  exige `validate` e falha quando o schema não está corrente. Aplicação explícita
+  pré-promoção usa `scripts/deploy.py migrate`; versões e checksums permanecem
+  imutáveis e transacionais.
+- Entrega: `.github/workflows/cd.yml` gera plano auditável, usa GitHub Environment
+  e publica imagens API/frontend no GHCR por tag; `demo` aceita somente SemVer.
+- Rollback: histórico atômico impede reutilizar uma tag para outro commit e restaura
+  a aplicação anterior; schema é deliberadamente forward-only, sem down migration
+  automática ou alegação enganosa de reversibilidade.
+- Release notes: categorias em `.github/release.yml`, geração automática para tags
+  `vX.Y.Z` e checklist em `docs/operations/RELEASE_NOTES_TEMPLATE.md`.
+- Evidência: 30 testes focados aprovados, compose validado para o perfil local e
+  pipeline integral verde com 537 testes canônicos, cobertura de 91,13%, 118 testes
+  legados, 7 skips esperados e build frontend.
+- Documentação: `docs/operations/ENVIRONMENTS_AND_DELIVERY.md`.
+
+## Tarefa 15.3 — Observabilidade
 
 ### Subtarefas
 
