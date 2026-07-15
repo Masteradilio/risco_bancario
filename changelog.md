@@ -9,6 +9,17 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não lançado]
 
+### Documentação de portfólio
+
+- Reescrito o README sobre a arquitetura canônica, com quickstart reproduzível,
+  mapa de componentes, gate de qualidade e limites regulatórios explícitos.
+- Publicados diagramas de arquitetura, tutorial de ECL, exemplos executáveis da
+  API, guia para entrevista técnica e demo visual sem dados reais.
+- Adicionado fixture JSON validado pelo contrato v1 e captura do workspace React
+  conectado à evidência persistida, mantendo reprovações e limitações visíveis.
+- Removidas alegações externas incorretas de conformidade, fallback de banco,
+  pesos de cenário fixos e uso do pipeline legado como motor canônico.
+
 ### Jornada E2E
 
 - Substituído o pipeline legado baseado em SSO simulado, endpoints antigos e

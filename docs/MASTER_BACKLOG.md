@@ -2142,13 +2142,33 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 ### Subtarefas
 
-- [ ] Reescrever README principal.
-- [ ] Criar arquitetura e diagramas.
-- [ ] Criar quickstart de um comando.
-- [ ] Criar tutorial de ECL.
-- [ ] Criar guia para entrevista técnica.
-- [ ] Criar exemplos de API.
-- [ ] Criar screenshots e demo, sem dados reais.
+- [x] Reescrever README principal.
+- [x] Criar arquitetura e diagramas.
+- [x] Criar quickstart de um comando.
+- [x] Criar tutorial de ECL.
+- [x] Criar guia para entrevista técnica.
+- [x] Criar exemplos de API.
+- [x] Criar screenshots e demo, sem dados reais.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- README: substituído o texto externo incorreto por um mapa conciso do núcleo
+  canônico, quickstart de um comando, limites de uso e links para as evidências.
+- Arquitetura: `docs/architecture/SYSTEM_ARCHITECTURE.md` documenta camadas,
+  fluxo da execução e decisões fail-closed com diagramas Mermaid.
+- Aprendizado: `docs/tutorials/ECL_TUTORIAL.md` e
+  `docs/portfolio/TECHNICAL_INTERVIEW_GUIDE.md` explicam cálculo, reconciliação,
+  staging, governança e respostas conservadoras para apresentação técnica.
+- API: exemplo JSON validado pelo schema canônico e comandos de autenticação,
+  cálculo, consulta e limitações publicados em `docs/api/`.
+- Demo: captura real do frontend React contra API e SQLite efêmeros, usando
+  somente fixture sintético; nenhum dado ou segredo institucional foi incluído.
+- Guardrails: documentação rejeita o pipeline legado como fonte canônica,
+  fallback silencioso, pesos macroeconômicos inventados e alegações de
+  certificação/homologação.
+- Testes: contrato documental verifica caminhos, alertas, fixture e presença da
+  captura publicável.
 
 ## Tarefa 16.5 — Revisão final de notas
 

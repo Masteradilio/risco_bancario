@@ -1,0 +1,38 @@
+{
+  "execution_key": "portfolio:2026-06-30:readme",
+  "contract_id": "C-SYNTHETIC-API-1",
+  "source_version": "synthetic-2026.1",
+  "reference_date": "2026-06-30",
+  "stage": 1,
+  "stage_assessment": {
+    "origination_stage": 1,
+    "current_stage": 1,
+    "origination_rating": "A",
+    "current_rating": "B",
+    "origination_lifetime_pd": "0.05",
+    "current_lifetime_pd": "0.10",
+    "reason_codes": ["RATING_DOWNGRADE"]
+  },
+  "segment": "portfolio",
+  "periods": [{
+    "reference_date": "2026-07-01",
+    "conditional_hazard": "0.10",
+    "lgd": "0.40",
+    "drawn_ead": "100.00",
+    "undrawn_amount": "0",
+    "ccf": "0",
+    "discount_factor": "1"
+  }],
+  "scenario_version": "2026.1",
+  "scenario_source_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "scenarios": [
+    {"scenario_id": "base", "name": "Base", "kind": "base", "weight": "0.50", "periods": [{"reference_date": "2026-07-01", "variables": {"gdp_growth": "2.20", "inflation": "4.50", "policy_rate": "9.00", "unemployment": "7.50", "household_debt": "49.00", "risk_pressure": "0.00"}}]},
+    {"scenario_id": "upside", "name": "Up", "kind": "upside", "weight": "0.20", "periods": [{"reference_date": "2026-07-01", "variables": {"gdp_growth": "2.20", "inflation": "4.50", "policy_rate": "9.00", "unemployment": "7.50", "household_debt": "49.00", "risk_pressure": "0.00"}}]},
+    {"scenario_id": "downside", "name": "Down", "kind": "downside", "weight": "0.30", "periods": [{"reference_date": "2026-07-01", "variables": {"gdp_growth": "2.20", "inflation": "4.50", "policy_rate": "9.00", "unemployment": "7.50", "household_debt": "49.00", "risk_pressure": "0.00"}}]},
+    {"scenario_id": "stress", "name": "Stress", "kind": "stress", "weight": "0", "periods": [{"reference_date": "2026-07-01", "variables": {"gdp_growth": "2.20", "inflation": "4.50", "policy_rate": "9.00", "unemployment": "7.50", "household_debt": "49.00", "risk_pressure": "0.00"}}]}
+  ],
+  "model_versions": {"pd": "1.0.0", "lgd": "1.0.0", "ead": "1.0.0"},
+  "configuration_version": "2026.07.1",
+  "configuration_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "code_commit": "abcdef1"
+}

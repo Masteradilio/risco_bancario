@@ -1,404 +1,94 @@
-# 🏦 Sistema de Gestão de Risco Bancário
+# Risco Bancário — núcleo demonstrativo de ECL
 
-**Plataforma de referência para risco de crédito e perda esperada com dados sintéticos**
+Plataforma de engenharia para estudar perda esperada de crédito, IFRS 9 e a
+Resolução CMN 4.966 com dados exclusivamente sintéticos. O repositório reúne
+domínio tipado, fábrica longitudinal, modelos de PD/LGD/EAD, staging, cálculo
+ECL por cenário, persistência versionada, API FastAPI, workspace React e pacote
+de evidências regulatórias.
 
-[![IFRS 9](https://img.shields.io/badge/Standard-IFRS%209-green.svg)]()
-[![Basel III](https://img.shields.io/badge/Standard-Basel%20III-orange.svg)]()
-[![Electron](https://img.shields.io/badge/Desktop-Electron-47848F.svg)]()
-[![Vite](https://img.shields.io/badge/Build-Vite-646CFF.svg)]()
-[![React 18](https://img.shields.io/badge/Frontend-React%2018-61DAFB.svg)]()
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)]()
-[![Python 3.11+](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
+> **Limite de uso:** este projeto não foi homologado por instituição financeira
+> nem certificado pelo Banco Central do Brasil. Os modelos quantitativos atuais
+> permanecem `not_approved` por limitações amostrais e institucionais. Saídas
+> regulatórias são candidatos pré-validados localmente, nunca reportes oficiais.
 
-Este projeto é uma plataforma pública em modernização para modelagem e demonstração de risco de crédito. O escopo principal é impairment/ECL da IFRS 9 e requisitos aplicáveis da CMN 4.966, sempre com dados sintéticos, rastreabilidade e preparação para validação independente. O projeto não é certificado ou homologado pelo Banco Central e não substitui políticas, validação e julgamento de uma instituição financeira.
+## Quickstart de um comando
 
-## Escopo
+Requer Windows PowerShell e Python 3.13. O comando cria o `venv`, instala as
+dependências de desenvolvimento e valida o import canônico:
 
-O produto cobre como núcleo PD, LGD, EAD, SICR/staging, cenários forward-looking, ECL para Stage 1, Stage 2, Stage 3 e POCI, governança quantitativa e pré-validação sintética do Documento 3040. Classificação e mensuração entram somente na extensão necessária à elegibilidade do impairment. Hedge accounting, transmissão regulatória oficial, dados bancários reais, capital IRB e decisão automática de crédito estão fora do escopo inicial.
-
-Consulte [o escopo oficial](docs/SCOPE.md), [o glossário](docs/GLOSSARY.md) e [o baseline técnico](docs/baseline/CURRENT_STATE_BASELINE.md). Funcionalidades descritas abaixo refletem o protótipo legado e serão validadas ou substituídas conforme o [backlog mestre](docs/MASTER_BACKLOG.md).
-
-
----
-
-## 🚀 Módulos do Sistema
-
-### 1. 🔍 PRINAD (Probabilidade de Inadimplência)
-
-Motor de classificação de risco baseado em Machine Learning (XGBoost/LightGBM) e histórico comportamental.
-
-| Funcionalidade | Descrição |
-|----------------|-----------|
-| **PRINAD Score** | Probabilidade de inadimplência (0-100%) |
-| **Rating legado** | 11 níveis demonstrativos (A1 → DEFAULT), sem calibração regulatória comprovada |
-| **PD 12 meses** | Estimativa demonstrativa para horizonte de 1 ano |
-| **PD Lifetime** | Aproximação legada para vida útil, a ser substituída por curvas temporais |
-| **Stage** | Classificação demonstrativa em Estágio 1, 2 ou 3 |
-
-**Métricas históricas do protótipo sintético (não são evidência de performance em dados reais):**
-| Métrica | Valor | Status |
-|---------|-------|--------|
-| AUC-ROC | 0.9986 | Dado sintético legado; validação pendente |
-| Gini | 0.9972 | Dado sintético legado; validação pendente |
-| Precision | 0.9535 | Dado sintético legado; validação pendente |
-| Recall | 0.9713 | Dado sintético legado; validação pendente |
-
-**Escala de rating legada e demonstrativa (não representa escala oficial ou política de concessão):**
-| Rating | Faixa PRINAD | Descrição | Ação |
-|--------|--------------|-----------|------|
-| A1 | 0-4.99% | Risco Mínimo | Aprovação automática |
-| A2 | 5-14.99% | Risco Muito Baixo | Aprovação automática |
-| A3 | 15-24.99% | Risco Baixo | Análise simplificada |
-| B1 | 25-34.99% | Risco Baixo-Moderado | Análise padrão |
-| B2 | 35-44.99% | Risco Moderado | Análise detalhada |
-| B3 | 45-54.99% | Risco Moderado-Alto | Análise rigorosa |
-| C1 | 55-64.99% | Risco Alto | Exige garantias |
-| C2 | 65-74.99% | Risco Muito Alto | Condições especiais |
-| C3 | 75-84.99% | Risco Crítico | Negação ou garantias sólidas |
-| D | 85-94.99% | Pré-Default | Negação, monitoramento |
-| DEFAULT | 95-100% | Default | Negação, cobrança |
-
-
-### 2. 📉 ECL (Perda Esperada / Expected Credit Loss)
-
-Protótipo de cálculo a ser reconstruído para alinhamento rastreável às normas aplicáveis, com fluxo demonstrativo até a pré-validação regulatória.
-
-| Componente | Descrição |
-|------------|-----------|
-| **Baseline legado** | `PD × LGD × EAD`, mantido apenas como aproximação didática |
-| **Motor-alvo** | Soma descontada de `PD marginal × LGD do período × EAD do período`, calculada integralmente por cenário |
-| **Pipeline Integrado** | Execução sequencial de estágios, LGD, EAD e cálculo final |
-| **Workflow Guiado** | Integração lógica: Pipeline -> Validação -> Exportação XML |
-| **Transparência Legal** | Cards explicativos com referência direta aos artigos da CMN 4966 |
-| **Grupos Homogêneos** | Agrupamento por PD usando K-means, percentis ou densidade |
-| **Forward Looking** | Integração com API BACEN SGS, fatores K_PD_FL e K_LGD_FL |
-| **LGD Segmentado** | LGD por árvore de decisão: Produto × Atraso × Valor × Prazo |
-| **Sistema de Cura** | Regras de carência e período probatório para retorno de estágio |
-| **Rastreamento Write-off** | Controle de baixas e recuperações (5 anos) |
-
-**3 Estágios IFRS 9:**
-| Estágio | Horizonte ECL | Condição |
-|---------|---------------|----------|
-| Stage 1 | ECL lifetime associada a defaults possíveis nos próximos 12 meses | Risco não aumentou significativamente |
-| Stage 2 | Lifetime | Aumento significativo do risco (Trigger SICR) |
-| Stage 3 | Lifetime por cash shortfall descontado | Ativo com problema de recuperação de crédito |
-
-**CCF legado do protótipo (constantes demonstrativas, não parâmetros regulatórios validados):**
-| Produto | CCF |
-|---------|-----|
-| Consignado | 100% |
-| Imobiliário | 100% |
-| Veículo | 100% |
-| Cartão Rotativo | 75% |
-| Cheque Especial | 70% |
-| Crédito Sazonal | 50% |
-
-### 3. 🎯 PROLIMITE (Otimização de Limites)
-
-Sistema de propensão e realocação dinâmica de limites de crédito.
-
-| Funcionalidade | Descrição |
-|----------------|-----------|
-| **Modelo Multi-Produto** | 6 modelos XGBoost/LightGBM (1 por produto) |
-| **Propensão a Consumo** | Score de probabilidade de uso do limite |
-| **Realocação Dinâmica** | Redistribuição de limites entre produtos |
-| **Notificações** | Push, SMS e Banner in-app com antecedência |
-
-**Regras de Otimização:**
-| Ação | Condição | Novo Limite |
-|------|----------|-------------|
-| ZERAR | Rating DEFAULT | 0 |
-| REDUZIR 25% | Rating D (PRINAD 85-94%) | 25% do atual |
-| REDUZIR 50% | Rating C3 OU Propensão < 45% + Utilização < 30% | 50% do atual |
-| AUMENTAR | PRINAD < 75% + Propensão > 55% + Margem + Comprometimento < 65% | +25% |
-| MANTER | Demais casos | Sem alteração |
-
-**LGD legada do protótipo (constantes demonstrativas, não parâmetros contábeis ou regulatórios validados):**
-| Produto | LGD Base | LGD Downturn |
-|---------|----------|--------------|
-| Consignado | 35% | 44% |
-| Banparacard | 45% | 56% |
-| Cartão de Crédito | 70% | 88% |
-| Imobiliário | 12% | 15% |
-| Antecipação 13º | 20% | 25% |
-| Crédito Veículo | 30% | 38% |
-
-### 4. 📤 Exportação Regulatória BACEN
-
-Fluxo demonstrativo de geração e pré-validação de arquivos regulatórios, ainda sem homologação externa.
-
-| Funcionalidade | Descrição |
-|----------------|-----------|
-| **Documento 3040** | XML demonstrativo; versionamento oficial de leiaute ainda será implementado |
-| **Pré-validador local** | Simulador de verificações sintáticas e semânticas; não é ferramenta oficial do Banco Central |
-| **Etapas de Validação** | Checagem de Estrutura, COSIF, Regras CMN 4966 e Totais |
-| **Tag Res4966** | Geração automática da seção `<ContInstFinRes4966>` |
-| **Histórico de Envios** | Controle de remessas, status e protocolos |
-| **Bloqueio de Segurança** | Impede geração sem execução prévia de pipeline validado |
-
-### 5. 🤖 Assistente de IA (Em breve)
-
-Agente inteligente baseado em LangGraph para análise qualitativa e suporte à decisão.
-
----
-
-## 🏗️ Arquitetura Técnica
-
-O sistema utiliza uma arquitetura de microserviços containerizados:
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        ARQUITETURA DO SISTEMA                           │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                      FRONTEND (Next.js 15)                      │   │
-│  │  ├── Dashboard PRINAD (Classificação de Risco)                  │   │
-│  │  ├── Dashboard ECL (Perda Esperada)                             │   │
-│  │  ├── Dashboard Propensão (Otimização de Limites)                │   │
-│  │  ├── Relatórios PDF (@react-pdf/renderer)                       │   │
-│  │  └── Autenticação RBAC (Analista, Gestor, Auditor, Admin)       │   │
-│  └────────────────────────────┬────────────────────────────────────┘   │
-│                               │                                         │
-│                               ▼                                         │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                     │
-│  │   API       │  │   API       │  │   API       │                     │
-│  │  PRINAD     │  │   ECL       │  │ PROPENSÃO   │                     │
-│  │ :8000       │  │  :8001      │  │  :8002      │                     │
-│  │  (FastAPI)  │  │  (FastAPI)  │  │  (FastAPI)  │                     │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘                     │
-│         │                │                │                             │
-│         └────────────────┼────────────────┘                             │
-│                          ▼                                              │
-│  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │                    SHARED UTILS (Python)                        │   │
-│  │  ├── PD_POR_RATING (11 ratings calibrados)                      │   │
-│  │  ├── CCF_POR_PRODUTO (Credit Conversion Factors)                │   │
-│  │  ├── LGD_POR_PRODUTO (Basel III)                                │   │
-│  │  └── Funções: calcular_ecl, get_ifrs9_stage, etc.               │   │
-│  └─────────────────────────────────────────────────────────────────┘   │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
+```powershell
+.\scripts\setup.ps1
 ```
 
-**Stack Tecnológico:**
-- **Frontend Desktop**: Electron + Vite + React 18 + TypeScript + TailwindCSS + Recharts
-- **Sistema de Temas**: 5 temas (2 escuros, 2 claros, 1 sistema) com variáveis CSS
-- **Navegação**: React Router DOM v6 com abas horizontais por módulo
-- **Backend APIs**: 3 instâncias de FastAPI (Python 3.11) isoladas por responsabilidade
-- **ML/AI**: XGBoost, LightGBM, SHAP para explicabilidade
-- **Orquestração**: Docker Compose para ambiente local e desenvolvimento
+Depois, execute a jornada sintética completa:
 
----
-
-## 📂 Estrutura do Projeto
-
-```bash
-risco_bancario/
-├── backend/                    # APIs em Python
-│   ├── prinad/                 # Classificação de Risco (PRINAD)
-│   │   ├── src/                # Código-fonte
-│   │   │   ├── classifier.py   # Classificador principal
-│   │   │   ├── api.py          # API FastAPI
-│   │   │   └── ...
-│   │   ├── modelo/             # Artefatos treinados (.joblib)
-│   │   ├── dados/              # Datasets e bases históricas
-│   │   └── tests/              # Testes unitários
-│   │
-│   ├── perda_esperada/         # Motor de ECL
-│   │   ├── src/
-│   │   │   ├── pipeline_ecl.py          # Pipeline integrador
-│   │   │   ├── modulo_grupos_homogeneos.py
-│   │   │   ├── modulo_forward_looking.py
-│   │   │   ├── modulo_lgd_segmentado.py
-│   │   │   ├── modulo_ead_ccf_especifico.py
-│   │   │   ├── modulo_triggers_estagios.py
-│   │   │   ├── modulo_exportacao_bacen.py
-│   │   │   └── pisos_minimos.py
-│   │   └── docs/               # Documentação técnica e regulatória
-│   │
-│   ├── propensao/              # Otimização de Limites (PROLIMITE)
-│   │   ├── src/
-│   │   │   ├── ecl_engine.py           # Motor ECL v2.0
-│   │   │   ├── stage_classifier.py     # Classificação IFRS 9
-│   │   │   ├── limit_reallocation.py   # Realocação por propensão
-│   │   │   ├── propensity_model.py     # Modelo multi-produto
-│   │   │   └── pipeline_runner.py      # Pipeline completo
-│   │   └── tests/              # Testes unitários
-│   │
-│   └── shared/                 # Utilitários compartilhados
-│       └── utils.py            # Constantes e funções comuns
-│
-├── frontend/                   # Web App Next.js
-│   ├── app/                    # Pages (App Router)
-│   ├── components/             # Componentes React
-│   └── lib/                    # Stores Zustand, utilidades
-│
-├── docker/                     # Dockerfiles de Produção
-├── .env.example                # Variáveis de ambiente (template)
-├── docker-compose.yml          # Orquestração Unificada
-├── CHANGELOG.md                # Histórico de mudanças
-├── TODO.md                     # Próximas funcionalidades
-└── README.md                   # Este arquivo
+```powershell
+.\venv\Scripts\python.exe scripts\e2e_pipeline.py
 ```
 
----
+O resultado esperado é `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`: a jornada
+termina tecnicamente e preserva as reprovações de PD, SICR, LGD e EAD. Os
+artefatos são gravados em `evidence/e2e/`.
 
-## 🛠️ Como Iniciar
+## O que é canônico
 
-### 1. Requisitos
-- Docker e Docker Compose
-- Node.js 20+ (para desenvolvimento local do frontend)
-- Python 3.11+ (para desenvolvimento local do backend)
+- `src/domain`: entidades imutáveis, datas, percentuais e valores monetários;
+- `src/models`: componentes PD, LGD, EAD, staging e validação;
+- `src/ecl`: cálculo por período/cenário, ajustes e reconciliação;
+- `src/infrastructure`: migrations, persistência explícita e observabilidade;
+- `src/interfaces/api`: API v1 com JWT, RBAC, auditoria e jobs limitados;
+- `src/regulatory`: leiautes versionados, pré-validação e rastreabilidade;
+- `frontend`: workspace React que lê somente evidência persistida;
+- `backend`: implementação legada preservada para regressão e transição, não o
+  motor canônico.
 
-### 2. Configuração (Variáveis de Ambiente)
+SQLite e PostgreSQL são selecionados explicitamente. Uma falha de PostgreSQL
+jamais provoca fallback silencioso para SQLite.
 
-Crie um arquivo `.env` na raiz baseado no `.env.example`:
-```bash
-cp .env.example .env
+## Demonstração local
+
+Para subir API e frontend com containers, copie o perfil sem segredos e execute:
+
+```powershell
+Copy-Item .env.local.example .env.local
+$env:RISK_ENV_FILE = ".env.local"
+docker compose --profile local up --build
 ```
 
-### 3. Execução com Docker (Recomendado)
-```bash
-docker-compose up --build
+O frontend fica em `http://127.0.0.1:8080` e o OpenAPI em
+`http://127.0.0.1:8000/docs`. Não há credenciais embutidas: crie um usuário pelo
+bootstrap descrito no [contrato da API](docs/api/ECL_API_V1.md).
+
+![Workspace canônico de evidências ECL](docs/demo/screenshots/ecl-evidence-workspace.png)
+
+## Verificação
+
+O gate local reproduz Black, Ruff, MyPy, testes canônicos e legados, cobertura,
+auditorias de segurança e build do frontend:
+
+```powershell
+.\venv\Scripts\python.exe scripts\quality.py
 ```
 
-Acesse:
-- **Frontend**: [http://localhost:3000](http://localhost:3000)
-- **API PRINAD**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- **API ECL**: [http://localhost:8001/docs](http://localhost:8001/docs)
-- **API Propensão**: [http://localhost:8002/docs](http://localhost:8002/docs)
+A cobertura mínima do código canônico é 70%. Golden cases independentes ficam
+em `docs/golden_cases/`, e o pacote de rastreabilidade exportado fica em
+`evidence/regulatory/`.
 
-### 4. Desenvolvimento Local
+## Guias
 
-**Backend (cada módulo):**
-```bash
-cd backend/prinad
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-.\venv\Scripts\activate   # Windows
-pip install -r requirements.txt
-python src/api.py
-```
+- [Arquitetura do sistema](docs/architecture/SYSTEM_ARCHITECTURE.md)
+- [Tutorial de ECL](docs/tutorials/ECL_TUTORIAL.md)
+- [Exemplos da API](docs/api/EXAMPLES.md)
+- [Guia para entrevista técnica](docs/portfolio/TECHNICAL_INTERVIEW_GUIDE.md)
+- [Jornada E2E e semântica dos bloqueios](docs/operations/E2E_JOURNEY.md)
+- [Limitation Register](docs/validation/LIMITATION_REGISTER.md)
+- [Pacote regulatório](docs/regulatory/REGULATORY_PACKAGE.md)
 
-**Frontend:**
-```bash
-cd frontend
-npm install
-npm run dev
-```
+## Escopo regulatório
 
----
-
-## 🔐 Integração com SCR (Sistema de Informações de Crédito)
-
-Em produção, substitua os dados mockados pela integração real com a API do SCR:
-
-**Endpoint:** `https://www9.bcb.gov.br/wsscr2n/api/`
-
-**Campos necessários:**
-- `valorVencer`, `valorVencido`, `valorPrejuizo`
-- `limCredito`, `limCreditoUtilizado`
-- `diasAtraso`, `classificacaoRisco`
-- `qtdOperacoes`, `qtdInstituicoes`
-
-> ⚠️ A consulta ao SCR requer autorização prévia do cliente (Res. BCB 4.571/2017).
-
----
-
-## 📋 Fluxo de Dados
-
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          FLUXO DO PIPELINE                             │
-├────────────────────────────────────────────────────────────────────────┤
-│                                                                        │
-│  PRINAD (Módulo 1)                                                     │
-│  ├── Dados Cadastrais (15 features)                                    │
-│  ├── Dados Comportamentais (12 features)                               │
-│  ├── Histórico Interno (v-columns)                                     │
-│  └── SCR BACEN (16 features)                                           │
-│              │                                                         │
-│              ▼                                                         │
-│  ┌───────────────────────────────────────────────────────────┐        │
-│  │      Ensemble ML (XGBoost + LightGBM)                     │        │
-│  │      + Penalidades Históricas (25% Int + 25% Ext)         │        │
-│  │      = PRINAD Score + Rating + PD_12m + PD_lifetime       │        │
-│  └──────────────────────────┬────────────────────────────────┘        │
-│                             │                                          │
-│                             ▼                                          │
-│  ECL (Módulo 2)  ◄──────────┘                                          │
-│  ├── Grupos Homogêneos (GH)                                            │
-│  ├── Forward Looking (K_PD_FL)                                         │
-│  ├── LGD Segmentado + EAD com CCF                                      │
-│  ├── Pisos Mínimos (Stage 3)                                           │
-│  └── Triggers e Arrasto                                                │
-│              │                                                         │
-│              ▼                                                         │
-│  ╔═══════════════════════════════════════════════════════════╗        │
-│  ║     Baseline legado: PD × LGD × EAD                       ║        │
-│  ╚═══════════════════════════════════════════════════════════╝        │
-│              │                                                         │
-│              ▼                                                         │
-│  PROLIMITE (Módulo 3)  ◄─────┘                                         │
-│  ├── Propensão a Consumo por Produto                                   │
-│  ├── Otimização de Limites                                             │
-│  ├── Realocação por Propensão                                          │
-│  └── Notificações (D+0, D+30, D+60)                                    │
-│              │                                                         │
-│              ▼                                                         │
-│  ┌───────────────────────────────────────────────────────────┐        │
-│  │     Exportação BACEN (Doc3040 / ContInstFinRes4966)       │        │
-│  └───────────────────────────────────────────────────────────┘        │
-│                                                                        │
-└────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🧪 Testes
-
-```bash
-# PRINAD
-cd backend/prinad
-pytest tests/ -v
-
-# PROLIMITE
-cd backend/propensao
-pytest tests/ -v
-
-# ECL
-cd backend/perda_esperada
-pytest tests/ -v
-```
-
----
-
-## 📚 Documentação
-
-- **Changelog**: [CHANGELOG.md](CHANGELOG.md) - Histórico completo de mudanças
-- **TODO**: [TODO.md](TODO.md) - Próximas funcionalidades planejadas
-- **Documentação Técnica ECL**: [backend/perda_esperada/docs/](backend/perda_esperada/docs/)
-
-### Referências Regulatórias
-
-- [Resolução CMN 4.966/2021](https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução%20CMN&numero=4966)
-- [Resolução BCB 352/2023](https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolução%20BCB&numero=352)
-- [IFRS 9 - Instrumentos Financeiros](https://www.ifrs.org/issued-standards/list-of-standards/ifrs-9-financial-instruments/)
-- [Instrução Normativa BCB 414](https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Instrução+Normativa+BCB&numero=414)
-- [Leiaute Doc3040](https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_Leiaute.xls)
-
----
-
-## 📄 Licença
-
-O licenciamento público ainda não foi formalizado em um arquivo de licença na raiz. Até que isso seja definido, o conteúdo do repositório não deve ser presumido como licenciado sob MIT ou outra licença específica.
-
-## 👥 Autores e Contato
-
-Desenvolvido por **Masteradilio** - Arquiteto de Soluções de Risco.
-
----
-
-**⭐ Se este projeto foi útil, considere dar uma estrela!**
+O desenho usa IFRS 9 e CMN 4.966 como requisitos de engenharia e mantém fontes,
+decisões, limitações e testes rastreáveis. O XSD oficial e as críticas do BCB não
+estão versionados; portanto, o Documento 3040 gerado recebe somente o status
+`PREVALIDATED_DERIVED_XSD`. A adaptação a uma instituição exige dados reais,
+validação independente, governança, aprovação dos modelos e homologação dos
+processos e leiautes aplicáveis.

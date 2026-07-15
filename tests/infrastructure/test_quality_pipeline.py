@@ -13,6 +13,13 @@ def test_quality_matrix_covers_all_required_gates() -> None:
     assert any("ruff check src --select S" in command for command in flattened)
     assert any("mypy" in command for command in flattened)
     assert any("--cov=src" in command and "--cov-report=xml" in command for command in flattened)
+    assert all(
+        "tests/documentation" in command
+        for command in flattened
+        if "black --check" in command or "ruff check" in command or "pytest" in command
+        if "backend/bancos_de_dados/tests" not in command
+        if "ruff check src --select S" not in command
+    )
     assert any("backend/bancos_de_dados/tests" in command for command in flattened)
     assert any("npm" in command and "run build" in command for command in flattened)
 
