@@ -228,7 +228,8 @@ def generate_synthetic_disclosure_package(
     transfer_key_set: set[tuple[Stage, Stage]] = set()
     for item in movements:
         if item.movement_type == AllowanceMovementType.STAGE_TRANSFER:
-            assert item.from_stage is not None and item.to_stage is not None
+            if item.from_stage is None or item.to_stage is None:
+                raise DomainValidationError("stage transfer requires origin and destination stages")
             transfer_key_set.add((item.from_stage, item.to_stage))
     transfer_keys = sorted(transfer_key_set, key=lambda pair: (int(pair[0]), int(pair[1])))
     transfers = tuple(

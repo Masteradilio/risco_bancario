@@ -35,6 +35,7 @@ FORMAT_TARGETS = (
     "scripts/generate_ecl_backtest_report.py",
     "scripts/deploy.py",
     "scripts/performance_benchmark.py",
+    "scripts/security_maintenance.py",
     "scripts/quality.py",
 )
 
@@ -73,6 +74,7 @@ MYPY_TARGETS = (
     "scripts/generate_ecl_backtest_report.py",
     "scripts/deploy.py",
     "scripts/performance_benchmark.py",
+    "scripts/security_maintenance.py",
     "scripts/quality.py",
 )
 
@@ -104,6 +106,7 @@ def command_matrix() -> dict[str, tuple[tuple[str, ...], ...]]:
         "static": (
             (python, "-m", "black", "--check", *FORMAT_TARGETS),
             (python, "-m", "ruff", "check", *FORMAT_TARGETS),
+            (python, "-m", "ruff", "check", "src", "--select", "S"),
             (python, "-m", "mypy", *MYPY_TARGETS),
         ),
         "tests": (

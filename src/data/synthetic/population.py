@@ -153,7 +153,7 @@ PRODUCTS = (
 
 def _rng(seed: int, namespace: str) -> Random:
     digest = sha256(f"{seed}:{namespace}".encode()).digest()
-    return Random(int.from_bytes(digest[:8], "big"))
+    return Random(int.from_bytes(digest[:8], "big"))  # noqa: S311 - deterministic synthetic data
 
 
 def _money(value: Decimal | int | str) -> Decimal:

@@ -5,13 +5,14 @@ import json
 import logging
 import os
 import time
-from collections.abc import AsyncIterator, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from starlette.responses import Response
 
 from ...agent import AgentQuery, AgentResponse, GroundedEvidenceAgent
 from ...agent.evidence import ExecutionNotFoundError
@@ -83,6 +84,22 @@ def create_app(
     application.state.auth_service = auth
     application.state.batch_queue = batch_queue
     metrics = configure_observability(application)
+
+    @application.middleware("http")
+    async def security_headers(
+        http_request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        response = await call_next(http_request)
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+        if http_request.url.scheme == "https":
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
     if interrupted_jobs:
         logger.warning(
             "Interrupted jobs marked as failed during startup",

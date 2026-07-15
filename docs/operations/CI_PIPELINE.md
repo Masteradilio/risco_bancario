@@ -5,7 +5,7 @@
 O workflow `.github/workflows/ci.yml` é executado em todo `push`, pull request e
 acionamento manual. A aprovação de uma mudança exige todos os jobs abaixo verdes:
 
-- `Quality / Python and frontend`: Black, Ruff, MyPy, testes canônicos e legados,
+- `Quality / Python and frontend`: Black, Ruff, SAST Ruff Security, MyPy, testes canônicos e legados,
   cobertura mínima configurada e build TypeScript/Vite;
 - `Security / dependency audit`: `pip-audit` no ambiente Python resolvido e
   `npm audit` nas dependências de produção;

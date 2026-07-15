@@ -67,7 +67,7 @@ class LongitudinalPortfolio:
 
 def _contract_rng(seed: int, contract_id: str) -> Random:
     digest = sha256(f"{seed}:monthly:{contract_id}".encode()).digest()
-    return Random(int.from_bytes(digest[:8], "big"))
+    return Random(int.from_bytes(digest[:8], "big"))  # noqa: S311 - deterministic synthetic data
 
 
 def _money(value: Decimal) -> Decimal:

@@ -112,7 +112,7 @@ def _record(
 def generate_macroeconomic_bundle(seed: int = 20260714) -> MacroeconomicBundle:
     policy, policy_hash = _load_policy()
     version = policy["metadata"]["version"]
-    rng = Random(seed)
+    rng = Random(seed)  # noqa: S311 - deterministic synthetic data
     current = {
         "gdp_growth": 0.5,
         "inflation": 6.5,

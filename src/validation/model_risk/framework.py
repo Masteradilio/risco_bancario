@@ -21,7 +21,7 @@ def _is_lower_hex(value: str, length: int) -> bool:
 
 
 class CriterionResult(StrEnum):
-    PASS = "pass"
+    PASS = "pass"  # noqa: S105 - validation result label, not a password
     WARNING = "warning"
     FAIL = "fail"
 

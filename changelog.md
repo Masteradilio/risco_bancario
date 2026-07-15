@@ -50,6 +50,19 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   volume concluiu em 69,049503 s e 10.107.428 bytes de pico Python, dentro do alvo
   demonstrativo de 120 s e 512 MiB.
 
+### Segurança técnica
+
+- Incluído SAST Ruff Security no gate obrigatório, com supressões justificadas e
+  allowlist verificável para os identificadores do SQL dinâmico interno.
+- Endurecidas respostas da API com headers contra cache, MIME sniffing, framing e
+  vazamento de referrer; ampliadas regressões contra bypass de JWT/RBAC e injection.
+- Criados controles reutilizáveis para uploads com allowlist, limite e parsing seguro,
+  além de armazenamento de exports em raiz privada e nomes gerados pelo servidor.
+- Versionada política de retenção de dados efêmeros e comando de expurgo auditável,
+  preservando resultados, linhagem e eventos imutáveis da exclusão automática.
+- Substituída a alegação não verificável de “security benchmarks 2026” por testes
+  adversariais básicos explicitamente distintos de pentest independente.
+
 ### Governança e baseline
 
 - Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.

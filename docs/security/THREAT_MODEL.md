@@ -48,7 +48,11 @@ As permissões de aprovação e exportação já estão separadas no contrato RB
 - Logout revoga a sessão persistida; desativação/troca de `token_version` invalida tokens emitidos.
 - Respostas 401/403 não revelam se usuário, sessão ou permissão específica existem.
 - A API é iniciada com factory para que configuração incompleta falhe antes de aceitar tráfego.
+- Uploads futuros devem passar pela allowlist de tipo/tamanho/estrutura e exportações
+  usam raiz privada e nomes gerados pelo servidor; nenhuma dessas rotas está exposta hoje.
+- Retenção automática exclui apenas registros efêmeros vencidos e preserva resultados,
+  linhagem e auditoria imutáveis.
 
 ## Critérios antes de exposição institucional
 
-Adotar IdP corporativo com MFA, chaves assimétricas/rotação, cofre de segredos, TLS mútuo quando aplicável, rate limiter distribuído, fila durável, backup/restore testado, revisão periódica de acessos, SAST/DAST/SCA, pentest independente e observabilidade protegida. Esses itens não são apresentados como implementados nesta fase.
+Adotar IdP corporativo com MFA, chaves assimétricas/rotação, cofre de segredos, TLS mútuo quando aplicável, rate limiter distribuído, fila durável, backup/restore testado, revisão periódica de acessos, DAST autenticado, pentest independente e observabilidade protegida. SAST, SCA e regressões adversariais básicas estão automatizados, mas não são apresentados como pentest ou homologação institucional.

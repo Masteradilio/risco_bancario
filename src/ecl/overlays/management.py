@@ -35,17 +35,18 @@ class ManagementOverlay:
         if any(value is not None for value in reversal_fields):
             if not all(value is not None for value in reversal_fields):
                 raise DomainValidationError("overlay reversal requires date, approver and reason")
-            assert self.reversed_at is not None
-            normalized = aware_utc(self.reversed_at, field="reversed_at")
+            reversed_at = self.reversed_at
+            reversed_by = self.reversed_by
+            reversal_reason = self.reversal_reason
+            if reversed_at is None or reversed_by is None or reversal_reason is None:
+                raise DomainValidationError("overlay reversal requires date, approver and reason")
+            normalized = aware_utc(reversed_at, field="reversed_at")
             if normalized < self.approved_at or normalized.date() < self.effective_from:
                 raise TemporalConsistencyError("overlay reversal cannot precede approval or effect")
             object.__setattr__(self, "reversed_at", normalized)
-            assert self.reversed_by is not None and self.reversal_reason is not None
+            object.__setattr__(self, "reversed_by", non_empty(reversed_by, field="reversed_by"))
             object.__setattr__(
-                self, "reversed_by", non_empty(self.reversed_by, field="reversed_by")
-            )
-            object.__setattr__(
-                self, "reversal_reason", non_empty(self.reversal_reason, field="reversal_reason")
+                self, "reversal_reason", non_empty(reversal_reason, field="reversal_reason")
             )
 
     def is_active(self, as_of: date) -> bool:

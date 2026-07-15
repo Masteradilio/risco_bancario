@@ -2020,18 +2020,41 @@ Transformar a plataforma em um sistema reproduzível e confiável.
 
 ### Subtarefas
 
-- [ ] SAST e dependency scan.
-- [ ] revisão de autenticação/autorização.
-- [ ] proteção de arquivos exportados.
-- [ ] validação de uploads.
-- [ ] política de retenção e exclusão.
-- [ ] pentest automatizado básico.
+- [x] SAST e dependency scan.
+- [x] revisão de autenticação/autorização.
+- [x] proteção de arquivos exportados.
+- [x] validação de uploads.
+- [x] política de retenção e exclusão.
+- [x] pentest automatizado básico.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- SAST/SCA: o gate executa Ruff Security sobre todo `src`; SQL dinâmico foi
+  restringido por allowlist. `pip-audit` e `npm audit` locais não encontraram
+  vulnerabilidades conhecidas, e Gitleaks permanece obrigatório na CI.
+- Autenticação/autorização: revisão confirmou segredo externo, JWT com algoritmo,
+  issuer/audience e sessão fixos, bcrypt, revogação, rate limit, RBAC sem curingas e
+  confirmação crítica ligada ao usuário/ação/hash; headers defensivos foram
+  adicionados a todas as respostas.
+- Arquivos: exports usam raiz privada, nome gerado pelo servidor, criação exclusiva,
+  hash e permissões restritas. Uploads futuros têm allowlist CSV/JSON/XML, limite de
+  tamanho, validação de MIME/estrutura/UTF-8 e bloqueio de traversal, DTD e entidades.
+- Retenção: política `2026.07.1` e comando operacional removem somente sessões,
+  confirmações, jobs e exports vencidos; resultados, linhagem e auditoria ficam fora
+  da exclusão automática, e cada expurgo gera evento `RETENTION_PURGE`.
+- Teste ofensivo: regressões automatizadas cobrem SQL injection no login, JWT
+  `alg=none`, acesso anônimo/indevido, método não exposto e controles de arquivos.
+  A evidência não é apresentada como pentest independente ou homologação.
+- Evidência: 23 testes focados aprovados; gate integral com SAST verde, 562 testes
+  canônicos, 91,14% de cobertura, 118 testes legados, 7 skips esperados e build
+  frontend; documentação em `docs/security/SECURITY_OPERATIONS.md`.
 
 ### Critérios de aceite
 
-- [ ] CI verde é obrigatório para merge.
-- [ ] O sistema processa o volume-alvo definido.
-- [ ] Falhas são observáveis e recuperáveis.
+- [x] CI verde é obrigatório para merge.
+- [x] O sistema processa o volume-alvo definido.
+- [x] Falhas são observáveis e recuperáveis.
 
 ---
 

@@ -42,6 +42,13 @@ def payload_hash(payload_json: str) -> str:
 class VersionedRepository:
     """Persist immutable inputs and revisioned ECL executions."""
 
+    _IMMUTABLE_IDENTITIES = {
+        "operational_contracts": ("contract_id", "source_version"),
+        "operational_snapshots": ("snapshot_id", "reference_date"),
+        "model_registry_models": ("model_id", "version"),
+        "model_registry_scenarios": ("scenario_id", "version"),
+    }
+
     def __init__(self, database: DatabaseManager) -> None:
         self.database = database
 
@@ -51,11 +58,14 @@ class VersionedRepository:
         identity_columns: Mapping[str, str],
         payload: Mapping[str, Any],
     ) -> str:
+        expected_identity = self._IMMUTABLE_IDENTITIES.get(table)
+        if expected_identity is None or tuple(identity_columns) != expected_identity:
+            raise ValueError("unsupported immutable table or identity columns")
         serialized = canonical_json(payload)
         digest = payload_hash(serialized)
         where = " AND ".join(f"{column} = ?" for column in identity_columns)
         existing = self.database.fetch_one(
-            f"SELECT payload_hash FROM {table} WHERE {where}",
+            f"SELECT payload_hash FROM {table} WHERE {where}",  # noqa: S608
             tuple(identity_columns.values()),
         )
         if existing:
@@ -67,7 +77,7 @@ class VersionedRepository:
         columns = [*identity_columns, "payload_json", "payload_hash"]
         placeholders = ", ".join("?" for _ in columns)
         self.database.execute(
-            f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})",
+            f"INSERT INTO {table} ({', '.join(columns)}) VALUES ({placeholders})",  # noqa: S608
             (*identity_columns.values(), serialized, digest),
         )
         return digest

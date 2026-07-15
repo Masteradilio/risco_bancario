@@ -1,0 +1,14 @@
+{
+  "policy_version": "2026.07.1",
+  "expired_sessions_days": 30,
+  "expired_confirmations_days": 30,
+  "finished_jobs_days": 30,
+  "generated_exports_days": 7,
+  "immutable_categories": [
+    "audit_events",
+    "audit_lineage_events",
+    "calculation_executions",
+    "calculation_results"
+  ],
+  "evidence_status": "demonstrative_policy_not_institutionally_approved"
+}

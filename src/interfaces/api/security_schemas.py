@@ -12,7 +12,7 @@ class LoginRequest(StrictModel):
 
 class TokenResponse(StrictModel):
     access_token: str
-    token_type: str = "bearer"
+    token_type: str = "bearer"  # noqa: S105 - OAuth token type, not a credential
 
 
 class ConfirmationRequest(StrictModel):
