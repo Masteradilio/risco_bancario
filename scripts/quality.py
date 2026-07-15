@@ -36,6 +36,7 @@ FORMAT_TARGETS = (
     "scripts/deploy.py",
     "scripts/performance_benchmark.py",
     "scripts/security_maintenance.py",
+    "scripts/e2e_pipeline.py",
     "scripts/quality.py",
 )
 
@@ -54,6 +55,7 @@ MYPY_TARGETS = (
     "src/ecl/stage3",
     "src/agent",
     "src/application/services",
+    "src/application/e2e.py",
     "src/infrastructure/configuration",
     "src/infrastructure/database",
     "src/infrastructure/deployment",
@@ -75,6 +77,7 @@ MYPY_TARGETS = (
     "scripts/deploy.py",
     "scripts/performance_benchmark.py",
     "scripts/security_maintenance.py",
+    "scripts/e2e_pipeline.py",
     "scripts/quality.py",
 )
 
