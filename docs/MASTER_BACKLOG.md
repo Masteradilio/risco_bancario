@@ -1751,11 +1751,22 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Criar migrations.
-- [ ] Persistir contratos, snapshots, modelos, cenários e resultados.
-- [ ] Persistir lineage e hashes.
-- [ ] Implementar idempotência e reprocessamento.
-- [ ] Separar dados operacionais, modelos e auditoria.
+- [x] Criar migrations.
+- [x] Persistir contratos, snapshots, modelos, cenários e resultados.
+- [x] Persistir lineage e hashes.
+- [x] Implementar idempotência e reprocessamento.
+- [x] Separar dados operacionais, modelos e auditoria.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: manager explícito e fail-closed, migrations SQLite/PostgreSQL versionadas por checksum e repositório em `src/infrastructure/database`.
+- Persistência: contratos, snapshots, observações macro, modelos, cenários, execuções revisionadas, resultados por período/cenário e eventos de linhagem possuem fronteiras lógicas próprias.
+- Exatidão: `Decimal` é serializado sem ponto flutuante; SQLite usa texto decimal exato e PostgreSQL usa `NUMERIC`.
+- Idempotência: identidades repetidas com o mesmo hash são reutilizadas; colisões divergentes falham; reprocessamento explícito cria revisão ligada à execução anterior.
+- Segurança operacional: PostgreSQL nunca cai silenciosamente para SQLite e migrations aplicadas não podem mudar de checksum.
+- Documentação: `docs/architecture/PERSISTENCE_VERSIONING.md` registra configuração, decisões e limitações.
+- Evidência: testes automatizados cobrem migrations, separação, ausência de usuários fictícios, hashes, conflitos, reprocessamento, precisão monetária e imutabilidade da linhagem.
 
 ## Tarefa 14.2 — APIs
 

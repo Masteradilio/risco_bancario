@@ -83,6 +83,9 @@ logs/
 
 # Data files (large datasets)
 dados/
+*.db
+*.sqlite
+*.sqlite3
 
 # Notification outputs
 propensao/notificacoes/

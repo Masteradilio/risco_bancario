@@ -1,19 +1,19 @@
 # Changelog - Sistema de Gestão de Risco Bancário
 
-Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
-
-O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
-e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
-
----
-
-## [Não lançado]
-
-### Governança e baseline
-
-- Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.
-- Preservado o commit-base `265cb644f4dbb7e96d1566ecd982260851ade5fb` na tag publicada `modernization-baseline-20260714`.
-- Adicionado `docs/baseline/CURRENT_STATE_BASELINE.md` com inventário de APIs, frontends, bancos, containers, modelos, artefatos, dependências e dados.
+Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
+
+O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
+e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
+
+---
+
+## [Não lançado]
+
+### Governança e baseline
+
+- Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.
+- Preservado o commit-base `265cb644f4dbb7e96d1566ecd982260851ade5fb` na tag publicada `modernization-baseline-20260714`.
+- Adicionado `docs/baseline/CURRENT_STATE_BASELINE.md` com inventário de APIs, frontends, bancos, containers, modelos, artefatos, dependências e dados.
 - Registrado o estado real da regressão: suítes aprovadas, falhas de integração, erros de coleta, build frontend quebrado e bloqueios de Docker.
 - Todas as métricas citadas no baseline foram qualificadas como resultados de testes locais ou artefatos sintéticos/demonstrativos, sem alegação de conformidade institucional.
 - Formalizado em `docs/SCOPE.md` o núcleo de impairment/ECL, suas extensões limitadas, exclusões e fronteiras de módulos.
@@ -105,7 +105,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Executado backtesting independente de LGD com recuperação prevista/realizada, coortes fechadas e abertas e cortes de cura, write-off e garantia; MAE, RMSE e volume rejeitam o candidato, sem atribuir LGD final a workouts censurados.
 - Executado backtesting independente de EAD/CCF com saldo e drawdown previstos/realizados, cortes por produto e utilização e exclusão explícita de off-balance sem histórico; volume e MAE relativo de EAD rejeitam o componente rotativo.
 - Executado backtesting independente de ECL comparando ECL inicial com perdas reais e analisando a waterfall de variação; a amostra nula de outcomes maduros e a falta de snapshots históricos rejeitam o componente.
-- Implementadas rotinas de monitoramento operacional e estatístico, incluindo cálculo de PSI para drift, alertas de calibração, estabilidade de staging, schema drift e desvio macroeconômico de cenários.
+- Implementadas rotinas de monitoramento operacional e estatístico, incluindo cálculo de PSI para drift, alertas de calibração, estabilidade de staging, schema drift e desvio macroeconômico de cenários.
+
+- Criada persistência versionada com migrations SQLite/PostgreSQL checksummed, separação lógica de dados operacionais, registry de modelos, cálculos e auditoria, hashes de linhagem, idempotência, reprocessamento revisionado e preservação exata de valores `Decimal`.
 - Publicados os Model Cards de PD, LGD, EAD/CCF e criado o Limitation Register detalhando as restrições e limitações de dados sintéticos observadas na validação.
 
 ---
