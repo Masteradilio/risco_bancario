@@ -1,9 +1,9 @@
 # Jornada E2E canônica
 
 - Status: `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`
-- Execução ECL: `1f03c5b9b04489ddea458489fc41bc04a9ed61ccae9a3c509afd7e55d38aa29d`
+- Execução ECL: `a15e44a18e1432dabbc470e861b4bc29ed9565aa88fd6d29032ba61733691697`
 - ECL econômico / overlay / piso / final: 4.00 / 1.00 / 0.00 / 5.00
-- Reconciliação: `True`; ledger `7dded00dd54b4313e8ad8ad29ab5005c10d812261c67e5460700a42ab5a3e63e`
+- Reconciliação: `True`; ledger `598f835f55f04279340b38e74edd8b0dcd4ce941eeff82fc888212b4db8e814d`
 - Doc3040: `PREVALIDATED_DERIVED_XSD`; XSD oficial executado: `False`; críticas oficiais executadas: `False`
 - Bloqueios de aprovação: pd, sicr, lgd, ead
 

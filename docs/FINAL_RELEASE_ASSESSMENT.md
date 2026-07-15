@@ -2,6 +2,8 @@
 
 ## Resultado
 
+Esta avaliação acompanha a release de modernização `v2.0.0`.
+
 O backlog atingiu **10/10 de completude técnica** nas dez dimensões revisadas
 para o escopo de demonstração sintética. A nota mede se os critérios do estado-alvo
 possuem implementação, teste, documentação e evidência rastreável. Ela **não é
@@ -39,8 +41,9 @@ em medir, documentar, bloquear e tornar o resultado reproduzível.
 
 ## Evidências objetivas
 
-- suíte canônica: 578 testes aprovados, 91,25% de cobertura no gate da Tarefa
-  16.5; suíte legada: 118 aprovados e 7 ignorados;
+- suíte canônica: 580 testes aprovados, 91,25% de cobertura no gate final,
+  incluindo a verificação dos quatro model cards; suíte legada: 118 aprovados e
+  7 ignorados;
 - instalação limpa: source archive isolado, `venv` novo, dependências instaladas,
   wheel editável construído e smoke import aprovado; a demo subsequente concluiu
   com os quatro bloqueios de modelo esperados;

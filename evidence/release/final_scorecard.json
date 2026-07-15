@@ -1,5 +1,6 @@
 {
   "schema_version": "1.0.0",
+  "release_version": "2.0.0",
   "review_date": "2026-07-15",
   "scope": "synthetic_engineering_completeness_not_institutional_approval",
   "scoring_semantics": "10/10 means every target-state engineering criterion has an implemented, tested and documented artifact in the synthetic demonstration scope. It is not evidence of model approval, regulatory certification or fitness for institutional use.",
@@ -80,6 +81,7 @@
       "evidence": [
         "docs/models/SICR_ORIGINATION_BASELINE.md",
         "docs/models/SICR_ENGINE.md",
+        "docs/models/SICR_MODEL_CARD.md",
         "docs/models/STAGE_HISTORY_AND_CURE.md",
         "docs/models/SICR_VALIDATION_REPORT.md"
       ],

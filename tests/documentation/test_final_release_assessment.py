@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,7 @@ def test_final_scorecard_covers_every_dimension_with_real_evidence() -> None:
     dimensions = scorecard["dimensions"]
 
     assert scorecard["technical_score"] == "10/10"
+    assert scorecard["release_version"] == "2.0.0"
     assert scorecard["scope"] == "synthetic_engineering_completeness_not_institutional_approval"
     assert {item["id"] for item in dimensions} == {
         "architecture",
@@ -41,6 +43,14 @@ def test_final_scorecard_covers_every_dimension_with_real_evidence() -> None:
     assert all((ROOT / path).is_file() for item in dimensions for path in item["evidence"])
 
 
+def test_release_version_is_consistent_across_package_and_changelog() -> None:
+    project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
+    changelog = (ROOT / "changelog.md").read_text(encoding="utf-8")
+
+    assert project["version"] == "2.0.0"
+    assert "## [2.0.0] - 2026-07-15" in changelog
+
+
 def test_scorecard_preserves_model_and_regulatory_blockers() -> None:
     dimensions = {item["id"]: item for item in _scorecard()["dimensions"]}
 
@@ -51,6 +61,13 @@ def test_scorecard_preserves_model_and_regulatory_blockers() -> None:
     assert dimensions["ecl"]["decision_status"] == "reconciliation_passed_backtest_rejected"
     assert dimensions["regulation"]["decision_status"] == "prevalidated_derived_xsd_only"
     assert "BLOCKED" in _scorecard()["institutional_release_status"]
+
+
+def test_all_required_model_cards_exist_and_preserve_non_approval() -> None:
+    for name in ("PD", "SICR", "LGD", "EAD"):
+        card = (ROOT / f"docs/models/{name}_MODEL_CARD.md").read_text(encoding="utf-8")
+        assert "`not_approved`" in card
+        assert "aprovação humana" in card
 
 
 def test_human_assessment_defines_the_score_without_claiming_approval() -> None:

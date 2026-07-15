@@ -7,7 +7,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
-## [Não lançado]
+## [2.0.0] - 2026-07-15
 
 ### Revisão final e release readiness
 
@@ -20,7 +20,9 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   determinístico quando o source archive não possui metadados Git.
 - Removidas alegações residuais em TODO, DDL, exportadores e telas legadas;
   protocolos de BCB fictícios foram substituídos por marcadores sintéticos.
-- Gate final da tarefa aprovado com Black, Ruff/SAST, MyPy, 578 testes canônicos,
+- Adicionado o model card de SICR exigido pelo pacote final, preservando decisão
+  `not_approved`, métricas OOT degeneradas e condições de promoção.
+- Gate final aprovado com Black, Ruff/SAST, MyPy, 580 testes canônicos,
   91,25% de cobertura, 118 regressões legadas, 7 skips e build React.
 
 ### Documentação de portfólio

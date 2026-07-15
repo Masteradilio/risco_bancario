@@ -5,7 +5,7 @@
     "lgd",
     "ead"
   ],
-  "code_commit": "40109aa54402",
+  "code_commit": "20411a3e8e79",
   "doc3040": {
     "candidate_sha256": "bf5048b632b83eec14b7971d1a8ac4f06864971fd5340b98f485bfb7fedbf5aa",
     "layout_version": "2026.07-observed-20260714",
@@ -20,9 +20,9 @@
   },
   "ecl": {
     "economic_ecl": "4.00",
-    "execution_id": "1f03c5b9b04489ddea458489fc41bc04a9ed61ccae9a3c509afd7e55d38aa29d",
+    "execution_id": "a15e44a18e1432dabbc470e861b4bc29ed9565aa88fd6d29032ba61733691697",
     "final_ecl": "5.00",
-    "ledger_hash": "7dded00dd54b4313e8ad8ad29ab5005c10d812261c67e5460700a42ab5a3e63e",
+    "ledger_hash": "598f835f55f04279340b38e74edd8b0dcd4ce941eeff82fc888212b4db8e814d",
     "management_overlay": "1.00",
     "reconciled": true,
     "regulatory_floor": "0.00",
@@ -32,7 +32,7 @@
   "frontend_and_audit": {
     "auditability": "persisted_execution_and_immutable_ledger_hash",
     "frontend_contract": "/api/v1/ecl/executions/{execution_id}",
-    "lineage_hash": "44c41122c5d3fe4812f51cc114c84220f1511bee90ac01d1836405e182227ad8"
+    "lineage_hash": "6f0da6980f082ab2162835cf2f14a3296ab05c460c3da2ce00f02c4733150ee3"
   },
   "mode": "synthetic_demonstration",
   "models": {

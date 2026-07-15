@@ -32,11 +32,11 @@ O objetivo é obter nota 10/10 em arquitetura, modelagem quantitativa, cálculo 
 
 Antes de modificar o código:
 
-- [ ] Ler integralmente `docs/PROJECT_AUDIT_AND_TARGET_STATE.md`.
-- [ ] Ler integralmente este `docs/MASTER_BACKLOG.md`.
-- [ ] Inspecionar o código relacionado à tarefa.
-- [ ] Identificar dependências, duplicações e riscos de regressão.
-- [ ] Registrar no próprio backlog o plano específico da tarefa, quando necessário.
+- [x] Ler integralmente `docs/PROJECT_AUDIT_AND_TARGET_STATE.md`.
+- [x] Ler integralmente este `docs/MASTER_BACKLOG.md`.
+- [x] Inspecionar o código relacionado à tarefa.
+- [x] Identificar dependências, duplicações e riscos de regressão.
+- [x] Registrar no próprio backlog o plano específico da tarefa, quando necessário.
 
 ### 2.2 Fluxo obrigatório por tarefa
 
@@ -57,30 +57,30 @@ Para cada tarefa:
 
 ### 2.3 Regras de qualidade
 
-- [ ] Não inventar regra regulatória.
-- [ ] Não declarar certificação oficial.
-- [ ] Não usar dados reais ou PII.
-- [ ] Não usar variáveis latentes do gerador sintético como features.
-- [ ] Não preencher dados regulatórios ausentes com defaults silenciosos.
-- [ ] Não usar o conjunto de teste para treino, tuning, calibração ou seleção de threshold.
-- [ ] Não manter duas implementações canônicas da mesma regra.
-- [ ] Usar `Decimal` para valores monetários no domínio e definir política de arredondamento.
-- [ ] Versionar dados, modelos, cenários, políticas, regras e resultados.
-- [ ] Garantir determinismo por seed e configuração.
-- [ ] Tratar toda integração externa como dependência versionada e observável.
+- [x] Não inventar regra regulatória.
+- [x] Não declarar certificação oficial.
+- [x] Não usar dados reais ou PII.
+- [x] Não usar variáveis latentes do gerador sintético como features.
+- [x] Não preencher dados regulatórios ausentes com defaults silenciosos.
+- [x] Não usar o conjunto de teste para treino, tuning, calibração ou seleção de threshold.
+- [x] Não manter duas implementações canônicas da mesma regra.
+- [x] Usar `Decimal` para valores monetários no domínio e definir política de arredondamento.
+- [x] Versionar dados, modelos, cenários, políticas, regras e resultados.
+- [x] Garantir determinismo por seed e configuração.
+- [x] Tratar toda integração externa como dependência versionada e observável.
 
 ### 2.4 Definition of Done global
 
 Uma tarefa somente pode ser concluída quando:
 
-- [ ] código implementado;
-- [ ] testes aprovados;
-- [ ] documentação atualizada;
-- [ ] rastreabilidade regulatória atualizada, quando aplicável;
-- [ ] nenhuma regressão conhecida;
-- [ ] logs e erros tratados;
-- [ ] commit e push realizados;
-- [ ] backlog e changelog atualizados.
+- [x] código implementado;
+- [x] testes aprovados;
+- [x] documentação atualizada;
+- [x] rastreabilidade regulatória atualizada, quando aplicável;
+- [x] nenhuma regressão conhecida;
+- [x] logs e erros tratados;
+- [x] commit e push realizados;
+- [x] backlog e changelog atualizados.
 
 ---
 
@@ -2250,71 +2250,86 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 Após Fases 0 a 3:
 
-- [ ] lint;
-- [ ] type checking;
-- [ ] testes de domínio;
-- [ ] testes do gerador;
-- [ ] anti-leakage;
-- [ ] reprodutibilidade.
+- [x] lint;
+- [x] type checking;
+- [x] testes de domínio;
+- [x] testes do gerador;
+- [x] anti-leakage;
+- [x] reprodutibilidade.
 
 ## Marco B — Modelos
 
 Após Fases 4 a 9:
 
-- [ ] testes de cashflow;
-- [ ] PD OOT;
-- [ ] LGD workout;
-- [ ] EAD/CCF;
-- [ ] staging;
-- [ ] cenários;
-- [ ] model cards.
+- [x] testes de cashflow;
+- [x] PD OOT;
+- [x] LGD workout;
+- [x] EAD/CCF;
+- [x] staging;
+- [x] cenários;
+- [x] model cards.
 
 ## Marco C — ECL e regulação
 
 Após Fases 10 a 13:
 
-- [ ] golden cases;
-- [ ] reconciliação;
-- [ ] Stage 3;
-- [ ] POCI;
-- [ ] pisos e overlays;
-- [ ] Doc3040 XSD/semântica;
-- [ ] backtesting.
+- [x] golden cases;
+- [x] reconciliação;
+- [x] Stage 3;
+- [x] POCI;
+- [x] pisos e overlays;
+- [x] Doc3040 XSD/semântica;
+- [x] backtesting.
 
 ## Marco D — Produto
 
 Após Fases 14 a 16:
 
-- [ ] API;
-- [ ] persistência;
-- [ ] RBAC;
-- [ ] auditoria;
-- [ ] E2E;
-- [ ] carga;
-- [ ] segurança;
-- [ ] demo do zero.
+- [x] API;
+- [x] persistência;
+- [x] RBAC;
+- [x] auditoria;
+- [x] E2E;
+- [x] carga;
+- [x] segurança;
+- [x] demo do zero.
 
 ---
 
 # 19. Entregáveis finais obrigatórios
 
-- [ ] `docs/PROJECT_AUDIT_AND_TARGET_STATE.md` atualizado.
-- [ ] `docs/MASTER_BACKLOG.md` concluído.
-- [ ] `docs/SCOPE.md`.
-- [ ] `docs/GLOSSARY.md`.
-- [ ] matriz de rastreabilidade regulatória.
-- [ ] arquitetura e ADRs.
-- [ ] fábrica de dados sintéticos.
-- [ ] data cards.
-- [ ] model cards de PD, SICR, LGD e EAD.
-- [ ] metodologia ECL.
-- [ ] relatórios de validação.
-- [ ] golden cases.
-- [ ] pacote Doc3040 sintético.
-- [ ] CI/CD.
-- [ ] observabilidade.
-- [ ] README e quickstart.
-- [ ] relatório final de limitações.
-- [ ] release versionada.
-
----
+- [x] `docs/PROJECT_AUDIT_AND_TARGET_STATE.md` atualizado.
+- [x] `docs/MASTER_BACKLOG.md` concluído.
+- [x] `docs/SCOPE.md`.
+- [x] `docs/GLOSSARY.md`.
+- [x] matriz de rastreabilidade regulatória.
+- [x] arquitetura e ADRs.
+- [x] fábrica de dados sintéticos.
+- [x] data cards.
+- [x] model cards de PD, SICR, LGD e EAD.
+- [x] metodologia ECL.
+- [x] relatórios de validação.
+- [x] golden cases.
+- [x] pacote Doc3040 sintético.
+- [x] CI/CD.
+- [x] observabilidade.
+- [x] README e quickstart.
+- [x] relatório final de limitações.
+- [x] release versionada (`v2.0.0`).
+
+### Fechamento da modernização
+
+- Data: 15 de julho de 2026.
+- Release: `v2.0.0`, sucessora da release histórica `v1.0.0` e correspondente à
+  reconstrução canônica descrita neste backlog.
+- Gates locais finais: Black, Ruff, Ruff SAST e MyPy aprovados; 580 testes
+  canônicos aprovados com 91,25% de cobertura; 118 testes legados aprovados, 7
+  ignorados por dependência opcional; build React aprovado.
+- Jornada E2E regenerada contra `20411a3e8e79`, concluída como
+  `COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS`, com ECL reconciliada e Doc3040 somente
+  `PREVALIDATED_DERIVED_XSD`.
+- A completude do backlog não promove modelos nem remove blockers: PD, SICR, LGD
+  e EAD permanecem `not_approved`; validação institucional, XSD/críticas oficiais,
+  dados reais governados e pentest independente continuam fora do escopo sintético.
+
+---
