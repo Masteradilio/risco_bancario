@@ -1,0 +1,20 @@
+{
+  "attribution_observations": 0,
+  "attributions": [],
+  "decision": "rejected",
+  "decision_reasons": [
+    "mature ECL outcome sample below objective minimum",
+    "initial ECL cannot be compared with realized losses",
+    "comparable snapshots are missing for complete attribution"
+  ],
+  "evidence_hash": "19a58a9d101b912ce494804de6c207f376ac456a9f03733b47a7b36eac5d1f87",
+  "evidence_scope": "synthetic_independent_backtest",
+  "mature_observations": 0,
+  "methodology_id": "probability_weighted_ecl",
+  "methodology_version": "synthetic-2026.07.1",
+  "outcome_metrics": [],
+  "policy_hash": "f8f4fcb92aefe945ed3c97c100c8a6f97d4cfe53e8ea98823998bd8b76b60d38",
+  "policy_version": "2026.07.1",
+  "report_hash": "1b0f57af181de5fa3eb96bb38a23edabee60c8d6227bcdf30b755ff79f0b275f",
+  "total_observations": 80
+}

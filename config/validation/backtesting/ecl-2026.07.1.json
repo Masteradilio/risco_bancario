@@ -1,0 +1,14 @@
+{
+  "version": "2026.07.1",
+  "minimum_mature_observations": 100,
+  "maximum_absolute_relative_bias": 0.20,
+  "required_attribution_components": [
+    "volume",
+    "stage",
+    "pd",
+    "lgd",
+    "ead",
+    "scenario",
+    "overlay"
+  ]
+}
