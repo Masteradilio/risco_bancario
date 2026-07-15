@@ -2121,10 +2121,22 @@ Demonstrar de ponta a ponta que o sistema atende ao escopo declarado.
 
 ### Subtarefas
 
-- [ ] Exportar matriz de rastreabilidade.
-- [ ] Exportar cobertura de testes por requisito.
-- [ ] Exportar limitações e itens não aplicáveis.
-- [ ] Exportar versões de leiaute e normas consultadas.
+- [x] Exportar matriz de rastreabilidade.
+- [x] Exportar cobertura de testes por requisito.
+- [x] Exportar limitações e itens não aplicáveis.
+- [x] Exportar versões de leiaute e normas consultadas.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: exportador `src/regulatory/traceability/package.py`, CLI
+  `scripts/export_regulatory_package.py`, regressões determinísticas e pacote em
+  `evidence/regulatory/`.
+- Snapshot: 27 requisitos, cobertura por caminhos e funções de teste, dois itens
+  não aplicáveis, catálogo de fontes e registry de leiaute com hashes.
+- Gate: seis requisitos permanecem `partial`/`planned`; o manifesto os preserva
+  como bloqueadores e qualifica o escopo como pré-validação sintética, não
+  certificação.
 
 ## Tarefa 16.4 — Documentação de portfólio
 

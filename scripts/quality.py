@@ -37,6 +37,7 @@ FORMAT_TARGETS = (
     "scripts/performance_benchmark.py",
     "scripts/security_maintenance.py",
     "scripts/e2e_pipeline.py",
+    "scripts/export_regulatory_package.py",
     "scripts/quality.py",
 )
 
@@ -79,6 +80,7 @@ MYPY_TARGETS = (
     "scripts/performance_benchmark.py",
     "scripts/security_maintenance.py",
     "scripts/e2e_pipeline.py",
+    "scripts/export_regulatory_package.py",
     "scripts/quality.py",
 )
 

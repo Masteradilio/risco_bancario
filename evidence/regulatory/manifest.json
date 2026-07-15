@@ -1,0 +1,28 @@
+{
+  "artifacts": [
+    {
+      "path": "coverage.md",
+      "sha256": "c7981d121551f2e6c3c684e401a22ebf5b89a180c6d247f7dcef8fe6c90c8c83"
+    },
+    {
+      "path": "limitations_and_not_applicable.json",
+      "sha256": "2124befd889c3bffa8f9e98bcd8672e02b8652d7e7429972437aae702211fb08"
+    },
+    {
+      "path": "sources_and_layouts.json",
+      "sha256": "3d86559e513af87f141009641b70d65e5a3cb174843af38e089ec7080e955e2a"
+    },
+    {
+      "path": "test_coverage.json",
+      "sha256": "7caa1230fe4b129b6808e366c4f853176a0d44a4e4d8198873438735d00aeb06"
+    },
+    {
+      "path": "traceability_matrix.csv",
+      "sha256": "849411ece7c7a548ba0014638545a4e78d6a332195420dfc48a7639043b3ffb0"
+    }
+  ],
+  "release_blockers": 6,
+  "requirements": 27,
+  "schema_version": "1.0.0",
+  "scope": "synthetic_prevalidation_not_certification"
+}

@@ -1,0 +1,80 @@
+{
+  "layouts": [
+    {
+      "document": {
+        "artifacts": {
+          "bacen_reconciliation_rules": {
+            "filename": "SCR3040_RegrasValidacaoBacen.xls",
+            "sha256": "8efd7bbd8ad50fdb0acf7413532235740eefdadbdda56312274154cb491e92e5",
+            "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_RegrasValidacaoBacen.xls"
+          },
+          "critics": {
+            "filename": "SCR3040_Criticas.xls",
+            "sha256": "10718c233c5a27f07d49554b716c68c35dfbd92f1df2d0d328be56b1507cda40",
+            "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_Criticas.xls"
+          },
+          "filling_instructions": {
+            "filename": "SCR_InstrucoesDePreenchimento_Doc3040.pdf",
+            "sha256": "3a2f9dff406b404b26617ab0dce79b5992cc67ac410ff60047236c73b11daf8b",
+            "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR_InstrucoesDePreenchimento_Doc3040.pdf"
+          },
+          "layout_and_domains": {
+            "filename": "SCR3040_Leiaute.xls",
+            "sha256": "ab3cad54fe481a52b5c4c24c832af3b1c0ef1e0d75cbaa3639611c903ed5c70f",
+            "url": "https://www.bcb.gov.br/content/estabilidadefinanceira/Leiaute_de_documentos/scrdoc3040/SCR3040_Leiaute.xls"
+          }
+        },
+        "critic_catalog": {
+          "artifacts": [
+            "critics",
+            "bacen_reconciliation_rules"
+          ],
+          "critics_last_update": "2026-07-10",
+          "execution_status": "versioned_not_yet_executed"
+        },
+        "derived_xsd": {
+          "derived_from_artifact": "layout_and_domains",
+          "document_code": "3040",
+          "path": "config/regulatory/doc3040/schemas/doc3040-2026.07-derived.xsd",
+          "sha256": "73275951cbdfd95dbda3b2955ffc1355bc46c682720cb09dc68e75411b5ebc54",
+          "status": "project_derived_structural_schema_not_official_bcb_xsd"
+        },
+        "document_code": "3040",
+        "domain_catalog": {
+          "active_markers": [
+            "NR",
+            "NR1",
+            "NR2",
+            "NR4"
+          ],
+          "artifact": "layout_and_domains",
+          "future_markers_must_be_filtered": [
+            "NR3"
+          ],
+          "sheets": [
+            "Anexo",
+            "Anexo 26 - InfosAdicionais"
+          ]
+        },
+        "effective_from": "2026-07-01",
+        "effective_to": "2026-11-01",
+        "generation_enabled": true,
+        "normative_acts": [
+          "IN BCB 733/2026",
+          "IN BCB 735/2026"
+        ],
+        "observed_at": "2026-07-14",
+        "source_id": "SRC-DOC3040",
+        "version": "2026.07-observed-20260714",
+        "xsd": null,
+        "xsd_status": "official_source_page_lists_xsd_3045_not_3040"
+      },
+      "path": "config/regulatory/doc3040/layouts/2026.07-observed-20260714.json",
+      "sha256": "0b84ad4c7735ad067a8cffce612f2f456f1f448a17ac8e5ce33eb0d375a48d2a"
+    }
+  ],
+  "source_register": {
+    "path": "docs/regulatory/SOURCE_REGISTER.md",
+    "sha256": "9101bf37248dcd0a96677012ee1a2d1e440e2c7b5ad0bef83e7e5a2f2e8bba0f"
+  }
+}

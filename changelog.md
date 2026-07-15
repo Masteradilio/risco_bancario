@@ -29,6 +29,13 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Automatizada no gate CI a comparação entre JSON, fixture CSV, calculadora
   independente e resultados do motor canônico.
 
+### Pacote regulatório
+
+- Criado exportador determinístico de matriz, cobertura de testes, limitações,
+  itens não aplicáveis, fontes e versões de leiaute com manifesto SHA-256.
+- Removido o rascunho legado que apontava para módulos e testes inexistentes;
+  o snapshot canônico mantém seis bloqueadores de release explícitos.
+
 ### CI e reprodutibilidade
 
 - Criado pipeline obrigatório e multiplataforma com Black, Ruff, MyPy, testes

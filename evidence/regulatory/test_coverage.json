@@ -1,0 +1,254 @@
+[
+  {
+    "requirement_id": "IFRS9-ECL-001",
+    "status": "implemented",
+    "test_functions": 37,
+    "test_paths": [
+      "tests/models/test_stage1_ecl.py",
+      "tests/models/test_stage2_ecl.py",
+      "tests/models/test_ecl_golden_cases.py",
+      "tests/models/test_ecl_grouping.py",
+      "tests/models/test_ecl_reconciliation.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-ECL-002",
+    "status": "implemented",
+    "test_functions": 52,
+    "test_paths": [
+      "tests/models/test_ecl_golden_cases.py",
+      "tests/models/test_scenario_ecl.py",
+      "tests/models/test_stage1_ecl.py",
+      "tests/models/test_stage2_ecl.py",
+      "tests/models/test_stage3_ecl.py",
+      "tests/models/test_poci_scenarios.py",
+      "tests/models/test_ecl_reconciliation.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-SICR-001",
+    "status": "partial",
+    "test_functions": 27,
+    "test_paths": [
+      "tests/models/test_sicr_origination.py",
+      "tests/models/test_sicr_engine.py",
+      "tests/models/test_stage_history.py",
+      "tests/models/test_sicr_validation.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-DEFAULT-001",
+    "status": "partial",
+    "test_functions": 24,
+    "test_paths": [
+      "tests/models/test_default_definition.py",
+      "tests/models/test_stage3_default.py",
+      "tests/models/test_stage_history.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-FL-001",
+    "status": "partial",
+    "test_functions": 28,
+    "test_paths": [
+      "tests/application/test_scenario_service.py",
+      "tests/models/test_macro_risk_relations.py",
+      "tests/models/test_scenario_ecl.py",
+      "tests/models/test_scenario_sensitivity_overlays.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-DISC-001",
+    "status": "implemented",
+    "test_functions": 37,
+    "test_paths": [
+      "tests/models/test_stage1_ecl.py",
+      "tests/models/test_stage2_ecl.py",
+      "tests/models/test_stage3_ecl.py",
+      "tests/models/test_ecl_golden_cases.py",
+      "tests/models/test_poci_scenarios.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-POCI-001",
+    "status": "implemented",
+    "test_functions": 12,
+    "test_paths": [
+      "tests/models/test_poci.py",
+      "tests/models/test_poci_scenarios.py",
+      "tests/fixtures/golden/poci_cases.csv"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-DISCLOSURE-001",
+    "status": "planned",
+    "test_functions": 0,
+    "test_paths": [
+      "tests/regulatory/test_disclosure_reconciliation.py"
+    ]
+  },
+  {
+    "requirement_id": "IFRS9-HEDGE-NA",
+    "status": "not_applicable",
+    "test_functions": 0,
+    "test_paths": []
+  },
+  {
+    "requirement_id": "CMN4966-STAGE-001",
+    "status": "implemented",
+    "test_functions": 24,
+    "test_paths": [
+      "tests/models/test_sicr_engine.py",
+      "tests/models/test_stage3_default.py",
+      "tests/models/test_stage_history.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-ECL-001",
+    "status": "implemented",
+    "test_functions": 20,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_ecl.py",
+      "tests/regulatory/test_cmn4966_simplified.py",
+      "tests/regulatory/test_monthly_review.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-DEFAULT-001",
+    "status": "implemented",
+    "test_functions": 17,
+    "test_paths": [
+      "tests/models/test_default_definition.py",
+      "tests/models/test_stage3_default.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-CURE-001",
+    "status": "implemented",
+    "test_functions": 15,
+    "test_paths": [
+      "tests/models/test_default_definition.py",
+      "tests/models/test_stage_history.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-WO-001",
+    "status": "implemented",
+    "test_functions": 14,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_writeoff.py",
+      "tests/models/test_stage3_ecl.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-MOD-001",
+    "status": "implemented",
+    "test_functions": 11,
+    "test_paths": [
+      "tests/domain/test_modifications.py",
+      "tests/regulatory/test_cmn4966_writeoff.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-DISC-001",
+    "status": "implemented",
+    "test_functions": 4,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_disclosures.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-REV-001",
+    "status": "implemented",
+    "test_functions": 3,
+    "test_paths": [
+      "tests/regulatory/test_monthly_review.py"
+    ]
+  },
+  {
+    "requirement_id": "BCB352-STAGE-001",
+    "status": "implemented",
+    "test_functions": 24,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_simplified.py",
+      "tests/models/test_sicr_engine.py",
+      "tests/models/test_stage_history.py"
+    ]
+  },
+  {
+    "requirement_id": "BCB352-ECL-001",
+    "status": "implemented",
+    "test_functions": 26,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_ecl.py",
+      "tests/regulatory/test_cmn4966_simplified.py",
+      "tests/regulatory/test_cmn4966_writeoff.py",
+      "tests/regulatory/test_monthly_review.py"
+    ]
+  },
+  {
+    "requirement_id": "BCB352-FLOOR-001",
+    "status": "implemented",
+    "test_functions": 8,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_ecl.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-SIMPLIFIED-001",
+    "status": "implemented",
+    "test_functions": 9,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_simplified.py"
+    ]
+  },
+  {
+    "requirement_id": "CMN4966-CLASS-001",
+    "status": "implemented",
+    "test_functions": 11,
+    "test_paths": [
+      "tests/regulatory/test_cmn4966_classification.py"
+    ]
+  },
+  {
+    "requirement_id": "BCB352-DISC-001",
+    "status": "planned",
+    "test_functions": 0,
+    "test_paths": [
+      "tests/regulatory/test_bcb352_disclosures.py"
+    ]
+  },
+  {
+    "requirement_id": "DOC3040-LAYOUT-001",
+    "status": "implemented",
+    "test_functions": 21,
+    "test_paths": [
+      "tests/regulatory/test_doc3040_input_contract.py",
+      "tests/regulatory/test_doc3040_layout_registry.py",
+      "tests/regulatory/test_doc3040_generator.py"
+    ]
+  },
+  {
+    "requirement_id": "DOC3040-CRIT-001",
+    "status": "partial",
+    "test_functions": 7,
+    "test_paths": [
+      "tests/regulatory/test_doc3040_validation.py"
+    ]
+  },
+  {
+    "requirement_id": "DOC3040-XSD-001",
+    "status": "implemented",
+    "test_functions": 13,
+    "test_paths": [
+      "tests/regulatory/test_doc3040_layout_registry.py",
+      "tests/regulatory/test_doc3040_validation.py"
+    ]
+  },
+  {
+    "requirement_id": "DOC3040-SEND-NA",
+    "status": "not_applicable",
+    "test_functions": 0,
+    "test_paths": []
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "limitation_register": {
+    "path": "docs/validation/LIMITATION_REGISTER.md",
+    "sha256": "94c0ce8e80de5c5c362b846073006418594a91967fcb313d956cfad2e1e11183"
+  },
+  "not_applicable": [
+    {
+      "applicability": "not_applicable",
+      "code": "",
+      "evidence": "docs/SCOPE.md#exclusoes-explicitas",
+      "implementation_status": "not_applicable",
+      "requirement_id": "IFRS9-HEDGE-NA",
+      "source_id": "SRC-IFRS9",
+      "test": "",
+      "topic": "hedge accounting"
+    },
+    {
+      "applicability": "not_applicable",
+      "code": "",
+      "evidence": "docs/SCOPE.md#documento-3040",
+      "implementation_status": "not_applicable",
+      "requirement_id": "DOC3040-SEND-NA",
+      "source_id": "SRC-DOC3040",
+      "test": "",
+      "topic": "doc3040"
+    }
+  ],
+  "release_blockers": [
+    "IFRS9-SICR-001",
+    "IFRS9-DEFAULT-001",
+    "IFRS9-FL-001",
+    "IFRS9-DISCLOSURE-001",
+    "BCB352-DISC-001",
+    "DOC3040-CRIT-001"
+  ]
+}
