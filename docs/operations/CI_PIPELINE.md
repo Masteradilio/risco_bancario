@@ -9,7 +9,8 @@ acionamento manual. A aprovação de uma mudança exige todos os jobs abaixo ver
   cobertura mínima configurada e build TypeScript/Vite;
 - `Security / dependency audit`: `pip-audit` no ambiente Python resolvido e
   `npm audit` nas dependências de produção;
-- `Security / secret scan`: Gitleaks sobre todo o histórico Git;
+- `Security / secret scan`: Gitleaks sobre a faixa de commits determinada pelo evento,
+  com checkout do histórico completo;
 - `Container / api` e `Container / frontend`: builds reproduzíveis, sem publicação.
 
 As actions de terceiros são fixadas por SHA e comentadas com a versão humana. O

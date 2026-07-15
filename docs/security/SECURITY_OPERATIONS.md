@@ -15,8 +15,9 @@ justificativa verificável; SQL dinâmico do repositório é limitado a uma allo
 tabelas e identidades internas antes da composição.
 
 No GitHub, `pip-audit` verifica a resolução congelada de Python, `npm audit` verifica
-dependências de produção do frontend e Gitleaks varre todo o histórico. Todos esses
-checks falham a CI quando encontram violação no nível configurado.
+dependências de produção do frontend e Gitleaks verifica a faixa de commits do evento
+com o histórico disponível. Todos esses checks falham a CI quando encontram violação
+no nível configurado.
 
 Execução local:
 
