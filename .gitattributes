@@ -2,3 +2,6 @@ dados/*.csv filter=lfs diff=lfs merge=lfs -text
 modelo/*.joblib filter=lfs diff=lfs merge=lfs -text
 data/synthetic/**/*.parquet -text
 data/synthetic/**/manifest.json text eol=lf
+config/regulatory/doc3040/schemas/*.xsd text eol=lf
+tests/fixtures/doc3040/**/*.xml text eol=lf
+tests/fixtures/doc3040/**/manifest.json text eol=lf
