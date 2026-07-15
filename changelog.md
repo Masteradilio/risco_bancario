@@ -100,6 +100,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Implementado gerador determinístico de XML candidato Doc3040 com composição oficial de IPOC, blocos condicionais, vencimentos e totalizadores sourced, proibindo COSIF descontinuado e qualquer fração artificial de ECL.
 - Adicionada pré-validação Doc3040 em camadas com XSD estrutural derivado e versionado, domínios conservadores, críticas semânticas locais, reconciliação carteira/ECL e relatório por linha/campo/regra, preservando avisos de que XSD e críticas oficiais não foram executados.
 - Publicado pacote golden Doc3040 `2026.07` com XML sintético localmente pré-validado, falhas isoladas de XSD/domínio/semântica, hashes imutáveis e regressão que bloqueia datas-base sem versão observada.
+- Criado framework separado de validação de risco de modelo com segregação técnica entre desenvolvimento e validação, decisões objetivas de aprovação/ressalva/rejeição e relatório reproduzível ancorado em hashes, explicitamente sem representar aprovação institucional.
 
 ---
 

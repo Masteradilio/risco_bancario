@@ -1,0 +1,11 @@
+{
+  "version": "2026.07.1",
+  "minimum_criteria": 3,
+  "reject_on_mandatory_failure": true,
+  "reject_on_critical_finding": true,
+  "reject_on_high_finding": true,
+  "reservation_on_non_mandatory_failure": true,
+  "reservation_on_warning": true,
+  "reservation_on_medium_or_low_finding": true,
+  "required_categories": ["conceptual_soundness", "data", "performance"]
+}

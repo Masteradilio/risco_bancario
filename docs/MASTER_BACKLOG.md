@@ -1587,10 +1587,24 @@ Criar evidências de que modelos e cálculos funcionam, permanecem estáveis e p
 
 ### Subtarefas
 
-- [ ] Criar pacote separado de validação.
-- [ ] Impedir que o pipeline de desenvolvimento aprove automaticamente o modelo.
-- [ ] Definir critérios de aprovação, ressalva e rejeição.
-- [ ] Criar relatório de validação reproduzível.
+- [x] Criar pacote separado de validação.
+- [x] Impedir que o pipeline de desenvolvimento aprove automaticamente o modelo.
+- [x] Definir critérios de aprovação, ressalva e rejeição.
+- [x] Criar relatório de validação reproduzível.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: `src/validation/model_risk`, política `2026.07.1`, testes de contrato e
+  `docs/validation/INDEPENDENT_VALIDATION_FRAMEWORK.md`.
+- Independência: submissões de desenvolvimento são obrigatoriamente `not_approved`; a
+  identidade, unidade, função e atestado do validador são verificados antes da decisão.
+- Decisão: critérios obrigatórios e severidades definem aprovação, ressalva ou rejeição
+  sem override silencioso do desenvolvimento.
+- Reprodutibilidade: commit, dataset, artefatos, política, evidências e relatório possuem
+  hashes/identificadores determinísticos; a ordem de entrada não altera o resultado.
+- Limite: a independência é simulada e técnica, sem alegação de aprovação institucional.
+- Evidência: 15 testes direcionados integrados ao gate geral, além de Black, Ruff e MyPy.
 
 ## Tarefa 13.2 — Backtesting de PD
 
