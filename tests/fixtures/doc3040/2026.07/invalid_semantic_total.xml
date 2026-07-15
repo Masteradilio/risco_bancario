@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Doc3040 DtBase="2026-07" CNPJ="12345678" Remessa="1" Parte="1" TpArq="F" NomeResp="Pessoa Responsavel" EmailResp="responsavel@example.test" TelResp="1133334444" TotalCli="2" MetodApPE="C" MetodDifTJE="N">
+  <Cli Cd="12345678901" Tp="1" Autorzc="S" PorteCli="1" IniRelactCli="2020-01-15" FatAnual="5000.00">
+    <Op IPOC="123456780203112345678901CONTRATO1" Contrt="CONTRATO1" Mod="0203" OrigemRec="0101" Indx="01" PercIndx="100.0000000" VarCamb="790" CEP="01310100" TaxEft="12.5000000" DtContr="2025-01-15" VlrContr="1000.00" NatuOp="01" DtVencOp="2027-01-15" ProvConsttd="20.00" QtdParcelas="24">
+      <Venc v110="580.00" v120="400.00" />
+      <ContInstFinRes4966 ClasAtFin="1" EstInstFin="1" VlrContBr="980.00" VlrPerdaAcum="20.00" TJE="12.5000000" RendMes="10.00" PdEst1="N" CartProvMin="C1" TratRisc="N" />
+    </Op>
+  </Cli>
+</Doc3040>

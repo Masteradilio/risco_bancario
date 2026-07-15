@@ -1541,15 +1541,39 @@ Substituir o simulador heurístico por um gerador e pré-validador versionado, s
 
 ### Subtarefas
 
-- [ ] Criar XML sintético válido.
-- [ ] Criar arquivos inválidos por categoria de erro.
-- [ ] Testar regressão por versão de leiaute.
+- [x] Criar XML sintético válido.
+- [x] Criar arquivos inválidos por categoria de erro.
+- [x] Testar regressão por versão de leiaute.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: quatro fixtures, manifesto com hashes,
+  `tests/regulatory/test_doc3040_golden_files.py` e
+  `docs/regulatory/DOC3040_GOLDEN_FILES.md`.
+- Caso positivo: XML sintético reproduzível e localmente pré-validado com carteira/ECL
+  reconciliados.
+- Casos negativos: ausência de campo XSD, modalidade fora do domínio suportado e
+  totalizador semântico divergente.
+- Versão: julho-outubro/2026 fixados no pacote observado em 14/07; meses anteriores e
+  novembro/2026 em diante permanecem bloqueados.
+- Evidência: 7 testes golden/versionamento e 30 testes anteriores do Doc3040 aprovados.
 
 ### Critérios de aceite
 
-- [ ] O fluxo padrão usa XSD e críticas, não apenas parse XML.
-- [ ] Nenhum campo regulatório é inventado.
-- [ ] A interface usa “pré-validador” até homologação oficial.
+- [x] O fluxo padrão usa XSD e críticas, não apenas parse XML.
+- [x] Nenhum campo regulatório é inventado.
+- [x] A interface usa “pré-validador” até homologação oficial.
+
+### Aceite da fase
+
+- O fluxo padrão usa XSD estrutural derivado, domínios versionados, críticas semânticas
+  locais e reconciliação carteira/ECL; parse XML isolado não produz aceite.
+- A cobertura é deliberadamente limitada ao subconjunto sintético julho-outubro/2026.
+  XSD oficial 3040 e execução integral da planilha de críticas BCB permanecem ausentes e
+  são expostos no relatório, sem falsa alegação de homologação.
+- Contrato, registry, geração, pré-validação e golden files eliminam os defaults e
+  cálculos arbitrários do simulador legado.
 
 ---
 

@@ -1,0 +1,22 @@
+{
+  "layout_version": "2026.07-observed-20260714",
+  "status": "synthetic_local_prevalidation_not_bcb_homologation",
+  "files": {
+    "valid_minimal.xml": {
+      "sha256": "48bf651cf25fad1d4bfe81494313c39fc20e1f843d85e85665604737fa9e994a",
+      "expected_status": "PREVALIDATED_DERIVED_XSD"
+    },
+    "invalid_xsd_missing_cep.xml": {
+      "sha256": "5f17af0fa87ce93334ef7b2a9c4fd94b130818d73fc9beef49083c4c0876f115",
+      "expected_rule": "DERIVED-XSD"
+    },
+    "invalid_domain_modality.xml": {
+      "sha256": "97766dd0fb0bbc7b90ecc7cd5bc395201b7c55966e0bf81eae1e5d1ee2dd9ca2",
+      "expected_rule": "LOCAL-DOMAIN"
+    },
+    "invalid_semantic_total.xml": {
+      "sha256": "e95bf71fec4c80752d63f6785ed44ca6336a26202a1e2c2e9e48ba7a42c20c0b",
+      "expected_rule": "LOCAL-TOTAL-CLIENTS"
+    }
+  }
+}

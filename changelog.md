@@ -99,6 +99,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionado registry Doc3040 por data-base com manifesto de hashes oficiais observado em 14/07/2026, catálogos versionados de domínio/críticas e controle que rejeita XSD 3045 ou qualquer artefato sem proveniência 3040.
 - Implementado gerador determinístico de XML candidato Doc3040 com composição oficial de IPOC, blocos condicionais, vencimentos e totalizadores sourced, proibindo COSIF descontinuado e qualquer fração artificial de ECL.
 - Adicionada pré-validação Doc3040 em camadas com XSD estrutural derivado e versionado, domínios conservadores, críticas semânticas locais, reconciliação carteira/ECL e relatório por linha/campo/regra, preservando avisos de que XSD e críticas oficiais não foram executados.
+- Publicado pacote golden Doc3040 `2026.07` com XML sintético localmente pré-validado, falhas isoladas de XSD/domínio/semântica, hashes imutáveis e regressão que bloqueia datas-base sem versão observada.
 
 ---
 
