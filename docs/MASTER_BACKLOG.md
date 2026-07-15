@@ -1894,16 +1894,35 @@ Transformar a plataforma em um sistema reproduzível e confiável.
 
 ### Subtarefas
 
-- [ ] Lint e formatação.
-- [ ] type checking.
-- [ ] testes unitários e integração.
-- [ ] testes quantitativos.
-- [ ] cobertura.
-- [ ] dependency audit.
-- [ ] secret scan.
-- [ ] build de containers.
-
-## Tarefa 15.2 — CD e ambientes
+- [x] Lint e formatação.
+- [x] type checking.
+- [x] testes unitários e integração.
+- [x] testes quantitativos.
+- [x] cobertura.
+- [x] dependency audit.
+- [x] secret scan.
+- [x] build de containers.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Pipeline: `.github/workflows/ci.yml`, com actions fixadas por SHA, permissões mínimas,
+  cancelamento concorrente e execução em todo push, pull request ou disparo manual.
+- Reprodutibilidade: CPython 3.13.7 e resolução congelada em `requirements-ci.lock`;
+  frontend instalado por `npm ci` a partir do lockfile auditado.
+- Qualidade local: `scripts/quality.ps1` delega ao runner multiplataforma
+  `scripts/quality.py`; Black, Ruff e MyPy verdes, 532 testes canônicos aprovados,
+  cobertura de 91,19%, 118 testes legados aprovados e 7 skips esperados.
+- Segurança: migração de `python-jose` para PyJWT, atualização das dependências
+  vulneráveis e auditorias `pip-audit`/`npm audit` sem vulnerabilidades conhecidas.
+- Containers: imagens canônicas separadas para API e frontend, execução sem
+  privilégio, healthchecks e ausência de segredos embutidos.
+- Evidência GitHub: run `29441776705` verde no commit `37c2732`, incluindo os jobs
+  de qualidade, dependency audit, Gitleaks, `Container / api` e
+  `Container / frontend`.
+- Documentação operacional: `docs/operations/CI_PIPELINE.md`.
+
+## Tarefa 15.2 — CD e ambientes
 
 ### Subtarefas
 

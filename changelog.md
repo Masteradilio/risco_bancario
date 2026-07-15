@@ -9,6 +9,20 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ## [Não lançado]
 
+### CI e reprodutibilidade
+
+- Criado pipeline obrigatório e multiplataforma com Black, Ruff, MyPy, testes
+  canônicos/legados, cobertura, build frontend, auditorias de dependências,
+  Gitleaks e builds das imagens canônicas de API e frontend.
+- Congelada a resolução Python de CI em CPython 3.13.7 e removidas vulnerabilidades
+  conhecidas das dependências Python e npm, incluindo a migração de
+  `python-jose` para PyJWT.
+- Adicionados containers sem privilégio e com healthcheck, runner local único em
+  `scripts/quality.py` e contratos executáveis que impedem actions sem SHA ou
+  regressões nas definições de build.
+- Validado no GitHub Actions o run `29441776705`, integralmente verde no commit
+  `37c2732`.
+
 ### Governança e baseline
 
 - Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.
