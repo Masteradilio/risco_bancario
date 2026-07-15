@@ -22,7 +22,13 @@ def _source_fingerprint(root: Path) -> str:
     candidates = [path for path in (root / "pyproject.toml",) if path.is_file()]
     for directory in (root / "src", root / "config", root / "scripts"):
         if directory.is_dir():
-            candidates.extend(path for path in directory.rglob("*") if path.is_file())
+            candidates.extend(
+                path
+                for path in directory.rglob("*")
+                if path.is_file()
+                and "__pycache__" not in path.parts
+                and path.suffix not in {".pyc", ".pyo"}
+            )
     for path in sorted(candidates, key=lambda item: item.as_posix()):
         relative = path.relative_to(root).as_posix()
         digest.update(relative.encode("utf-8"))
