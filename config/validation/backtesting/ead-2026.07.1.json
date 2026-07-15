@@ -1,0 +1,11 @@
+{
+  "version": "2026.07.1",
+  "minimum_amortized_observations": 20,
+  "maximum_amortized_ead_mae": 0.01,
+  "minimum_revolving_observations": 100,
+  "minimum_segment_observations": 30,
+  "maximum_revolving_ead_relative_mae": 0.15,
+  "maximum_ccf_mae": 0.10,
+  "maximum_ccf_rmse": 0.15,
+  "required_revolving_dimensions": ["product", "utilization_band"]
+}

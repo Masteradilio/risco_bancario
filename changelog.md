@@ -103,6 +103,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Criado framework separado de validação de risco de modelo com segregação técnica entre desenvolvimento e validação, decisões objetivas de aprovação/ressalva/rejeição e relatório reproduzível ancorado em hashes, explicitamente sem representar aprovação institucional.
 - Executado backtesting independente de PD em horizontes de 1m/12m e cortes de rating, produto e safra, com intervalos exatos, testes de cobertura e drift; a evidência sintética rejeita objetivamente o modelo em 12m e mantém 2025 pendente de maturação.
 - Executado backtesting independente de LGD com recuperação prevista/realizada, coortes fechadas e abertas e cortes de cura, write-off e garantia; MAE, RMSE e volume rejeitam o candidato, sem atribuir LGD final a workouts censurados.
+- Executado backtesting independente de EAD/CCF com saldo e drawdown previstos/realizados, cortes por produto e utilização e exclusão explícita de off-balance sem histórico; volume e MAE relativo de EAD rejeitam o componente rotativo.
 
 ---
 

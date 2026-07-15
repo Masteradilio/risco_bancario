@@ -1,5 +1,16 @@
 """Independent backtesting and calibration monitoring."""
 
+from .ead import (
+    DEFAULT_EAD_BACKTEST_POLICY,
+    EADBacktestDecision,
+    EADBacktestMetric,
+    EADBacktestObservation,
+    EADBacktestPolicy,
+    EADBacktestReport,
+    backtest_ead,
+    load_ead_backtest_policy,
+    render_ead_backtest_report,
+)
 from .lgd import (
     DEFAULT_LGD_BACKTEST_POLICY,
     LGDBacktestDecision,
@@ -28,6 +39,12 @@ from .pd import (
 __all__ = [
     "DEFAULT_PD_BACKTEST_POLICY",
     "DEFAULT_LGD_BACKTEST_POLICY",
+    "DEFAULT_EAD_BACKTEST_POLICY",
+    "EADBacktestDecision",
+    "EADBacktestMetric",
+    "EADBacktestObservation",
+    "EADBacktestPolicy",
+    "EADBacktestReport",
     "LGDBacktestDecision",
     "LGDBacktestObservation",
     "LGDBacktestPolicy",
@@ -42,8 +59,11 @@ __all__ = [
     "PDCoverageMetric",
     "backtest_pd",
     "backtest_lgd",
+    "backtest_ead",
+    "load_ead_backtest_policy",
     "load_lgd_backtest_policy",
     "load_pd_backtest_policy",
     "render_pd_backtest_report",
     "render_lgd_backtest_report",
+    "render_ead_backtest_report",
 ]

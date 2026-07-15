@@ -1658,8 +1658,22 @@ Criar evidências de que modelos e cálculos funcionam, permanecem estáveis e p
 
 ### Subtarefas
 
-- [ ] saldo/drawdown previsto versus realizado.
-- [ ] CCF por produto e faixa de utilização.
+- [x] saldo/drawdown previsto versus realizado.
+- [x] CCF por produto e faixa de utilização.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: política e cálculo independente em `src/validation/backtesting/ead.py`,
+  gerador, `docs/validation/EAD_BACKTESTING.md` e evidence pack JSON/Markdown.
+- Amortizados: 24/24 saldos reconciliados, evidência mecânica e não preditiva.
+- Rotativos: 4 linhas, EAD média prevista 6.280,7227 versus 4.494,1200 realizada e MAE
+  relativo de 40,3625%, acima do limite de 15%.
+- CCF: MAE 3,9723 p.p. e RMSE 5,4894 p.p., com cortes por credit card/overdraft e
+  utilização baixa/média; volume 4 versus mínimo 100.
+- Decisão: `rejected` por volume e erro de EAD; off-balance permanece excluído por não
+  possuir eventos realizados.
+- Evidência de teste: 14 testes direcionados aprovados e artefato golden versionado.
 
 ## Tarefa 13.5 — Backtesting de ECL
 

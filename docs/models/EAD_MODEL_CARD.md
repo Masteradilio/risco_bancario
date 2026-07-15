@@ -44,6 +44,11 @@ EAD amortizada: 24/24 reconciliados, MAE e RMSE zero. CCF holdout: CCF médio ob
 de erro, mas falham volumes, segmentos, horizonte, eventos de limite e cobertura
 temporal.
 
+O backtest tecnicamente independente da Fase 13 também mede EAD rotativa: média prevista
+de 6.280,7227 contra 4.494,1200 realizada e MAE relativo de 40,3625%. Assim, a decisão
+permanece `not_approved` por erro de saldo/drawdown e volume, mesmo com CCF agregado
+dentro dos limites de erro.
+
 ## Limites, sensibilidade e comportamento
 
 O limite corrente, não o original, determina exposição. Reduções/cancelamentos são
@@ -65,7 +70,8 @@ reporte externo ou alegação de modelo calibrado/aprovado.
 - off-balance sem utilização ou default observado;
 - EAD amortizada é reconciliação tautológica do gerador;
 - macroeconomia ainda não integra EAD/CCF; pertence à Fase 9;
-- ausência de dados reais, validação independente e aprovação humana.
+- ausência de dados reais e aprovação humana; a independência disponível é apenas
+  técnica e simulada.
 
 ## Promoção e monitoramento
 
@@ -81,4 +87,4 @@ produto, horizonte, utilização, limite, ano e tipo de exposição.
 - código: `amortized.py`, `revolving_ccf.py`, `off_balance.py`, `validation.py`;
 - testes: `tests/models/test_ead_*.py`;
 - relatórios: `EAD_AMORTIZED.md`, `EAD_REVOLVING_CCF.md`, `EAD_OFF_BALANCE.md` e
-  `EAD_VALIDATION_REPORT.md`.
+  `EAD_VALIDATION_REPORT.md` e `../validation/EAD_BACKTESTING.md`.

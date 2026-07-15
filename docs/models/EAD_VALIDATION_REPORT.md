@@ -74,3 +74,7 @@ Status: `not_approved`. Blockers:
 
 Não existe modelo EAD/CCF aprovado. A EAD amortizada fica aceita como mecânica
 reconciliada; CCF e off-balance permanecem componentes demonstrativos bloqueados.
+
+O backtest independente da Fase 13 acrescenta EAD monetária rotativa e cortes de CCF
+por produto/faixa de utilização. Ele confirma `rejected` por volume e MAE relativo de
+EAD; consulte `docs/validation/EAD_BACKTESTING.md`.
