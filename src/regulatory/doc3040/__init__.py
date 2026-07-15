@@ -25,6 +25,7 @@ from .contract import (
     iter_sourced_values,
     sourced,
 )
+from .generator import XmlCandidate, compose_ipoc, generate_xml_candidate
 from .layout_registry import (
     DEFAULT_REGISTRY_DIR,
     ArtifactRef,
@@ -74,4 +75,7 @@ __all__ = [
     "load_layout_registry",
     "load_official_xsd",
     "verify_artifact_file",
+    "XmlCandidate",
+    "compose_ipoc",
+    "generate_xml_candidate",
 ]

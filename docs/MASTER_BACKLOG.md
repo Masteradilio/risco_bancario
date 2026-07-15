@@ -1492,11 +1492,26 @@ Substituir o simulador heurístico por um gerador e pré-validador versionado, s
 
 ### Subtarefas
 
-- [ ] Gerar cabeçalho, clientes, operações e blocos aplicáveis.
-- [ ] Gerar vencimentos completos.
-- [ ] Gerar IPOC conforme regra oficial vigente.
-- [ ] Gerar totalizadores.
-- [ ] Remover toda lógica arbitrária, incluindo frações artificiais de ECL.
+- [x] Gerar cabeçalho, clientes, operações e blocos aplicáveis.
+- [x] Gerar vencimentos completos.
+- [x] Gerar IPOC conforme regra oficial vigente.
+- [x] Gerar totalizadores.
+- [x] Remover toda lógica arbitrária, incluindo frações artificiais de ECL.
+
+### Registro de execução
+
+- Data: 14 de julho de 2026.
+- Entregáveis: gerador determinístico em `src/regulatory/doc3040/generator.py`, API,
+  testes e `docs/regulatory/DOC3040_XML_GENERATION.md`.
+- Conteúdo: cabeçalho, clientes/operações, vencimentos, garantias, informações
+  adicionais, Sicor, CMN 4.966, estágios, perdas, agregações e IPOCs conectados.
+- IPOC: composição oficial é recalculada e comparada ao valor-fonte; divergência bloqueia
+  a saída.
+- Guardrails: nenhum vértice, data, COSIF, totalizador ou valor contábil é inferido; perda
+  reconhecida preserva o valor fornecido e não usa fração artificial de ECL.
+- Interface: o artefato é `pre-validator`, recebe estado `XSD_AND_CRITICS_PENDING` e não
+  é apresentado como XML válido ou pronto para envio.
+- Evidência: 6 testes de geração e 17 testes de contrato/registry aprovados.
 
 ## Tarefa 12.4 — Validação
 

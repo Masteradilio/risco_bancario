@@ -146,7 +146,15 @@ FIELD_CATALOG: tuple[FieldSpec, ...] = (
     _s("Operation", "ipoc", "Op", "IPOC", "A67", R),
     _s("Operation", "contract_code", "Op", "Contrt", "A40", R),
     _s("Operation", "modality", "Op", "Mod", "A4", R, "Anexo 3"),
-    _s("Operation", "cosif_accounts", "Op", "Cosif", "A255", R),
+    _s(
+        "Operation",
+        "cosif_accounts",
+        "Op",
+        "Cosif",
+        "A255",
+        C,
+        condition="discontinued from 2025-01; prohibited by the supported 2026 layout",
+    ),
     _s("Operation", "resource_origin", "Op", "OrigemRec", "A4", R, "Anexo 4"),
     _s("Operation", "indexer", "Op", "Indx", "A2", R, "Anexo 5"),
     _s("Operation", "indexer_percentage", "Op", "PercIndx", "N11,7", R),
@@ -552,7 +560,7 @@ class Operation:
     ipoc: SourcedValue[str]
     contract_code: SourcedValue[str]
     modality: SourcedValue[str]
-    cosif_accounts: SourcedValue[str]
+    cosif_accounts: SourcedValue[str] | None
     resource_origin: SourcedValue[str]
     indexer: SourcedValue[str]
     indexer_percentage: SourcedValue[Decimal]
@@ -580,13 +588,14 @@ class Operation:
             (self.ipoc, "ipoc", 67),
             (self.contract_code, "contract_code", 40),
             (self.modality, "modality", 4),
-            (self.cosif_accounts, "cosif_accounts", 255),
             (self.resource_origin, "resource_origin", 4),
             (self.indexer, "indexer", 2),
             (self.currency_variation, "currency_variation", 3),
             (self.nature, "nature", 2),
         ):
             _text(item, name, size)
+        if self.cosif_accounts is not None:
+            _text(self.cosif_accounts, "cosif_accounts", 255)
         if len(_text(self.postal_code, "postal_code", 8, True)) != 8:
             raise DomainValidationError("postal_code must have exactly 8 digits")
         _non_negative(self.provision, "provision")
@@ -696,9 +705,13 @@ class Doc3040Input:
         codes = [_v(x.code) for x in self.clients]
         if len(codes) != len(set(codes)):
             raise DomainValidationError("client codes must be unique")
-        if _v(self.header.total_clients) != len(set(codes)):
+        if not self.aggregations and _v(self.header.total_clients) != len(set(codes)):
             raise DomainValidationError(
                 "total_clients must reconcile to distinct individualized clients"
+            )
+        if self.aggregations and _v(self.header.total_clients) < len(set(codes)):
+            raise DomainValidationError(
+                "total_clients cannot be lower than distinct individualized clients"
             )
         ipocs = [_v(op.ipoc) for client in self.clients for op in client.operations]
         if len(ipocs) != len(set(ipocs)):

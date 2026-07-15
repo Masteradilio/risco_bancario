@@ -97,6 +97,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionado manifesto mensal verificável de estágio/allowance e fechadas as evidências de staging, default, cura e ECL para os perímetros condicionais CMN 4.966 e BCB 352.
 - Criado contrato de entrada fail-closed do Documento 3040, com catálogo de campos, formatos, condições, referências de domínio e linhagem obrigatória por valor, eliminando defaults silenciosos de datas, porte, COSIF, CEP e códigos.
 - Adicionado registry Doc3040 por data-base com manifesto de hashes oficiais observado em 14/07/2026, catálogos versionados de domínio/críticas e controle que rejeita XSD 3045 ou qualquer artefato sem proveniência 3040.
+- Implementado gerador determinístico de XML candidato Doc3040 com composição oficial de IPOC, blocos condicionais, vencimentos e totalizadores sourced, proibindo COSIF descontinuado e qualquer fração artificial de ECL.
 
 ---
 
