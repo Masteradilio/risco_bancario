@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import MainLayout from '@/components/layout/MainLayout'
 import ECLDashboardPage from '@/pages/ecl/ECLDashboardPage'
+import EvidenceAgentPage from '@/pages/agent/EvidenceAgentPage'
 import LoginPage from '@/pages/LoginPage'
 import SettingsPage from '@/pages/settings/SettingsPage'
 import { useAuth } from '@/stores/useAuth'
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/" element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                     <Route index element={<Navigate to="/perda-esperada" replace />} />
                     <Route path="perda-esperada" element={<ECLDashboardPage />} />
+                    <Route path="agent" element={<EvidenceAgentPage />} />
                     <Route path="settings" element={<SettingsPage />} />
                 </Route>
                 <Route path="*" element={<Navigate to="/" replace />} />

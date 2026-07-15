@@ -38,3 +38,21 @@ def test_ecl_workspace_is_evidence_driven_and_discloses_limits() -> None:
         "Nenhum dado substituto foi exibido",
     ):
         assert required in dashboard
+
+
+def test_legacy_random_agent_is_not_mounted_and_active_agent_is_grounded() -> None:
+    legacy_main = (ROOT / "backend/main.py").read_text(encoding="utf-8")
+    app = (ROOT / "frontend/src/App.tsx").read_text(encoding="utf-8")
+    agent_page = (ROOT / "frontend/src/pages/agent/EvidenceAgentPage.tsx").read_text(
+        encoding="utf-8"
+    )
+
+    assert "agent_router" not in legacy_main
+    assert 'path="agent"' in app
+    for required in (
+        "queryEvidenceAgent",
+        "EVIDÊNCIAS SINTÉTICAS PERSISTIDAS",
+        "Citações internas verificáveis",
+        "Nenhuma resposta alternativa foi gerada",
+    ):
+        assert required in agent_page

@@ -31,6 +31,7 @@ O OpenAPI fica em `http://127.0.0.1:8000/docs`. Para PostgreSQL, selecione `DATA
 | `GET` | `/api/v1/ecl/jobs/{job_id}` | retorna estado, hash do pedido, resultado ou código de erro não sensível |
 | `GET` | `/api/v1/ecl/executions/{execution_id}` | retorna evidência da execução, linhagem versionada e hashes dos resultados |
 | `GET` | `/api/v1/validation/limitations` | retorna o registro de limitações, caminho e SHA-256; a leitura é auditada |
+| `POST` | `/api/v1/agent/query` | resume uma execução autorizada com citações internas e guardrails fail-closed |
 
 Campos desconhecidos são rejeitados. Taxas ficam entre zero e um, dinheiro usa `Decimal`, hashes exigem SHA-256 em minúsculas e o commit exige hexadecimal de 7 a 40 caracteres. O payload deve identificar versões de modelos, cenário, configuração e código. `stage_assessment` é obrigatório, compara estágio, rating e PD lifetime com a originação e exige ao menos um código de motivo; `current_stage` deve coincidir com `stage`.
 
@@ -51,3 +52,5 @@ Para carteira, serialize `PortfolioRequest.model_dump(mode="json")` como JSON ca
 O rate limit local é por login e por usuário/permissão. Ele não substitui controle distribuído no gateway quando houver múltiplos workers.
 
 Entradas e resultados de operações relevantes são registrados por hash na trilha append-only descrita em `docs/architecture/AUDIT_TRAIL.md`.
+
+O agente ativo é o leitor determinístico descrito em `docs/agent/GROUNDED_EVIDENCE_AGENT.md`. Ele não usa o pacote aleatório legado, não chama LLM ou ferramentas arbitrárias e nunca emite conclusão de conformidade oficial.

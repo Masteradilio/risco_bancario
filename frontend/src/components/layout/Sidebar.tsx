@@ -1,10 +1,11 @@
-import { Calculator, Settings, TrendingUp } from 'lucide-react'
+import { Bot, Calculator, Settings, TrendingUp } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/stores/useAuth'
 
 const navigation = [
     { label: 'Evidências ECL', path: '/perda-esperada', icon: Calculator },
+    { label: 'Agente fundamentado', path: '/agent', icon: Bot },
     { label: 'Configurações', path: '/settings', icon: Settings },
 ]
 

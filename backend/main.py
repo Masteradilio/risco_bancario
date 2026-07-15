@@ -24,11 +24,10 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
 # Importar routers
-from agente.agent_api import router as agent_router
 
 app = FastAPI(
     title="Sistema de Gestão de Risco Bancário",
-    description="API para PRINAD, ECL, Propensão e Agente IA",
+    description="API legada para PRINAD, ECL e Propensão",
     version="3.0.0"
 )
 
@@ -53,7 +52,6 @@ app.add_middleware(
 
 
 # Registrar routers
-app.include_router(agent_router)
 
 
 @app.get("/")
@@ -61,7 +59,7 @@ async def root():
     return {
         "message": "Sistema de Gestão de Risco Bancário",
         "version": "3.0.0",
-        "modules": ["PRINAD", "ECL", "Propensão", "Agente IA"]
+        "modules": ["PRINAD", "ECL", "Propensão"]
     }
 
 

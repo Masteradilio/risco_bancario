@@ -187,6 +187,24 @@ class VersionedRepository:
         )
         return digest
 
+    def complete_execution(self, execution_id: str) -> None:
+        """Mark an execution complete after every result and lineage event persisted."""
+
+        row = self.database.fetch_one(
+            "SELECT status FROM calculation_executions WHERE execution_id = ?",
+            (execution_id,),
+        )
+        if row is None:
+            raise PersistenceConflictError("Cannot complete an unknown execution")
+        if row["status"] == "COMPLETED":
+            return
+        updated = self.database.execute(
+            "UPDATE calculation_executions SET status = ? " "WHERE execution_id = ? AND status = ?",
+            ("COMPLETED", execution_id, "STARTED"),
+        )
+        if updated != 1:
+            raise PersistenceConflictError("Execution is not in STARTED state")
+
     def record_lineage_event(
         self, *, execution_id: str, event_type: str, payload: Mapping[str, Any]
     ) -> str:

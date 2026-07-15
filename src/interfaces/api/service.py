@@ -175,6 +175,7 @@ class CanonicalECLApiService:
                 "reported_ecl": calculation.probability_weighted_ecl,
             },
         )
+        self.repository.complete_execution(execution["execution_id"])
         return ECLCalculationResponse(
             execution_id=execution["execution_id"],
             revision=execution["revision"],

@@ -58,6 +58,19 @@ export interface LimitationRegister {
     content: string
 }
 
+export interface AgentResponse {
+    answer: string
+    citations: Array<{
+        citation_id: string
+        source_type: 'execution_lineage' | 'execution_result' | 'document'
+        locator: string
+        source_hash: string
+    }>
+    guardrail_status: 'GROUNDED' | 'LIMITED' | 'REFUSED'
+    data_classification: 'SYNTHETIC'
+    official_conformity: 'NOT_ASSESSED'
+}
+
 async function authorizedGet<T>(path: string, token: string): Promise<T> {
     const response = await fetch(apiUrl(path), { headers: { Authorization: `Bearer ${token}` } })
     if (!response.ok) {
@@ -72,3 +85,17 @@ export const getExecutionEvidence = (executionId: string, token: string) =>
 
 export const getLimitationRegister = (token: string) =>
     authorizedGet<LimitationRegister>('/api/v1/validation/limitations', token)
+
+export async function queryEvidenceAgent(
+    executionId: string,
+    question: string,
+    token: string,
+): Promise<AgentResponse> {
+    const response = await fetch(apiUrl('/api/v1/agent/query'), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ execution_id: executionId, question }),
+    })
+    if (!response.ok) throw new Error(`API ${response.status}: ${await response.text()}`)
+    return response.json() as Promise<AgentResponse>
+}

@@ -10,6 +10,8 @@ from typing import Annotated, Any
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from ...agent import AgentQuery, AgentResponse, GroundedEvidenceAgent
+from ...agent.evidence import ExecutionNotFoundError
 from ...audit import AuditService
 from ...infrastructure.database import DatabaseManager, DatabaseSettings, VersionedRepository
 from ...infrastructure.database.repository import canonical_json
@@ -52,6 +54,7 @@ def create_app(
         security_configuration.rate_limit_window_seconds,
     )
     service = CanonicalECLApiService(VersionedRepository(database))
+    evidence_agent = GroundedEvidenceAgent(database)
     jobs = JobStore(database)
     application = FastAPI(
         title="Risco Bancário — API canônica",
@@ -437,6 +440,41 @@ def create_app(
             "source_hash": source_hash,
             "content": content,
         }
+
+    @application.post(
+        "/api/v1/agent/query",
+        response_model=AgentResponse,
+        tags=["agent"],
+    )
+    def query_evidence_agent(
+        request: AgentQuery,
+        principal: ResultPrincipal,
+        http_request: Request,
+    ) -> AgentResponse:
+        try:
+            response = evidence_agent.answer(request)
+        except ExecutionNotFoundError as exc:
+            raise HTTPException(status_code=404, detail="execution evidence not found") from exc
+        audit.record(
+            actor_id=principal.user_id,
+            actor_role=principal.role.value,
+            action="EVIDENCE_AGENT_QUERY",
+            resource_type="execution",
+            resource_id=request.execution_id,
+            execution_id=request.execution_id if response.guardrail_status != "REFUSED" else None,
+            input_payload={
+                "execution_id": request.execution_id,
+                "question_hash": hashlib.sha256(request.question.encode("utf-8")).hexdigest(),
+            },
+            result_payload={
+                "guardrail_status": response.guardrail_status,
+                "citation_count": len(response.citations),
+            },
+            versions={"agent": "grounded-v1", "api": "v1"},
+            status="DENIED" if response.guardrail_status == "REFUSED" else "SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
+        return response
 
     @application.get("/api/v1/audit/events", tags=["audit"])
     def audit_events(

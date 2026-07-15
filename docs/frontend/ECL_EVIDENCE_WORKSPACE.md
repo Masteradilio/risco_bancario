@@ -4,6 +4,8 @@
 
 O frontend ativo é um leitor autenticado de evidências ECL persistidas. Ele não calcula valores no navegador e não usa valores alternativos quando a API ou uma execução estão indisponíveis. As antigas rotas de dashboards estáticos foram removidas do grafo ativo da aplicação.
 
+A rota `/agent` usa exclusivamente `POST /api/v1/agent/query` e apresenta resposta, classificação do guardrail e citações estruturadas. Seu contrato e limites estão em `docs/agent/GROUNDED_EVIDENCE_AGENT.md`.
+
 Toda tela mantém o aviso de que o ambiente usa dados sintéticos e não é homologado para contabilização, decisão de crédito ou reporte oficial.
 
 ## Autenticação e autorização

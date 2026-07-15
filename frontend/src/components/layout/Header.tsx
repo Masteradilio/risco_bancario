@@ -8,7 +8,9 @@ export default function Header() {
     const navigate = useNavigate()
     const { user, logout } = useAuth()
     const { theme, resolvedTheme, setTheme } = useTheme()
-    const title = location.pathname === '/settings' ? 'Configurações' : 'Evidências ECL'
+    const title = location.pathname === '/settings'
+        ? 'Configurações'
+        : location.pathname === '/agent' ? 'Agente fundamentado' : 'Evidências ECL'
 
     const cycleTheme = () => setTheme(resolvedTheme === 'dark' ? 'light-snow' : 'dark-ocean')
     const signOut = async () => { await logout(); navigate('/login') }

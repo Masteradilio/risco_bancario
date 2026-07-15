@@ -1860,16 +1860,27 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Restringir o agente a dados persistidos e autorizados.
-- [ ] Remover respostas baseadas em métricas inventadas.
-- [ ] Exigir citações internas de execução e documentação.
-- [ ] Implementar guardrails para não afirmar conformidade oficial.
-- [ ] Testar prompt injection e acesso indevido.
+- [x] Restringir o agente a dados persistidos e autorizados.
+- [x] Remover respostas baseadas em métricas inventadas.
+- [x] Exigir citações internas de execução e documentação.
+- [x] Implementar guardrails para não afirmar conformidade oficial.
+- [x] Testar prompt injection e acesso indevido.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: `src/agent`, rota `POST /api/v1/agent/query`, página `frontend/src/pages/agent/EvidenceAgentPage.tsx`, documentação `docs/agent/GROUNDED_EVIDENCE_AGENT.md` e extensão do threat model.
+- Grounding: o agente é determinístico e somente leitura; recebe uma execução explícita, exige `ecl:result:read` e consulta apenas `calculation_executions`, `calculation_results` e o Limitation Register por caminhos fixos/SQL parametrizado.
+- Citações: toda resposta factual inclui identificadores e hashes de linhagem, coleção de resultados e documento; classificação permanece `SYNTHETIC`, `LIMITED` e conformidade oficial `NOT_ASSESSED`.
+- Guardrails: não há LLM, web, RAG, shell ou seleção dinâmica de ferramenta; tentativas de ignorar regras, revelar segredos, burlar RBAC, ativar modo desenvolvedor ou executar comandos são recusadas antes de ler a execução.
+- Legado: o router aleatório de `backend/agente` foi desmontado do servidor legado e removido do grafo ativo; o código histórico permanece congelado e explicitamente fora da fronteira confiável.
+- Estado da execução: o repositório agora muda uma execução de `STARTED` para `COMPLETED` somente após resultados e evento de linhagem persistirem, impedindo que o agente apresente cálculo incompleto como concluído.
+- Evidência: 26 testes focados aprovados; gate único com Black, Ruff, MyPy, 527 testes canônicos e 91,18% de cobertura, 109 testes legados aprovados/16 ignorados e build TypeScript/Vite de produção aprovado. Os testes cobrem grounding, auditoria minimizada, citações, conformidade, quatro padrões de prompt injection, autenticação e RBAC.
 
 ### Critérios de aceite
 
-- [ ] Toda informação exibida é rastreável a dados e versão.
-- [ ] Nenhum mock silencioso permanece em produção/demo.
+- [x] Toda informação exibida é rastreável a dados e versão.
+- [x] Nenhum mock silencioso permanece em produção/demo.
 
 ---
 

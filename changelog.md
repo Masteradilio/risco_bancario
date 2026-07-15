@@ -116,6 +116,8 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 - Adicionada trilha de auditoria append-only encadeada por hash, com minimização de payload, eventos positivos/negativos da API e contratos para overrides, overlays, exportações e validações.
 
 - Substituídos o dashboard ECL estático e a autenticação mockada por workspace autenticado de evidências persistidas, com estágio versus originação, motivos, curvas PD/LGD/EAD, ECL por período/cenário, reconciliação, ajustes explicitamente ausentes, linhagem e Limitation Register versionado; removidas do grafo ativo as rotas com dados demonstrativos não conectados.
+
+- Substituído o agente aleatório legado por leitor determinístico e autorizado de execuções ECL, com citações internas verificáveis, classificação sintética/limitada, recusa de prompt injection, auditoria minimizada e bloqueio explícito de alegações de conformidade; o router legado deixou de ser montado.
 - Publicados os Model Cards de PD, LGD, EAD/CCF e criado o Limitation Register detalhando as restrições e limitações de dados sintéticos observadas na validação.
 
 ---

@@ -21,6 +21,12 @@ TLS, WAF, gestão corporativa de identidades, cofre de segredos e criptografia d
 | Denial of service | brute force ou lote repetido | rate limit por usuário/permissão e por login; lote limitado a 10.000 itens e processado como job | limiter é em processo e não coordena múltiplos workers |
 | Elevation of privilege | papel acumular cálculo, aprovação, exportação e auditoria | matriz separa ANALYST, MANAGER, AUDITOR e ADMIN; ADMIN não ganha permissões quantitativas implicitamente | ciclo formal de concessão/revisão de acesso depende da instituição |
 
+## Agente fundamentado
+
+O endpoint `/api/v1/agent/query` reutiliza `ecl:result:read`, consulta uma única execução por SQL parametrizado interno e só lê resultados persistidos, linhagem e o Limitation Register. A pergunta nunca compõe SQL, nome de arquivo ou seleção de ferramenta. Não existe chamada de LLM, web, shell ou RAG na rota ativa.
+
+Prompt injection para ignorar regras, revelar segredos, burlar RBAC ou executar comandos é recusado antes da leitura. Mesmo uma formulação não detectada permanece confinada às fontes fixas. Respostas factuais carregam hashes verificáveis, classificação `SYNTHETIC` e `NOT_ASSESSED`; o router aleatório de `backend/agente` não é montado. O risco residual principal é a ausência de autorização row-level por carteira/dono antes do uso com dados reais.
+
 ## Matriz de segregação
 
 | Capacidade | ANALYST | MANAGER | AUDITOR | ADMIN |
