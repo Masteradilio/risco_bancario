@@ -15,6 +15,14 @@ try {
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
     & $Python -m pytest backend/bancos_de_dados/tests backend/prinad/tests -q
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Push-Location (Join-Path $Root "frontend")
+    try {
+        npm run build
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    }
+    finally {
+        Pop-Location
+    }
 }
 finally {
     Pop-Location

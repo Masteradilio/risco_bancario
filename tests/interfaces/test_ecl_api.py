@@ -42,6 +42,15 @@ def calculation_payload(*, execution_key: str = "portfolio:2026-06-30") -> dict[
         "source_version": "synthetic-2026.1",
         "reference_date": "2026-06-30",
         "stage": 1,
+        "stage_assessment": {
+            "origination_stage": 1,
+            "current_stage": 1,
+            "origination_rating": "A",
+            "current_rating": "B",
+            "origination_lifetime_pd": "0.05",
+            "current_lifetime_pd": "0.10",
+            "reason_codes": ["RATING_DOWNGRADE"],
+        },
         "segment": "portfolio",
         "periods": [
             {
@@ -122,6 +131,22 @@ def test_execution_evidence_exposes_lineage_and_result_hashes(tmp_path: Path) ->
     assert evidence["lineage"]["configuration_hash"] == "b" * 64
     assert len(evidence["results"]) == 4
     assert all(len(item["payload_hash"]) == 64 for item in evidence["results"])
+    assert evidence["results"][0]["payload"]["stage_assessment"]["reason_codes"] == [
+        "RATING_DOWNGRADE"
+    ]
+    assert evidence["results"][0]["payload"]["adjustments"]["status"] == "NOT_APPLIED"
+
+
+def test_limitations_are_versioned_and_audited(tmp_path: Path) -> None:
+    with client(tmp_path) as api:
+        response = api.get("/api/v1/validation/limitations")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "LIMITED"
+    assert body["source_path"] == "docs/validation/LIMITATION_REGISTER.md"
+    assert len(body["source_hash"]) == 64
+    assert "Status dos Componentes" in body["content"]
 
 
 def test_portfolio_job_is_persisted_and_processed(tmp_path: Path) -> None:

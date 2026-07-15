@@ -1837,13 +1837,24 @@ Integrar o núcleo reconstruído à plataforma sem comprometer rastreabilidade.
 
 ### Subtarefas
 
-- [ ] Remover dashboards que exibem dados mockados sem aviso.
-- [ ] Exibir estágio, justificativas e comparação com originação.
-- [ ] Exibir curvas PD/LGD/EAD.
-- [ ] Exibir ECL por período e cenário.
-- [ ] Exibir reconciliação, overlays e pisos.
-- [ ] Exibir status de validação e limitações.
-- [ ] Manter visualização de dados sintéticos claramente identificada.
+- [x] Remover dashboards que exibem dados mockados sem aviso.
+- [x] Exibir estágio, justificativas e comparação com originação.
+- [x] Exibir curvas PD/LGD/EAD.
+- [x] Exibir ECL por período e cenário.
+- [x] Exibir reconciliação, overlays e pisos.
+- [x] Exibir status de validação e limitações.
+- [x] Manter visualização de dados sintéticos claramente identificada.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Entregáveis: workspace React ativo em `frontend/src/pages/ecl/ECLDashboardPage.tsx`, cliente tipado em `frontend/src/lib/api/ecl_api.ts`, sessão JWT real, contrato `stage_assessment`, evidência periódica expandida, endpoint versionado de limitações e `docs/frontend/ECL_EVIDENCE_WORKSPACE.md`.
+- Fonte: o workspace consulta exclusivamente execuções persistidas e autorizadas; falhas exibem indisponibilidade sem fallback, valores ou status inventados. Dashboards estáticos, calculadora didática, agente e demais rotas mockadas foram removidos do grafo ativo.
+- Rastreabilidade: estágio/rating/PD de originação e atuais, motivos, curvas PD/LGD/EAD, ECL por período/cenário e hashes individuais são exibidos com revisão e hash de linhagem.
+- Reconciliação: ECL por cenário e ponderada são derivadas dos resultados persistidos; overlays, piso e ECL reportado ausentes ficam explicitamente `NOT_APPLIED`/`null`, nunca zero presumido.
+- Validação: o Limitation Register é servido com caminho e SHA-256, sob RBAC e auditoria, e permanece `LIMITED`.
+- Segurança: removidos usuários, senhas e logs fictícios do navegador; JWT revogável fica em `sessionStorage`, com autorização efetiva sempre no servidor.
+- Evidência: 11 testes focados aprovados; gate único com Black, Ruff, MyPy, 522 testes canônicos e 91,17% de cobertura, 109 testes legados aprovados/16 ignorados e build TypeScript/Vite de produção aprovado. O build frontend passou a integrar `scripts/quality.ps1`.
 
 ## Tarefa 14.6 — Agente de IA
 

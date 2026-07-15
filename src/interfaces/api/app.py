@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 from collections.abc import Callable
+from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
@@ -384,12 +385,14 @@ def create_app(
         if execution is None:
             raise HTTPException(status_code=404, detail="execution not found")
         results = database.fetch_all(
-            "SELECT contract_id, period, scenario_id, ecl_amount, payload_hash "
+            "SELECT contract_id, period, scenario_id, ecl_amount, payload_json, payload_hash "
             "FROM calculation_results WHERE execution_id = ? "
             "ORDER BY contract_id, scenario_id, period",
             (execution_id,),
         )
         execution["lineage"] = json.loads(execution.pop("lineage_json"))
+        for result in results:
+            result["payload"] = json.loads(result.pop("payload_json"))
         execution["results"] = results
         audit.record(
             actor_id=_principal.user_id,
@@ -405,6 +408,35 @@ def create_app(
             client_ip=http_request.client.host if http_request.client else None,
         )
         return execution
+
+    @application.get("/api/v1/validation/limitations", tags=["evidence"])
+    def validation_limitations(
+        _principal: ResultPrincipal,
+        http_request: Request,
+    ) -> dict[str, object]:
+        source_path = (
+            Path(__file__).resolve().parents[3] / "docs" / "validation" / "LIMITATION_REGISTER.md"
+        )
+        content = source_path.read_text(encoding="utf-8")
+        source_hash = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        audit.record(
+            actor_id=_principal.user_id,
+            actor_role=_principal.role.value,
+            action="VALIDATION_LIMITATIONS_READ",
+            resource_type="document",
+            resource_id="LIMITATION_REGISTER",
+            input_payload={},
+            result_payload={"source_hash": source_hash},
+            versions={"api": "v1", "document": source_hash},
+            status="SUCCEEDED",
+            client_ip=http_request.client.host if http_request.client else None,
+        )
+        return {
+            "status": "LIMITED",
+            "source_path": "docs/validation/LIMITATION_REGISTER.md",
+            "source_hash": source_hash,
+            "content": content,
+        }
 
     @application.get("/api/v1/audit/events", tags=["audit"])
     def audit_events(

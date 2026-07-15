@@ -39,12 +39,25 @@ class ScenarioRequest(StrictModel):
     periods: list[MacroPointRequest] = Field(min_length=1)
 
 
+class StageAssessmentRequest(StrictModel):
+    """Traceable staging decision compared with the origination state."""
+
+    origination_stage: Literal[1, 2, 3]
+    current_stage: Literal[1, 2, 3]
+    origination_rating: str = Field(min_length=1, max_length=50)
+    current_rating: str = Field(min_length=1, max_length=50)
+    origination_lifetime_pd: Rate
+    current_lifetime_pd: Rate
+    reason_codes: list[str] = Field(min_length=1, max_length=20)
+
+
 class ECLCalculationRequest(StrictModel):
     execution_key: str = Field(min_length=1, max_length=200)
     contract_id: str = Field(min_length=1, max_length=200)
     source_version: str = Field(min_length=1, max_length=100)
     reference_date: date
     stage: Literal[1, 2]
+    stage_assessment: StageAssessmentRequest
     segment: str = Field(default="portfolio", min_length=1, max_length=100)
     periods: list[RiskPeriodRequest] = Field(min_length=1)
     scenario_version: str = Field(min_length=1, max_length=100)
@@ -58,6 +71,8 @@ class ECLCalculationRequest(StrictModel):
 
     @model_validator(mode="after")
     def validate_horizons(self) -> ECLCalculationRequest:
+        if self.stage_assessment.current_stage != self.stage:
+            raise ValueError("stage_assessment.current_stage must match stage")
         if self.stage == 1 and len(self.periods) > 12:
             raise ValueError("Stage 1 accepts at most 12 periods")
         risk_dates = [period.reference_date for period in self.periods]
@@ -94,6 +109,7 @@ class ECLCalculationResponse(StrictModel):
     reused: bool
     contract_id: str
     stage: int
+    stage_assessment: StageAssessmentRequest
     probability_weighted_ecl: Decimal
     stress_ecl: Decimal
     scenarios: list[ScenarioResult]

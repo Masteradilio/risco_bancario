@@ -47,7 +47,7 @@ const resolveTheme = (theme: Theme): 'dark' | 'light' => {
 
 export const useTheme = create<ThemeState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             theme: 'dark-ocean',
             resolvedTheme: 'dark',
 

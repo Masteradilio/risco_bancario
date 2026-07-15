@@ -30,7 +30,8 @@
         }
     },
     "include": [
-        "src"
+        "src/main.tsx",
+        "src/vite-env.d.ts"
     ],
     "references": [
         {

@@ -30,8 +30,11 @@ O OpenAPI fica em `http://127.0.0.1:8000/docs`. Para PostgreSQL, selecione `DATA
 | `POST` | `/api/v1/ecl/portfolio` | aceita até 10.000 cálculos e retorna `202` com um job persistido |
 | `GET` | `/api/v1/ecl/jobs/{job_id}` | retorna estado, hash do pedido, resultado ou código de erro não sensível |
 | `GET` | `/api/v1/ecl/executions/{execution_id}` | retorna evidência da execução, linhagem versionada e hashes dos resultados |
+| `GET` | `/api/v1/validation/limitations` | retorna o registro de limitações, caminho e SHA-256; a leitura é auditada |
 
-Campos desconhecidos são rejeitados. Taxas ficam entre zero e um, dinheiro usa `Decimal`, hashes exigem SHA-256 em minúsculas e o commit exige hexadecimal de 7 a 40 caracteres. O payload deve identificar versões de modelos, cenário, configuração e código.
+Campos desconhecidos são rejeitados. Taxas ficam entre zero e um, dinheiro usa `Decimal`, hashes exigem SHA-256 em minúsculas e o commit exige hexadecimal de 7 a 40 caracteres. O payload deve identificar versões de modelos, cenário, configuração e código. `stage_assessment` é obrigatório, compara estágio, rating e PD lifetime com a originação e exige ao menos um código de motivo; `current_stage` deve coincidir com `stage`.
+
+Cada resultado periódico persiste o contexto de estágio, tipo e peso do cenário, sobrevivência, PD marginal, LGD, EAD, CCF, desconto, ECL e estado de ajustes. Overlay, piso e ECL reportado não aplicados são representados como `null` com status `NOT_APPLIED`, sem conversão silenciosa em zero. O workspace de leitura está documentado em `docs/frontend/ECL_EVIDENCE_WORKSPACE.md`.
 
 ## Jobs
 

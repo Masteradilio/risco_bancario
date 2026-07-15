@@ -1,223 +1,139 @@
-/**
- * Store de Autenticação e RBAC
- * 
- * Implementa controle de acesso baseado em perfis:
- * - ANALISTA: Consultas e classificações
- * - GESTOR: Analista + Exportações + Dashboard completo
- * - AUDITOR: Analista + Logs de auditoria
- * - ADMIN: Acesso total
- */
-
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
-export type UserRole = 'ANALISTA' | 'GESTOR' | 'AUDITOR' | 'ADMIN'
+export type UserRole = 'ANALYST' | 'MANAGER' | 'AUDITOR' | 'ADMIN'
 
 export interface User {
     id: string
     nome: string
     email: string
     matricula: string
-    loginWindows?: string
     role: UserRole
     departamento: string
-    cargo?: string
-    avatar?: string
-    isExterno?: boolean
-    expiresAt?: string
     lastLogin: string
 }
 
-export interface AuditLogEntry {
-    id: string
-    timestamp: string
-    usuario: string
-    acao: string
-    recurso: string
-    detalhes: string
-    ip?: string
+interface JwtClaims {
+    sub: string
+    username: string
+    role: UserRole
+    exp: number
 }
 
 interface AuthState {
     user: User | null
+    token: string | null
     isAuthenticated: boolean
     isLoading: boolean
-    auditLogs: AuditLogEntry[]
-    login: (email: string, senha: string) => Promise<boolean>
-    logout: () => void
+    login: (username: string, password: string) => Promise<boolean>
+    logout: () => Promise<void>
     checkPermission: (permission: string) => boolean
-    addAuditLog: (acao: string, recurso: string, detalhes: string) => void
-    getAuditLogs: () => AuditLogEntry[]
 }
 
-const PERMISSIONS: Record<UserRole, string[]> = {
-    ANALISTA: [
-        'view:prinad',
-        'view:ecl',
-        'view:propensao',
-        'classify:individual',
-        'classify:batch',
-        'calculate:ecl',
+const API_URL = import.meta.env.VITE_API_URL ?? ''
+
+const PERMISSIONS: Record<UserRole, readonly string[]> = {
+    ANALYST: ['ecl:calculate:individual', 'ecl:result:read'],
+    MANAGER: [
+        'ecl:calculate:individual',
+        'ecl:calculate:portfolio',
+        'ecl:result:read',
+        'scenario:approve',
+        'regulatory:export',
     ],
-    GESTOR: [
-        'view:prinad',
-        'view:ecl',
-        'view:propensao',
-        'view:dashboard',
-        'view:analytics',
-        'classify:individual',
-        'classify:batch',
-        'calculate:ecl',
-        'export:pdf',
-        'export:csv',
-        'export:bacen',
-        'generate:xml',
-    ],
-    AUDITOR: [
-        'view:prinad',
-        'view:ecl',
-        'view:propensao',
-        'view:dashboard',
-        'view:audit',
-        'view:user_activity_logs',
-        'export:audit_reports',
-        'export:compliance_reports',
-    ],
-    ADMIN: [
-        '*',
-        'manage:users',
-        'view:system_errors',
-        'manage:system_config',
-    ],
+    AUDITOR: ['ecl:result:read', 'audit:read'],
+    ADMIN: ['user:manage', 'audit:read'],
 }
 
-const MOCK_USERS: Record<string, { senha: string; user: User }> = {
-    'analista@banco.com': {
-        senha: 'analista123',
-        user: {
-            id: '1',
-            nome: 'Maria Silva',
-            email: 'analista@banco.com',
-            matricula: 'A12345',
-            role: 'ANALISTA',
-            departamento: 'Crédito',
-            lastLogin: new Date().toISOString(),
-        },
-    },
-    'gestor@banco.com': {
-        senha: 'gestor123',
-        user: {
-            id: '2',
-            nome: 'João Santos',
-            email: 'gestor@banco.com',
-            matricula: 'G54321',
-            role: 'GESTOR',
-            departamento: 'Riscos',
-            lastLogin: new Date().toISOString(),
-        },
-    },
-    'auditor@banco.com': {
-        senha: 'auditor123',
-        user: {
-            id: '3',
-            nome: 'Ana Costa',
-            email: 'auditor@banco.com',
-            matricula: 'AU9999',
-            role: 'AUDITOR',
-            departamento: 'Auditoria Interna',
-            lastLogin: new Date().toISOString(),
-        },
-    },
-    'admin@banco.com': {
-        senha: 'admin123',
-        user: {
-            id: '4',
-            nome: 'Carlos Admin',
-            email: 'admin@banco.com',
-            matricula: 'ADM001',
-            role: 'ADMIN',
-            departamento: 'TI',
-            lastLogin: new Date().toISOString(),
-        },
-    },
+function decodeClaims(token: string): JwtClaims {
+    const encoded = token.split('.')[1]
+    if (!encoded) throw new Error('invalid JWT')
+    const normalized = encoded.replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(decodeURIComponent(escape(atob(normalized)))) as JwtClaims
 }
 
 export const useAuth = create<AuthState>()(
     persist(
         (set, get) => ({
             user: null,
+            token: null,
             isAuthenticated: false,
             isLoading: false,
-            auditLogs: [],
 
-            login: async (email: string, senha: string) => {
+            login: async (username, password) => {
                 set({ isLoading: true })
-                await new Promise(resolve => setTimeout(resolve, 500))
-
-                const mockUser = MOCK_USERS[email.toLowerCase()]
-
-                if (mockUser && mockUser.senha === senha) {
-                    const user = {
-                        ...mockUser.user,
-                        lastLogin: new Date().toISOString(),
-                    }
-
-                    set({
-                        user,
-                        isAuthenticated: true,
-                        isLoading: false
+                try {
+                    const response = await fetch(`${API_URL}/api/v1/auth/token`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password }),
                     })
-
-                    get().addAuditLog('LOGIN', 'SISTEMA', `Usuário ${user.nome} (${user.role}) autenticado`)
+                    if (!response.ok) return false
+                    const { access_token: token } = (await response.json()) as { access_token: string }
+                    const claims = decodeClaims(token)
+                    if (claims.exp * 1000 <= Date.now()) return false
+                    set({
+                        token,
+                        user: {
+                            id: claims.sub,
+                            nome: claims.username,
+                            email: claims.username,
+                            matricula: claims.sub,
+                            role: claims.role,
+                            departamento: 'Não informado pela API',
+                            lastLogin: new Date().toISOString(),
+                        },
+                        isAuthenticated: true,
+                    })
                     return true
+                } catch {
+                    return false
+                } finally {
+                    set({ isLoading: false })
                 }
-
-                set({ isLoading: false })
-                return false
             },
 
-            logout: () => {
-                const user = get().user
-                if (user) {
-                    get().addAuditLog('LOGOUT', 'SISTEMA', `Usuário ${user.nome} desconectado`)
+            logout: async () => {
+                const token = get().token
+                try {
+                    if (token) {
+                        await fetch(`${API_URL}/api/v1/auth/logout`, {
+                            method: 'POST',
+                            headers: { Authorization: `Bearer ${token}` },
+                        })
+                    }
+                } finally {
+                    set({ user: null, token: null, isAuthenticated: false })
                 }
-                set({ user: null, isAuthenticated: false })
             },
 
-            checkPermission: (permission: string) => {
+            checkPermission: (permission) => {
                 const user = get().user
-                if (!user) return false
-
-                const userPermissions = PERMISSIONS[user.role]
-                if (userPermissions.includes('*')) return true
-                return userPermissions.includes(permission)
+                return user ? PERMISSIONS[user.role].includes(permission) : false
             },
-
-            addAuditLog: (acao: string, recurso: string, detalhes: string) => {
-                const user = get().user
-                const newLog: AuditLogEntry = {
-                    id: crypto.randomUUID(),
-                    timestamp: new Date().toISOString(),
-                    usuario: user?.nome || 'Sistema',
-                    acao,
-                    recurso,
-                    detalhes,
-                }
-
-                set(state => ({
-                    auditLogs: [newLog, ...state.auditLogs].slice(0, 1000)
-                }))
-            },
-
-            getAuditLogs: () => get().auditLogs,
         }),
         {
-            name: 'auth-storage',
-            partialize: (state) => ({
-                user: state.user,
-                isAuthenticated: state.isAuthenticated,
-                auditLogs: state.auditLogs,
-            }),
-        }
-    )
+            name: 'risk-session',
+            storage: createJSONStorage(() => sessionStorage),
+            partialize: ({ user, token, isAuthenticated }) => ({ user, token, isAuthenticated }),
+            onRehydrateStorage: () => (state) => {
+                if (!state?.token) return
+                try {
+                    if (decodeClaims(state.token).exp * 1000 <= Date.now()) {
+                        state.user = null
+                        state.token = null
+                        state.isAuthenticated = false
+                    }
+                } catch {
+                    state.user = null
+                    state.token = null
+                    state.isAuthenticated = false
+                }
+            },
+        },
+    ),
 )
+
+export function apiUrl(path: string): string {
+    return `${API_URL}${path}`
+}
