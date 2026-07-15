@@ -10,8 +10,8 @@ from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
-import pyarrow as pa  # type: ignore[import-untyped]
-import pyarrow.parquet as pq  # type: ignore[import-untyped]
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 from .events import CreditEventHistory, generate_credit_events
 from .longitudinal import LongitudinalPortfolio, generate_monthly_history
@@ -160,7 +160,7 @@ def _write_table(path: Path, rows: list[dict[str, object]]) -> pa.Schema:
     if not rows:
         raise ValueError(f"cannot materialize empty dataset: {path.stem}")
     table = pa.Table.from_pylist(rows)
-    pq.write_table(
+    pq.write_table(  # type: ignore[no-untyped-call]
         table,
         path,
         compression="zstd",

@@ -36,6 +36,7 @@ env/
 pytest_cache/
 .cache/
 .coverage
+coverage.xml
 htmlcov/
 
 # IDE

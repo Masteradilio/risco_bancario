@@ -7,7 +7,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from jose import JWTError, jwt  # type: ignore[import-untyped]
+import jwt
+from jwt import InvalidTokenError
 
 from ..infrastructure.database import DatabaseManager
 from .passwords import hash_password, verify_password
@@ -108,12 +109,12 @@ class AuthService:
                 algorithms=["HS256"],
                 issuer=self.settings.issuer,
                 audience=self.settings.audience,
-                options={"require_exp": True, "require_iat": True, "require_sub": True},
+                options={"require": ["exp", "iat", "sub"]},
             )
             if claims.get("type") != "access":
                 raise AuthenticationError("invalid token type")
             role = Role(claims["role"])
-        except (JWTError, KeyError, ValueError) as exc:
+        except (InvalidTokenError, KeyError, ValueError) as exc:
             raise AuthenticationError("invalid token") from exc
         row = self.database.fetch_one(
             "SELECT s.revoked_at, s.expires_at, u.username, u.role, u.active, u.token_version "
@@ -142,7 +143,7 @@ class AuthService:
                 audience=self.settings.audience,
             )
             jti = claims["jti"]
-        except (JWTError, KeyError) as exc:
+        except (InvalidTokenError, KeyError) as exc:
             raise AuthenticationError("invalid token") from exc
         self.database.execute(
             "UPDATE security_sessions SET revoked_at = ? WHERE jti_hash = ?",
