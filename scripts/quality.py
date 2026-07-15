@@ -17,6 +17,7 @@ FORMAT_TARGETS = (
     "tests/regulatory",
     "tests/data",
     "tests/models",
+    "tests/performance",
     "tests/application",
     "tests/validation",
     "tests/infrastructure/test_database.py",
@@ -33,6 +34,7 @@ FORMAT_TARGETS = (
     "scripts/generate_ead_backtest_report.py",
     "scripts/generate_ecl_backtest_report.py",
     "scripts/deploy.py",
+    "scripts/performance_benchmark.py",
     "scripts/quality.py",
 )
 
@@ -45,6 +47,7 @@ MYPY_TARGETS = (
     "src/models/ead",
     "src/models/forward_looking",
     "src/ecl/calculation",
+    "src/ecl/batch",
     "src/ecl/discounting",
     "src/ecl/overlays",
     "src/ecl/stage3",
@@ -69,6 +72,7 @@ MYPY_TARGETS = (
     "scripts/generate_ead_backtest_report.py",
     "scripts/generate_ecl_backtest_report.py",
     "scripts/deploy.py",
+    "scripts/performance_benchmark.py",
     "scripts/quality.py",
 )
 
@@ -78,6 +82,7 @@ TEST_TARGETS = (
     "tests/regulatory",
     "tests/data",
     "tests/models",
+    "tests/performance",
     "tests/application",
     "tests/validation",
     "tests/infrastructure/test_database.py",

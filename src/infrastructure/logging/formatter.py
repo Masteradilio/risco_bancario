@@ -19,6 +19,7 @@ EXTRA_FIELDS = (
     "job_type",
     "job_status",
     "contract_count",
+    "recovered_jobs",
 )
 
 

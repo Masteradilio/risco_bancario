@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "one_million": {
+    "max_elapsed_seconds": 120,
+    "max_python_peak_memory_bytes": 536870912
+  },
+  "scope": "Synthetic Stage 1 aggregate batch with 64 deterministic risk profiles",
+  "evidence_status": "demonstrative_capacity_target"
+}

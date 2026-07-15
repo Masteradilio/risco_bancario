@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass
 from datetime import date
 from decimal import ROUND_HALF_EVEN, Decimal
+from functools import lru_cache
 from hashlib import sha256
 from pathlib import Path
 from typing import Any
@@ -115,6 +116,7 @@ def _component_multiplier(
     )
 
 
+@lru_cache(maxsize=256)
 def calculate_macro_risk_multipliers(
     scenario_id: str,
     point: MacroTrajectoryPoint,

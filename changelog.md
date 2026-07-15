@@ -38,6 +38,18 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   indisponibilidade, erro 5xx, falha e travamento de processamento, mantendo
   roteamento e retenção institucional fora do escopo demonstrativo.
 
+### Desempenho
+
+- Adicionado processador Stage 1 particionado, com agregação monetária vetorizada,
+  verificação de overflow e retenção de memória limitada ao lote corrente.
+- Implementado cache LRU thread-safe cuja chave inclui perfil, versões e hashes de
+  cenários e política macroeconômica, evitando reutilização entre configurações.
+- Substituído o agendamento irrestrito da API por fila local limitada, com
+  backpressure auditável e recuperação explícita de jobs interrompidos no reinício.
+- Versionado benchmark sintético de 10 mil, 100 mil e 1 milhão de contratos; o maior
+  volume concluiu em 69,049503 s e 10.107.428 bytes de pico Python, dentro do alvo
+  demonstrativo de 120 s e 512 MiB.
+
 ### Governança e baseline
 
 - Iniciada a Fase 0 da modernização IFRS 9/CMN 4.966 com os documentos de auditoria e backlog mestre.

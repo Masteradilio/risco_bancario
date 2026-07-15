@@ -1989,11 +1989,32 @@ Transformar a plataforma em um sistema reproduzível e confiável.
 
 ### Subtarefas
 
-- [ ] benchmark de 10 mil, 100 mil e 1 milhão de contratos sintéticos.
-- [ ] processamento vetorizado e particionado.
-- [ ] filas para lote.
-- [ ] cache apenas quando seguro e versionado.
-- [ ] testes de concorrência.
+- [x] benchmark de 10 mil, 100 mil e 1 milhão de contratos sintéticos.
+- [x] processamento vetorizado e particionado.
+- [x] filas para lote.
+- [x] cache apenas quando seguro e versionado.
+- [x] testes de concorrência.
+
+### Registro de execução
+
+- Data: 15 de julho de 2026.
+- Processamento: `PartitionedStage1Processor` consome iteráveis em partições de até
+  10 mil contratos, agrega centavos com NumPy sob verificação de overflow e não
+  retém a carteira nem todos os resultados em memória.
+- Cache: LRU limitado e thread-safe; a chave inclui o perfil quantitativo completo,
+  além das versões e hashes do conjunto de cenários e da política macroeconômica.
+- Filas: executor local limitado por workers e capacidade aplica backpressure com
+  HTTP 503 auditável; jobs interrompidos por reinício são marcados
+  `FAILED/PROCESS_RESTARTED` para reenvio explícito.
+- Benchmark sintético: 10 mil em 1,148983 s, 100 mil em 8,430652 s e 1 milhão em
+  69,049503 s; no maior volume, vazão de 14.482,36 contratos/s e pico Python de
+  10.107.428 bytes, aprovando o alvo demonstrativo de 120 s e 512 MiB.
+- Limitação: a amostra usa 64 perfis determinísticos com IDs únicos e a fila é
+  local ao processo; a evidência não constitui SLA ou dimensionamento institucional.
+- Evidência: `evidence/performance/batch-benchmark.json`, 20 testes focados e gate
+  integral verde com 550 testes canônicos, 91,22% de cobertura, 118 testes legados,
+  7 skips esperados e build frontend.
+- Documentação: `docs/operations/PERFORMANCE.md`.
 
 ## Tarefa 15.5 — Segurança
 

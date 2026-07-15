@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import time
 from pathlib import Path
 from typing import Any
 
@@ -166,7 +167,14 @@ def test_portfolio_job_is_persisted_and_processed(tmp_path: Path) -> None:
             json=portfolio,
             headers={"X-Confirmation-Id": confirmation["confirmation_id"]},
         )
-        status_response = api.get(accepted.json()["status_url"])
+        deadline = time.monotonic() + 5
+        while True:
+            status_response = api.get(accepted.json()["status_url"])
+            if status_response.json()["status"] in {"SUCCEEDED", "FAILED"}:
+                break
+            if time.monotonic() >= deadline:
+                raise AssertionError("portfolio job did not complete before the test deadline")
+            time.sleep(0.01)
         metrics_response = api.get("/metrics")
 
     assert accepted.status_code == 202

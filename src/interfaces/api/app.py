@@ -3,17 +3,20 @@
 import hashlib
 import json
 import logging
+import os
 import time
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from ...agent import AgentQuery, AgentResponse, GroundedEvidenceAgent
 from ...agent.evidence import ExecutionNotFoundError
 from ...audit import AuditService
+from ...ecl.batch import BatchQueueFullError, BoundedBatchExecutor
 from ...infrastructure.database import DatabaseManager, DatabaseSettings, VersionedRepository
 from ...infrastructure.database.repository import canonical_json
 from ...infrastructure.database.startup import prepare_database
@@ -60,13 +63,31 @@ def create_app(
     service = CanonicalECLApiService(VersionedRepository(database))
     evidence_agent = GroundedEvidenceAgent(database)
     jobs = JobStore(database)
+    interrupted_jobs = jobs.fail_interrupted()
+    batch_queue = BoundedBatchExecutor(
+        workers=int(os.getenv("BATCH_QUEUE_WORKERS", "2")),
+        queue_capacity=int(os.getenv("BATCH_QUEUE_CAPACITY", "32")),
+    )
+
+    @asynccontextmanager
+    async def lifespan(_application: FastAPI) -> AsyncIterator[None]:
+        yield
+        batch_queue.shutdown()
+
     application = FastAPI(
         title="Risco Bancário — API canônica",
         description="API demonstrativa com dados sintéticos; não homologada pelo BCB.",
         version="1.0.0",
+        lifespan=lifespan,
     )
     application.state.auth_service = auth
+    application.state.batch_queue = batch_queue
     metrics = configure_observability(application)
+    if interrupted_jobs:
+        logger.warning(
+            "Interrupted jobs marked as failed during startup",
+            extra={"event": "job.recovered", "recovered_jobs": interrupted_jobs},
+        )
     bearer = HTTPBearer(auto_error=False)
 
     def current_principal(
@@ -330,7 +351,6 @@ def create_app(
     )
     def calculate_portfolio(
         request: PortfolioRequest,
-        background_tasks: BackgroundTasks,
         confirmation_id: Annotated[str, Header(alias="X-Confirmation-Id")],
         principal: PortfolioPrincipal,
         http_request: Request,
@@ -383,13 +403,29 @@ def create_app(
             status="SUCCEEDED",
             client_ip=http_request.client.host if http_request.client else None,
         )
-        background_tasks.add_task(
-            process_portfolio,
-            job_id,
-            request.calculations,
-            principal.user_id,
-            principal.role.value,
-        )
+        try:
+            batch_queue.submit(
+                process_portfolio,
+                job_id,
+                request.calculations,
+                principal.user_id,
+                principal.role.value,
+            )
+        except BatchQueueFullError as exc:
+            jobs.failed(job_id, "QUEUE_CAPACITY_EXCEEDED")
+            audit.record(
+                actor_id=principal.user_id,
+                actor_role=principal.role.value,
+                action="ECL_PORTFOLIO_QUEUE_REJECTED",
+                resource_type="job",
+                resource_id=job_id,
+                input_payload={"contracts": len(request.calculations)},
+                result_payload={"error_code": "QUEUE_CAPACITY_EXCEEDED"},
+                versions={"api": "v1"},
+                status="FAILED",
+                client_ip=http_request.client.host if http_request.client else None,
+            )
+            raise HTTPException(status_code=503, detail="batch queue capacity exceeded") from exc
         return JobAcceptedResponse(
             job_id=job_id,
             status="PENDING",

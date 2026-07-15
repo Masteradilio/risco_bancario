@@ -50,6 +50,20 @@ class JobStore:
             ("FAILED", error_code, datetime.now(UTC).isoformat(), job_id),
         )
 
+    def fail_interrupted(self) -> int:
+        """Make restart-interrupted work explicit and eligible for client resubmission."""
+        return self.database.execute(
+            "UPDATE calculation_jobs SET status = ?, error_code = ?, finished_at = ? "
+            "WHERE status IN (?, ?)",
+            (
+                "FAILED",
+                "PROCESS_RESTARTED",
+                datetime.now(UTC).isoformat(),
+                "PENDING",
+                "RUNNING",
+            ),
+        )
+
     def get(self, job_id: str) -> dict[str, Any] | None:
         return self.database.fetch_one(
             "SELECT job_id, status, request_hash, result_json, error_code "

@@ -1,0 +1,77 @@
+{
+  "generated_at": "2026-07-15T21:12:00.504184+00:00",
+  "methodology": {
+    "data_classification": "synthetic",
+    "memory_measurement": "tracemalloc_python_allocations",
+    "partition_size": 10000,
+    "result_retention": "aggregate_only",
+    "risk_profiles": 64,
+    "unique_contract_ids": true,
+    "workers": 4
+  },
+  "results": [
+    {
+      "contract_count": 10000,
+      "elapsed_seconds": 1.148983,
+      "macro_policy_hash": "074d35aeff6908103d821849ddc0c64ea2402cf26d31869cc6127162c80a59fb",
+      "macro_policy_version": "2026.07.1",
+      "maximum_partition_size": 10000,
+      "partition_count": 1,
+      "probability_weighted_ecl": "329276.24",
+      "profile_reuses": 9936,
+      "python_peak_memory_bytes": 7656284,
+      "scenario_hash": "c785b8b363b580faa9bdc6e8f663f7e90c6750494a68edfe88eb656419428271",
+      "scenario_version": "2026.07.1",
+      "stress_ecl": "680836.5",
+      "throughput_contracts_per_second": 8703.35,
+      "unique_profile_calculations": 64
+    },
+    {
+      "contract_count": 100000,
+      "elapsed_seconds": 8.430652,
+      "macro_policy_hash": "074d35aeff6908103d821849ddc0c64ea2402cf26d31869cc6127162c80a59fb",
+      "macro_policy_version": "2026.07.1",
+      "maximum_partition_size": 10000,
+      "partition_count": 10,
+      "probability_weighted_ecl": "3293847.84",
+      "profile_reuses": 99936,
+      "python_peak_memory_bytes": 10106948,
+      "scenario_hash": "c785b8b363b580faa9bdc6e8f663f7e90c6750494a68edfe88eb656419428271",
+      "scenario_version": "2026.07.1",
+      "stress_ecl": "6810701.38",
+      "throughput_contracts_per_second": 11861.48,
+      "unique_profile_calculations": 64
+    },
+    {
+      "contract_count": 1000000,
+      "elapsed_seconds": 69.049503,
+      "macro_policy_hash": "074d35aeff6908103d821849ddc0c64ea2402cf26d31869cc6127162c80a59fb",
+      "macro_policy_version": "2026.07.1",
+      "maximum_partition_size": 10000,
+      "partition_count": 100,
+      "probability_weighted_ecl": "32940156.25",
+      "profile_reuses": 999936,
+      "python_peak_memory_bytes": 10107428,
+      "scenario_hash": "c785b8b363b580faa9bdc6e8f663f7e90c6750494a68edfe88eb656419428271",
+      "scenario_version": "2026.07.1",
+      "stress_ecl": "68110625",
+      "throughput_contracts_per_second": 14482.36,
+      "unique_profile_calculations": 64
+    }
+  ],
+  "runtime": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.7 (tags/v3.13.7:bcee1c3, Aug 14 2025, 14:15:11) [MSC v.1944 64 bit (AMD64)]"
+  },
+  "schema_version": 1,
+  "target_result": "passed",
+  "targets": {
+    "evidence_status": "demonstrative_capacity_target",
+    "one_million": {
+      "max_elapsed_seconds": 120,
+      "max_python_peak_memory_bytes": 536870912
+    },
+    "schema_version": 1,
+    "scope": "Synthetic Stage 1 aggregate batch with 64 deterministic risk profiles"
+  }
+}
