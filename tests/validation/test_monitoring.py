@@ -1,3 +1,4 @@
+from dataclasses import replace
 from decimal import Decimal
 
 import numpy as np
@@ -6,6 +7,7 @@ import pytest
 
 from src.domain.exceptions import DomainValidationError
 from src.domain.scenarios import (
+    MacroVariable,
     ScenarioKind,
 )
 from src.validation.monitoring import (
@@ -32,8 +34,13 @@ def test_calculate_psi_yellow() -> None:
     np.random.seed(42)
     reference = np.random.beta(2, 5, 1000)
     actual = np.random.beta(2.1, 4.9, 1000)
-    report = calculate_psi(reference, actual)
-    assert report.level in (AlertLevel.GREEN, AlertLevel.YELLOW)
+    report = calculate_psi(
+        reference,
+        actual,
+        yellow_threshold=Decimal("0"),
+        red_threshold=Decimal("100"),
+    )
+    assert report.level == AlertLevel.YELLOW
 
 
 def test_calculate_psi_red() -> None:
@@ -132,3 +139,20 @@ def test_check_scenario_deviation() -> None:
     assert red.level == AlertLevel.RED
     assert len(red.deviations) >= 1
     assert red.deviations[0].variable == "gdp_growth"
+
+    zero_set = replace(
+        scenario_set,
+        trajectories=tuple(
+            replace(
+                trajectory,
+                periods=(
+                    replace(
+                        trajectory.periods[0], variables=(MacroVariable("zero", Decimal("0")),)
+                    ),
+                ),
+            )
+            for trajectory in scenario_set.trajectories
+        ),
+    )
+    zero_expected = check_scenario_deviation({"zero": Decimal("1")}, zero_set)
+    assert zero_expected.level == AlertLevel.GREEN

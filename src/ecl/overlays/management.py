@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from datetime import date, datetime
 from decimal import Decimal
+from typing import cast
 
 from ...domain.conventions import DecimalInput, aware_utc, money, non_empty
 from ...domain.exceptions import DomainValidationError, TemporalConsistencyError
@@ -35,11 +36,9 @@ class ManagementOverlay:
         if any(value is not None for value in reversal_fields):
             if not all(value is not None for value in reversal_fields):
                 raise DomainValidationError("overlay reversal requires date, approver and reason")
-            reversed_at = self.reversed_at
-            reversed_by = self.reversed_by
-            reversal_reason = self.reversal_reason
-            if reversed_at is None or reversed_by is None or reversal_reason is None:
-                raise DomainValidationError("overlay reversal requires date, approver and reason")
+            reversed_at = cast(datetime, self.reversed_at)
+            reversed_by = cast(str, self.reversed_by)
+            reversal_reason = cast(str, self.reversal_reason)
             normalized = aware_utc(reversed_at, field="reversed_at")
             if normalized < self.approved_at or normalized.date() < self.effective_from:
                 raise TemporalConsistencyError("overlay reversal cannot precede approval or effect")

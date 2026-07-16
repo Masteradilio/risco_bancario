@@ -75,6 +75,8 @@ def test_adverse_trajectory_shocks_increase_ecl_and_stress_is_separate() -> None
 
 
 def test_invalid_sensitivity_inputs_are_rejected() -> None:
+    with pytest.raises(DomainValidationError, match="requires upside"):
+        WeightSensitivityCase("invalid-kinds", (("base", Decimal("1")),))
     with pytest.raises(DomainValidationError, match="sum to one"):
         WeightSensitivityCase(
             "invalid",
@@ -85,6 +87,17 @@ def test_invalid_sensitivity_inputs_are_rejected() -> None:
     with pytest.raises(DomainValidationError, match="variable not found"):
         run_scenario_sensitivities(
             _baseline(), load_scenario_set(seed=91), "portfolio", load_macro_risk_policy(), policy
+        )
+    with pytest.raises(DomainValidationError, match="unique scenario ids"):
+        TrajectoryShock("empty", "gdp_growth", Decimal("1"), ())
+    unknown = TrajectoryShock("unknown", "gdp_growth", Decimal("1"), ("unknown",))
+    with pytest.raises(DomainValidationError, match="unknown scenario"):
+        run_scenario_sensitivities(
+            _baseline(),
+            load_scenario_set(seed=91),
+            "portfolio",
+            load_macro_risk_policy(),
+            replace(load_scenario_sensitivity_policy(), trajectory_shocks=(unknown,)),
         )
 
 
@@ -129,3 +142,11 @@ def test_overlay_rejects_invalid_window_partial_reversal_and_duplicates() -> Non
     overlay = _overlay()
     with pytest.raises(DomainValidationError, match="ids must be unique"):
         apply_management_overlays("100", (overlay, overlay), date(2026, 7, 14))
+    with pytest.raises(TemporalConsistencyError, match="cannot precede"):
+        replace(
+            overlay,
+            reversed_at=datetime(2026, 6, 30, 14, tzinfo=UTC),
+            reversed_by="approver",
+            reversal_reason="invalid",
+        )
+    assert not overlay.is_active(date(2027, 1, 1))

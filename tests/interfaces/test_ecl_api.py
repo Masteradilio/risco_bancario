@@ -2,15 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import time
+from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from src.infrastructure.database import DatabaseManager, DatabaseSettings
 from src.infrastructure.database.repository import canonical_json
 from src.interfaces.api.app import create_app
-from src.interfaces.api.schemas import PortfolioRequest
+from src.interfaces.api.schemas import ECLCalculationRequest, PortfolioRequest
 from src.security.rbac import Role
 from src.security.settings import SecuritySettings
 
@@ -85,6 +88,45 @@ def client(tmp_path: Path) -> TestClient:
     api = TestClient(app)
     api.headers.update({"Authorization": f"Bearer {token}"})
     return api
+
+
+@pytest.mark.parametrize(
+    "mutation,message",
+    [
+        (
+            lambda payload: payload["stage_assessment"].update(current_stage=2),
+            "current_stage must match",
+        ),
+        (
+            lambda payload: payload.update(
+                periods=payload["periods"] * 13,
+                scenarios=[
+                    scenario | {"periods": scenario["periods"] * 13}
+                    for scenario in payload["scenarios"]
+                ],
+            ),
+            "at most 12",
+        ),
+        (
+            lambda payload: payload["periods"][0].update(reference_date="2026-06-01"),
+            "ordered after reference_date",
+        ),
+        (
+            lambda payload: payload.update(
+                stage=2,
+                stage_assessment=payload["stage_assessment"] | {"current_stage": 2},
+                periods=payload["periods"] * 2,
+            ),
+            "cover the risk horizon",
+        ),
+    ],
+)
+def test_calculation_schema_rejects_incoherent_horizons(mutation, message: str) -> None:
+    payload = deepcopy(calculation_payload())
+    mutation(payload)
+
+    with pytest.raises(ValidationError, match=message):
+        ECLCalculationRequest.model_validate(payload)
 
 
 def test_openapi_exposes_versioned_ecl_product_routes(tmp_path: Path) -> None:

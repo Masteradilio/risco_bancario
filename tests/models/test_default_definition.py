@@ -61,6 +61,8 @@ def test_product_populations_have_explicit_assessment_levels(policy) -> None:
 
 
 def test_unknown_product_or_indicator_is_rejected(policy) -> None:
+    with pytest.raises(DomainValidationError, match="amounts and days"):
+        assessment(policy, days_past_due=-1)
     with pytest.raises(DomainValidationError, match="no default assessment"):
         assessment(policy, product_code="unknown")
     with pytest.raises(DomainValidationError, match="unknown qualitative"):
@@ -117,3 +119,31 @@ def test_default_target_exclusions_and_complete_horizon(policy) -> None:
         ).exclusion_reason
         == "incomplete_outcome_horizon"
     )
+    assert (
+        build_default_target(
+            observation,
+            date(2024, 1, 1),
+            None,
+            acquired_credit_impaired=False,
+            already_defaulted=True,
+            policy=policy,
+        ).exclusion_reason
+        == "already_defaulted_at_observation"
+    )
+
+
+def test_default_policy_rejects_duplicate_lists_and_wrong_backstop(policy) -> None:
+    duplicate_indicator = policy.model_copy(
+        update={"qualitative_indicators": ("bankruptcy", "bankruptcy")}
+    )
+    with pytest.raises(ValueError, match="indicators must be unique"):
+        duplicate_indicator.unique_and_complete()
+
+    contagion = policy.counterparty_contagion.model_copy(
+        update={"exception_reasons": ("legal_ring_fence", "legal_ring_fence")}
+    )
+    duplicate_exception = policy.model_copy(update={"counterparty_contagion": contagion})
+    with pytest.raises(ValueError, match="exceptions must be unique"):
+        duplicate_exception.unique_and_complete()
+    with pytest.raises(ValueError, match="operationalize at 91"):
+        policy.model_copy(update={"backstop_days_past_due": 90}).unique_and_complete()

@@ -31,10 +31,35 @@ def test_canonical_policy_loads_with_metadata_and_stable_hash() -> None:
 @pytest.mark.parametrize(
     "mutation, message",
     [
+        (
+            lambda data: data["metadata"].update(effective_to="2020-01-01"),
+            "effective_to cannot precede",
+        ),
+        (
+            lambda data: data["rating_bands"][0].update(lower_inclusive="5", upper_exclusive="5"),
+            "upper bound must exceed",
+        ),
+        (
+            lambda data: data["rating_bands"][0].update(pd_12m_min="0.2", pd_12m_max="0.1"),
+            "pd_12m_max cannot be lower",
+        ),
         (lambda data: data["scenarios"][0].update(weight="0.20"), "weights must sum"),
         (lambda data: data["staging"].update(stage_3_days_past_due=30), "stage 3 threshold"),
+        (
+            lambda data: data["staging"].update(
+                stage_3_qualitative_events=["bankruptcy", "bankruptcy"]
+            ),
+            "qualitative events must be unique",
+        ),
+        (lambda data: data["rating_bands"][0].update(lower_inclusive="1"), "start at zero"),
         (lambda data: data["rating_bands"][1].update(lower_inclusive="6"), "contiguous"),
+        (lambda data: data["rating_bands"][-1].update(upper_exclusive="100"), "through 100"),
+        (
+            lambda data: data["rating_bands"][1].update(rating=data["rating_bands"][0]["rating"]),
+            "ratings must be unique",
+        ),
         (lambda data: data["ccf_by_product"].update(consignado="1.1"), "CCF values"),
+        (lambda data: data["scenarios"][0].update(kind="base"), "exactly one base"),
     ],
 )
 def test_invalid_policy_is_rejected(mutation, message: str) -> None:

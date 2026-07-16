@@ -1,8 +1,10 @@
+from datetime import date
 from decimal import Decimal
 
 import pytest
 
 from src.data.synthetic import PopulationConfig, generate_population
+from src.data.synthetic.population import ContractRecord, _annuity_schedule
 from src.domain.exceptions import DomainValidationError
 
 
@@ -72,5 +74,33 @@ def test_public_tables_have_no_latent_fields() -> None:
 
 
 def test_invalid_population_config_fails_fast() -> None:
-    with pytest.raises(DomainValidationError):
+    with pytest.raises(DomainValidationError, match="at least 7"):
         PopulationConfig(clients=6)
+    with pytest.raises(DomainValidationError, match="positive"):
+        PopulationConfig(contracts_per_client=0)
+    with pytest.raises(DomainValidationError, match="cannot precede"):
+        PopulationConfig(start_date=date(2026, 2, 1), end_date=date(2026, 1, 1))
+
+
+def test_zero_rate_annuity_schedule_splits_principal_without_interest() -> None:
+    contract = ContractRecord(
+        "CT-ZERO",
+        "CL-1",
+        "CP-1",
+        "personal_loan",
+        "amortized",
+        date(2026, 1, 1),
+        date(2026, 3, 1),
+        Decimal("0"),
+        Decimal("90"),
+        Decimal("90"),
+        Decimal("90"),
+        "BRL",
+        False,
+        "test",
+    )
+
+    schedule = _annuity_schedule(contract, 3)
+
+    assert [row.interest for row in schedule] == [Decimal("0.00")] * 3
+    assert [row.principal for row in schedule] == [Decimal("30.00")] * 3

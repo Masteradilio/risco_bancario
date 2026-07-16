@@ -13,7 +13,7 @@ dependencies = [
   "xgboost>=2.0", "lightgbm>=4.0", "imbalanced-learn>=0.11", "joblib>=1.3",
   "shap>=0.43", "fastapi>=0.139,<0.140", "uvicorn>=0.24", "pydantic>=2.0",
   "websockets>=12", "python-multipart>=0.0.32", "streamlit>=1.59.2",
-  "plotly>=5.18", "matplotlib>=3.8", "requests>=2.34.2", "httpx>=0.25",
+  "plotly>=5.18", "matplotlib>=3.8", "requests>=2.34.2", "httpx>=0.25", "httpx2>=2.7,<3",
   "python-dotenv>=1.2.2", "psycopg2-binary>=2.9", "sentence-transformers>=3.0",
   "tiktoken>=0.5", "openpyxl>=3.1", "pypdf>=6.14.2", "PyJWT[crypto]>=2.13,<3",
   "passlib[bcrypt]>=1.7", "seaborn>=0.13", "reportlab>=4.0", "python-docx>=1.0",
@@ -49,11 +49,7 @@ warn_unused_configs = true
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "--strict-config --strict-markers --tb=short"
-filterwarnings = [
-  "ignore::DeprecationWarning",
-  "ignore::FutureWarning",
-  "ignore::PendingDeprecationWarning"
-]
+filterwarnings = ["error"]
 markers = ["regulatory(requirement_id): links a test to a traceability-matrix requirement"]
 
 [tool.coverage.run]

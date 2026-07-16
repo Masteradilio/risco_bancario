@@ -13,6 +13,7 @@ from src.ecl.calculation import (
     route_ecl_measurement,
     validate_homogeneous_group,
 )
+from src.ecl.calculation.grouping import _coefficient_of_variation
 
 
 def _member(index: int, *, ead: str | None = None) -> GroupingMember:
@@ -104,3 +105,32 @@ def test_small_or_dimensionally_mixed_groups_fail_closed() -> None:
     )
     with pytest.raises(DomainValidationError, match="do not share"):
         validate_homogeneous_group(mixed, _definition(), policy)
+
+
+def test_grouping_boundaries_reject_invalid_members_definition_and_empty_group() -> None:
+    policy = load_ecl_grouping_policy()
+    with pytest.raises(DomainValidationError, match="vintage_year"):
+        replace(_member(1), vintage_year=1899)
+    with pytest.raises(DomainValidationError, match="EAD must be positive"):
+        replace(_member(1), ead="0")
+    with pytest.raises(DomainValidationError, match="dimensions"):
+        HomogeneousGroupDefinition("empty", ())
+    with pytest.raises(DomainValidationError, match="dimensions"):
+        HomogeneousGroupDefinition("duplicate", ("product_code", "product_code"))
+    with pytest.raises(DomainValidationError, match="requires members"):
+        validate_homogeneous_group((), _definition(), policy)
+
+
+def test_grouping_zero_mean_and_duplicate_contract_diagnostics() -> None:
+    assert _coefficient_of_variation((Decimal("0"), Decimal("0"))) == (
+        Decimal("0"),
+        Decimal("0"),
+    )
+    assert _coefficient_of_variation((Decimal("-1"), Decimal("1"))) == (
+        Decimal("0"),
+        Decimal("999"),
+    )
+    members = tuple(_member(index) for index in range(20))
+    duplicate = (*members[:-1], replace(members[-1], contract_id=members[0].contract_id))
+    report = validate_homogeneous_group(duplicate, _definition(), load_ecl_grouping_policy())
+    assert "duplicate_contracts" in report.blockers

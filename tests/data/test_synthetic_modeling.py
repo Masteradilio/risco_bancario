@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -124,3 +125,23 @@ def test_modeling_feature_columns_exclude_latents_and_future_events(datasets) ->
             assert "default_date" not in row
             assert "recovery_net_total" not in row
             assert "target_exposure_at_default" not in row
+
+
+def test_observations_after_the_modeling_cutoff_are_ignored(datasets) -> None:
+    population, history, events, _ = datasets
+    macro = generate_macroeconomic_bundle(seed=91)
+    eligible = next(
+        item
+        for item in history.snapshots
+        if not next(
+            contract
+            for contract in population.contracts
+            if contract.contract_id == item.contract_id
+        ).acquired_credit_impaired
+    )
+    future = replace(eligible, reference_date=date(2026, 1, 1))
+    extended_history = replace(history, snapshots=(*history.snapshots, future))
+
+    result = build_modeling_datasets(population, extended_history, events, macro)
+
+    assert all(item.observation_date <= date(2025, 12, 1) for item in result.pd)

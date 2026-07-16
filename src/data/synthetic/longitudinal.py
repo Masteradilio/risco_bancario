@@ -104,6 +104,14 @@ def _base_risk(contract: ContractRecord) -> float:
     }[contract.product_code]
 
 
+def _update_days_past_due(risk: float, days_past_due: int, rng: Random) -> int:
+    if risk >= 0.68 and rng.random() < risk * 0.38:
+        return min(120, days_past_due + 30)
+    if risk < 0.40 and days_past_due and rng.random() < 0.55:
+        return max(0, days_past_due - 30)
+    return days_past_due
+
+
 def generate_monthly_history(
     portfolio: SyntheticPortfolio,
     *,
@@ -143,10 +151,7 @@ def generate_monthly_history(
                 0.99, max(0.01, 0.82 * risk + 0.18 * (_base_risk(contract) + macro_cycle + shock))
             )
 
-            if risk >= 0.68 and rng.random() < risk * 0.38:
-                days_past_due = min(120, days_past_due + 30)
-            elif risk < 0.40 and days_past_due and rng.random() < 0.55:
-                days_past_due = max(0, days_past_due - 30)
+            days_past_due = _update_days_past_due(risk, days_past_due, rng)
 
             due = schedule.get(current)
             if contract.facility_type == "amortized":

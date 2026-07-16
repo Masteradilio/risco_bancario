@@ -116,6 +116,18 @@ def test_facility_level_product_does_not_apply_counterparty_contagion(policy) ->
     assert result.assessment_level == "facility"
 
 
+def test_non_default_counterparty_evidence_does_not_propagate(policy) -> None:
+    result = assess_stage3(
+        Stage3AssessmentInput(
+            default_input=default_input(product_code="credit_commitment"),
+            counterparty_defaults=(CounterpartyDefaultEvidence("CT-OTHER", False),),
+        ),
+        policy,
+    )
+    assert not result.is_stage3
+    assert result.contagion_contracts == ()
+
+
 def test_unknown_or_duplicate_contagion_evidence_fails_closed(policy) -> None:
     with pytest.raises(DomainValidationError, match="unknown"):
         assess_stage3(

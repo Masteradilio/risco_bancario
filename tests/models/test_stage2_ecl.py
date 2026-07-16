@@ -128,6 +128,8 @@ def test_original_eir_discounting_reduces_lifetime_ecl() -> None:
 
 
 def test_stage2_rejects_inconsistent_term_and_mode() -> None:
+    with pytest.raises(DomainValidationError, match="term months"):
+        replace(_contract(), contractual_months=0, periods=())
     with pytest.raises(DomainValidationError, match="cover contractual"):
         replace(_contract(), contractual_months=17)
     with pytest.raises(DomainValidationError, match="requires extension months"):
@@ -136,6 +138,11 @@ def test_stage2_rejects_inconsistent_term_and_mode() -> None:
         _contract(mode=Stage2CalculationMode.COLLECTIVE)
     with pytest.raises(DomainValidationError, match="cannot use"):
         _contract(group="POOL")
+    with pytest.raises(DomainValidationError, match="follow reporting date"):
+        replace(
+            _contract(contractual=1),
+            periods=(replace(_periods(1)[0], reference_date=date(2025, 12, 1)),),
+        )
 
 
 def test_stage2_rejects_periods_outside_scenario_horizon() -> None:

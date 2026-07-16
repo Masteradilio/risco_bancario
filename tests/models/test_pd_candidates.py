@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from src.data.synthetic import (
@@ -8,7 +9,9 @@ from src.data.synthetic import (
     generate_monthly_history,
     generate_population,
 )
+from src.domain.exceptions import DomainValidationError
 from src.models.pd import fit_candidate_models
+from src.models.pd.candidates import _balanced_weights, _fit_candidate
 
 
 @pytest.fixture(scope="module")
@@ -75,3 +78,26 @@ def test_candidate_validation_metrics_are_finite(candidates) -> None:
         metrics = model.validation_metrics_pre_calibration
         assert 0 <= metrics.roc_auc <= 1
         assert metrics.brier_score >= 0
+
+
+def test_candidate_training_and_calibration_require_both_classes(candidates) -> None:
+    _, modeling = candidates
+    with pytest.raises(DomainValidationError, match="both target classes"):
+        _balanced_weights(np.asarray([0, 0]))
+
+    train = [row for row in modeling.pd if row.split == "train"]
+    validation = [row for row in modeling.pd if row.split == "validation"]
+    calibration = [
+        row for row in modeling.pd if row.split == "calibration" and row.target_default_12m == 0
+    ]
+    oot = [row for row in modeling.pd if row.split == "oot"]
+    with pytest.raises(DomainValidationError, match="calibration split requires"):
+        _fit_candidate(
+            train,
+            validation,
+            calibration,
+            oot,
+            target_name="target_default_12m",
+            model_name="invalid",
+            calibrate=True,
+        )

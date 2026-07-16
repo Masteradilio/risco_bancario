@@ -4,6 +4,10 @@ import pytest
 
 from src.domain.exceptions import DomainValidationError
 from src.models.pd import project_pd_term_structure
+from src.models.pd.term_structure import (
+    monthly_hazards_from_horizon_pd,
+    remaining_contract_months,
+)
 
 
 def test_flat_curve_reconciles_hazard_survival_and_12m_pd() -> None:
@@ -66,3 +70,11 @@ def test_invalid_curve_inputs_fail_closed(maturity, pd, multipliers) -> None:
             pd,
             term_multipliers=multipliers,
         )
+
+
+def test_term_structure_calendar_rounding_and_direct_boundaries() -> None:
+    assert remaining_contract_months(date(2026, 1, 15), date(2026, 1, 16)) == 1
+    with pytest.raises(DomainValidationError, match="remaining_months"):
+        monthly_hazards_from_horizon_pd(0.1, 0)
+    with pytest.raises(DomainValidationError, match="contract_id"):
+        project_pd_term_structure(" ", date(2026, 1, 1), date(2027, 1, 1), 0.1)

@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 
 import pytest
@@ -10,7 +11,10 @@ from src.data.synthetic import (
     generate_monthly_history,
     generate_population,
 )
+from src.domain.exceptions import DomainValidationError
 from src.models.pd import calibrate_explainable_pd
+from src.models.pd.baselines import _pipeline
+from src.models.pd.calibration import _calibrator, _target, summarize_temporal_splits
 
 
 @pytest.fixture(scope="module")
@@ -76,3 +80,27 @@ def test_oot_calibration_is_sliced_by_rating_product_and_vintage(calibrated) -> 
 def test_origination_cohort_is_metadata_not_a_model_feature(calibrated) -> None:
     modeling, _ = calibrated
     assert all(item.origination_cohort for item in modeling.pd)
+
+
+def test_calibration_rejects_empty_overlapping_immature_and_single_class_splits(
+    calibrated,
+) -> None:
+    modeling, _ = calibrated
+    without_train = replace(modeling, pd=tuple(row for row in modeling.pd if row.split != "train"))
+    with pytest.raises(DomainValidationError, match="temporal split is empty"):
+        summarize_temporal_splits(without_train)
+
+    rows = list(modeling.pd)
+    validation_index = next(index for index, row in enumerate(rows) if row.split == "validation")
+    rows[validation_index] = replace(rows[validation_index], observation_date=date(2018, 1, 1))
+    with pytest.raises(DomainValidationError, match="strictly ordered"):
+        summarize_temporal_splits(replace(modeling, pd=tuple(rows)))
+
+    immature = [row for row in modeling.pd if row.split == "backtesting"]
+    with pytest.raises(DomainValidationError, match="mature"):
+        _target(immature)
+    single_class = [
+        row for row in modeling.pd if row.split == "calibration" and row.target_default_12m == 0
+    ]
+    with pytest.raises(DomainValidationError, match="both target classes"):
+        _calibrator(_pipeline(), single_class, "isotonic")

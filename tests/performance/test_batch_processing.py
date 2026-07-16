@@ -54,6 +54,24 @@ def test_cache_key_changes_with_scenario_and_policy_versions() -> None:
     assert third.unique_profile_calculations == 1
 
 
+def test_batch_cache_and_processor_reject_invalid_capacity_and_evict_lru() -> None:
+    with pytest.raises(ValueError, match="cache capacity"):
+        VersionedResultCache(capacity=0)
+    with pytest.raises(ValueError, match="partition size"):
+        PartitionedStage1Processor(
+            load_scenario_set(seed=91), load_macro_risk_policy(), partition_size=0
+        )
+
+    contracts = list(synthetic_contracts(2, profiles=2))
+    cache = VersionedResultCache(capacity=1)
+    processor = PartitionedStage1Processor(
+        load_scenario_set(seed=91), load_macro_risk_policy(), cache=cache
+    )
+    summary = processor.process(contracts)
+    assert summary.unique_profile_calculations == 2
+    assert len(cache._values) == 1
+
+
 def test_ten_thousand_contracts_remain_partition_bounded() -> None:
     summary = PartitionedStage1Processor(
         load_scenario_set(seed=91),
