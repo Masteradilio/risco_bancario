@@ -7,8 +7,6 @@ import json
 import os
 from pathlib import Path
 
-from src.infrastructure.database import DatabaseManager
-from src.infrastructure.database.startup import prepare_database
 from src.infrastructure.deployment import DeploymentStateStore, load_environment_profile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +34,9 @@ def main() -> None:
     profile = load_environment_profile(arguments.environment)
 
     if arguments.action == "migrate":
+        from src.infrastructure.database import DatabaseManager
+        from src.infrastructure.database.startup import prepare_database
+
         if arguments.env_file:
             from dotenv import load_dotenv
 

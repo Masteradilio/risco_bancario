@@ -2315,20 +2315,21 @@ Após Fases 14 a 16:
 - [x] observabilidade.
 - [x] README e quickstart.
 - [x] relatório final de limitações.
-- [x] release versionada (`v2.0.1`).
+- [x] release versionada (`v2.0.2`).
 
 ### Fechamento da modernização
 
 - Data: 15 de julho de 2026.
-- Release: `v2.0.1`, sucessora da release histórica `v1.0.0` e correspondente à
+- Release: `v2.0.2`, sucessora da release histórica `v1.0.0` e correspondente à
   reconstrução canônica descrita neste backlog.
 - A candidata `v2.0.0` foi mantida imutável após a entrega revelar uma invocação
-  sem o root do repositório no `sys.path`; `v2.0.1` contém a correção coberta por
-  contrato automatizado.
+  sem o root do repositório no `sys.path`; `v2.0.1` também foi mantida imutável
+  ao revelar import prematuro do driver de banco. `v2.0.2` cobre ambos os casos,
+  inclusive com subprocesso Python `-S` sem dependências de runtime.
 - O scan agregado da primeira integração na `main` identificou quatro strings
   históricas exclusivamente sintéticas em testes/documentação; os fingerprints
   exatos foram classificados em `.gitleaksignore`, sem regra ampla de exclusão.
-- Gates locais finais: Black, Ruff, Ruff SAST e MyPy aprovados; 580 testes
+- Gates locais finais: Black, Ruff, Ruff SAST e MyPy aprovados; 581 testes
   canônicos aprovados com 91,25% de cobertura; 118 testes legados aprovados, 7
   ignorados por dependência opcional; build React aprovado.
 - Jornada E2E regenerada contra `20411a3e8e79`, concluída como

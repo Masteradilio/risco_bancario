@@ -2,9 +2,10 @@
 
 ## Resultado
 
-Esta avaliação acompanha a release de modernização `v2.0.1`. A candidata
-`v2.0.0` foi preservada como tag imutável, mas sua entrega falhou antes da
-publicação por uma invocação de script sem o root do repositório no `sys.path`.
+Esta avaliação acompanha a release de modernização `v2.0.2`. As candidatas
+`v2.0.0` e `v2.0.1` foram preservadas como tags imutáveis, mas suas entregas
+falharam antes da publicação: primeiro por uma invocação sem o root no `sys.path`;
+depois porque o plano importava uma dependência de banco ainda não instalada.
 
 O backlog atingiu **10/10 de completude técnica** nas dez dimensões revisadas
 para o escopo de demonstração sintética. A nota mede se os critérios do estado-alvo
@@ -43,7 +44,7 @@ em medir, documentar, bloquear e tornar o resultado reproduzível.
 
 ## Evidências objetivas
 
-- suíte canônica: 580 testes aprovados, 91,25% de cobertura no gate final,
+- suíte canônica: 581 testes aprovados, 91,25% de cobertura no gate final,
   incluindo a verificação dos quatro model cards; suíte legada: 118 aprovados e
   7 ignorados;
 - instalação limpa: source archive isolado, `venv` novo, dependências instaladas,

@@ -7,13 +7,16 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
 
 ---
 
-## [2.0.1] - 2026-07-15
+## [2.0.2] - 2026-07-15
 
 ### Revisão final e release readiness
 
 - Corrigida a execução do plano de entrega para preservar o root do repositório
   no `sys.path`; a release candidata `v2.0.0` falhou antes de publicar artefatos
-  e foi sucedida, sem mover a tag imutável, por `v2.0.1`.
+  e foi sucedida sem mover a tag imutável.
+- Isoladas as dependências de banco na ação `migrate`; a candidata `v2.0.1`
+  revelou que o plano de entrega deve executar antes da instalação de dependências
+  de runtime. Um teste com Python `-S` agora garante esse contrato em `v2.0.2`.
 - Classificados por fingerprint quatro achados históricos do Gitleaks como
   credenciais exclusivamente sintéticas de testes/documentação, mantendo a
   varredura estrita para qualquer valor novo.
@@ -28,7 +31,7 @@ e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR
   protocolos de BCB fictícios foram substituídos por marcadores sintéticos.
 - Adicionado o model card de SICR exigido pelo pacote final, preservando decisão
   `not_approved`, métricas OOT degeneradas e condições de promoção.
-- Gate final aprovado com Black, Ruff/SAST, MyPy, 580 testes canônicos,
+- Gate final aprovado com Black, Ruff/SAST, MyPy, 581 testes canônicos,
   91,25% de cobertura, 118 regressões legadas, 7 skips e build React.
 
 ### Documentação de portfólio

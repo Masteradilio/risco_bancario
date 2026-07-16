@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -29,6 +31,34 @@ def test_environment_profiles_are_separate_secret_free_and_strict() -> None:
     with pytest.raises(ValueError, match="semantic version"):
         demo.validate_image_tag("latest")
     demo.validate_image_tag("v1.2.3")
+
+
+def test_delivery_plan_runs_without_runtime_database_dependencies(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-S",
+            "-m",
+            "scripts.deploy",
+            "plan",
+            "--environment",
+            "demo",
+            "--image-tag",
+            "v2.0.2",
+            "--commit",
+            "a" * 40,
+            "--output",
+            str(tmp_path / "plan.json"),
+        ],
+        cwd=Path(__file__).parents[2],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    plan = json.loads((tmp_path / "plan.json").read_text(encoding="utf-8"))
+    assert plan["image_tag"] == "v2.0.2"
 
 
 def test_validate_mode_is_read_only_and_requires_current_schema(tmp_path: Path) -> None:
