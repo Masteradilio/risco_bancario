@@ -11,6 +11,8 @@ from src.regulatory.doc3040 import (
     AdditionalInformation,
     Aggregation,
     Client,
+    ConnectedIpoc,
+    ConnectedIpocGroup,
     Doc3040Input,
     Guarantee,
     Header,
@@ -24,6 +26,7 @@ from src.regulatory.doc3040 import (
     load_layout_registry,
     sourced,
 )
+from src.regulatory.doc3040.generator import _number
 
 
 def sv(value, field: str):
@@ -254,3 +257,58 @@ def test_selected_layout_must_cover_reference_month() -> None:
     )
     with pytest.raises(DomainValidationError, match="does not cover"):
         generate_xml_candidate(base_document(), layout)
+
+
+def test_number_formatting_and_empty_maturities_are_deterministic() -> None:
+    assert _number(2) == "2"
+    assert _number(Decimal("2.50")) == "2.50"
+    root = ET.fromstring(
+        generate_xml_candidate(base_document(base_operation(maturities=()))).content
+    )
+    assert root.find("./Cli/Op/Venc") is None
+
+
+def test_ipoc_composition_covers_all_client_types() -> None:
+    header = base_header()
+    op = base_operation()
+    pf = base_client(op)
+    with pytest.raises(DomainValidationError, match="11-position CPF"):
+        compose_ipoc(header, replace(pf, code=sv("123", "code")), op)
+
+    pj = replace(
+        pf,
+        code=sv("12345678000199", "code"),
+        client_type=sv("2", "type"),
+        control_type=sv("01", "control"),
+        operations=(replace(op, detailed_client=sv("12345678000199", "detail")),),
+    )
+    assert "12345678" in compose_ipoc(header, pj, pj.operations[0])
+    with pytest.raises(DomainValidationError, match="8-position CNPJ"):
+        compose_ipoc(header, replace(pj, code=sv("123", "code")), pj.operations[0])
+
+    other = replace(pf, code=sv("123", "code"), client_type=sv("3", "type"))
+    assert "00000000000123" in compose_ipoc(header, other, op)
+    object.__setattr__(other.code, "value", "1" * 15)
+    with pytest.raises(DomainValidationError, match="cannot exceed 14"):
+        compose_ipoc(header, other, op)
+    with pytest.raises(DomainValidationError, match="unsupported client type"):
+        compose_ipoc(header, replace(pf, client_type=sv("9", "type")), op)
+
+
+def test_connected_ipoc_groups_are_rendered() -> None:
+    first = base_operation()
+    second = replace(
+        first,
+        contract_code=sv("CONTRATO2", "contract_code"),
+        ipoc=sv("123456780203112345678901CONTRATO2", "ipoc"),
+    )
+    client = replace(base_client(), operations=(first, second))
+    group = ConnectedIpocGroup(
+        ipocs=(ConnectedIpoc(ipoc=first.ipoc), ConnectedIpoc(ipoc=second.ipoc))
+    )
+    contract = replace(base_document(), clients=(client,), connected_ipoc_groups=(group,))
+    root = ET.fromstring(generate_xml_candidate(contract).content)
+    assert [item.attrib["ipoc"] for item in root.findall("./ConIpocs/ipocCon")] == [
+        first.ipoc.value,
+        second.ipoc.value,
+    ]

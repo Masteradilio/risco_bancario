@@ -100,3 +100,38 @@ def test_variable_rate_requires_a_curve_and_fixed_rate_rejects_one() -> None:
             AmortizationMethod.PRICE,
             rate_resets=(RateReset(date(2026, 2, 15), "0.13"),),
         )
+
+
+def test_amortization_boundaries_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="annual_rate"):
+        RateReset(date(2026, 2, 1), "-0.01")
+    invalid_cases = (
+        ({"contract_id": " "}, "contract_id"),
+        ({"term_months": 0}, "term_months"),
+        ({"principal": "0"}, "principal"),
+        ({"annual_rate": "-0.01"}, "annual_rate"),
+        ({"upfront_fee": "12000"}, "upfront_fee"),
+        (
+            {
+                "rate_type": RateType.VARIABLE,
+                "rate_resets": (
+                    RateReset(date(2026, 2, 15), "0.13"),
+                    RateReset(date(2026, 2, 15), "0.14"),
+                ),
+            },
+            "unique",
+        ),
+    )
+    for overrides, message in invalid_cases:
+        with pytest.raises(DomainValidationError, match=message):
+            terms(AmortizationMethod.PRICE, **overrides)
+    with pytest.raises(DomainValidationError, match="cannot precede"):
+        year_fraction(date(2026, 2, 1), date(2026, 1, 1), DayCountConvention.ACT_365)
+    assert adjust_business_day(date(2026, 1, 31), BusinessDayConvention.UNADJUSTED) == date(
+        2026, 1, 31
+    )
+
+
+def test_effective_interest_rate_fails_when_cashflows_cannot_be_bracketed() -> None:
+    with pytest.raises(DomainValidationError, match="could not be bracketed"):
+        project_amortized_schedule(terms(AmortizationMethod.PRICE, upfront_fee="11999.99"))

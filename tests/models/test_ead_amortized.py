@@ -1,3 +1,5 @@
+import json
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -162,3 +164,126 @@ def test_synthetic_amortized_defaults_reconcile_exactly_to_schedule() -> None:
         "vehicle_finance",
     }
     assert {item.policy_sha256 for item in dataset.records} == {policy.sha256}
+
+
+def test_amortized_policy_rejects_unknown_schema_and_convention(tmp_path: Path) -> None:
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document | {"schema_version": "2.0.0"}), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="unsupported amortized EAD policy schema"):
+        load_amortized_ead_policy(path)
+
+    document["amortized_balance_basis"] = "closing_balance"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="measurement convention"):
+        load_amortized_ead_policy(path)
+
+
+def test_amortized_ead_rejects_empty_and_cross_contract_adjustments() -> None:
+    terms = _terms()
+    schedule = project_amortized_schedule(terms)
+    policy = load_amortized_ead_policy(POLICY_PATH)
+    with pytest.raises(DomainValidationError, match="must contain periods"):
+        calculate_amortized_ead(replace(schedule, periods=()), date(2026, 2, 1), policy)
+
+    prepayment = replace(apply_prepayment(terms, 2, Decimal("100")), contract_id="OTHER")
+    with pytest.raises(DomainValidationError, match="prepayment contract differs"):
+        calculate_amortized_ead(schedule, date(2026, 5, 1), policy, prepayments=(prepayment,))
+    with pytest.raises(DomainValidationError, match="prepayment period"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 5, 1),
+            policy,
+            prepayments=(replace(prepayment, contract_id="CTR-001", after_period=99),),
+        )
+
+    revised = replace(project_amortized_schedule(terms), periods=())
+    modification = modify_contract(
+        schedule,
+        ModificationRequest(
+            2,
+            _terms(principal=Decimal("1000"), origination_date=date(2026, 3, 1)),
+            derecognize=False,
+        ),
+    )
+    with pytest.raises(DomainValidationError, match="modified EAD schedule"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 5, 1),
+            policy,
+            modifications=(replace(modification, revised_schedule=revised),),
+        )
+    with pytest.raises(DomainValidationError, match="modification contract differs"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 5, 1),
+            policy,
+            modifications=(replace(modification, contract_id="OTHER"),),
+        )
+
+
+def test_amortized_ead_rejects_runtime_invalid_event_types_and_post_payoff_change() -> None:
+    terms = _terms()
+    schedule = project_amortized_schedule(terms)
+    policy = load_amortized_ead_policy(POLICY_PATH)
+
+    class PretendPrepayment:
+        contract_id = "CTR-001"
+        after_period = 2
+
+    with pytest.raises(DomainValidationError, match="invalid prepayment"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 5, 1),
+            policy,
+            prepayments=(PretendPrepayment(),),  # type: ignore[arg-type]
+        )
+
+    modification = modify_contract(
+        schedule,
+        ModificationRequest(
+            3,
+            _terms(principal=Decimal("900"), origination_date=date(2026, 4, 1)),
+            derecognize=False,
+        ),
+    )
+
+    class PretendModification:
+        contract_id = "CTR-001"
+        revised_schedule = modification.revised_schedule
+
+    with pytest.raises(DomainValidationError, match="invalid modification"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 6, 1),
+            policy,
+            modifications=(PretendModification(),),  # type: ignore[arg-type]
+        )
+
+    full = apply_prepayment(terms, 2, Decimal("5000"))
+    with pytest.raises(DomainValidationError, match="cannot follow a full prepayment"):
+        calculate_amortized_ead(
+            schedule,
+            date(2026, 6, 1),
+            policy,
+            prepayments=(full,),
+            modifications=(modification,),
+        )
+
+    unchanged = replace(apply_prepayment(terms, 2, Decimal("100")), revised_schedule=None)
+    result = calculate_amortized_ead(schedule, date(2026, 5, 1), policy, prepayments=(unchanged,))
+    assert result.schedule_source == "original_schedule"
+
+
+def test_amortized_dataset_requires_contract_schedule() -> None:
+    population = generate_population(PopulationConfig(seed=91, clients=40, contracts_per_client=2))
+    history = generate_monthly_history(population)
+    events = generate_credit_events(population, history)
+    without_schedules = replace(population, schedules=())
+    with pytest.raises(DomainValidationError, match="has no schedule"):
+        build_amortized_default_ead_dataset(
+            without_schedules,
+            history,
+            events,
+            load_amortized_ead_policy(POLICY_PATH),
+        )

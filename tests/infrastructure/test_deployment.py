@@ -30,7 +30,45 @@ def test_environment_profiles_are_separate_secret_free_and_strict() -> None:
     assert demo.migration_mode == "validate"
     with pytest.raises(ValueError, match="semantic version"):
         demo.validate_image_tag("latest")
+    with pytest.raises(ValueError, match="non-empty"):
+        local.validate_image_tag(" ")
     demo.validate_image_tag("v1.2.3")
+
+
+def test_environment_profile_loader_rejects_name_secret_identity_and_demo_mode(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(ValueError, match="local, test or demo"):
+        load_environment_profile("production")
+
+    root = tmp_path / "profiles"
+    root.mkdir()
+    base = {
+        "schema_version": 1,
+        "name": "test",
+        "database_backend": "sqlite",
+        "migration_mode": "apply",
+        "release_tag_policy": "any",
+        "compose_profile": "test",
+    }
+    (root / "test.json").write_text(json.dumps(base | {"db_password": "secret"}), encoding="utf-8")
+    with pytest.raises(ValueError, match="must not contain secrets"):
+        load_environment_profile("test", root)
+
+    (root / "test.json").write_text(json.dumps(base | {"schema_version": 2}), encoding="utf-8")
+    with pytest.raises(ValueError, match="identity or schema"):
+        load_environment_profile("test", root)
+
+    demo = base | {
+        "name": "demo",
+        "database_backend": "postgresql",
+        "migration_mode": "apply",
+        "release_tag_policy": "semver",
+        "compose_profile": "demo",
+    }
+    (root / "demo.json").write_text(json.dumps(demo), encoding="utf-8")
+    with pytest.raises(ValueError, match="validate migrations"):
+        load_environment_profile("demo", root)
 
 
 def test_delivery_plan_runs_without_runtime_database_dependencies(tmp_path: Path) -> None:
@@ -98,3 +136,12 @@ def test_promotion_and_application_rollback_are_atomic(tmp_path: Path) -> None:
     state = json.loads((tmp_path / "state.json").read_text(encoding="utf-8"))
     assert state["environments"]["test"]["current"]["commit"] == "a" * 40
     assert rollback["database_rollback"] == "not_performed_forward_only"
+
+
+def test_deployment_state_rejects_unknown_schema(tmp_path: Path) -> None:
+    state_path = tmp_path / "state.json"
+    state_path.write_text('{"schema_version": 2, "environments": {}}', encoding="utf-8")
+    store = DeploymentStateStore(state_path)
+
+    with pytest.raises(DeploymentStateError, match="unsupported"):
+        store.plan(load_environment_profile("test"), "candidate-1", "a" * 40)

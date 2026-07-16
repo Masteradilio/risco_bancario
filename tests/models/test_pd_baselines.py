@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pytest
 
 from src.data.synthetic import (
@@ -10,7 +11,9 @@ from src.data.synthetic import (
     generate_monthly_history,
     generate_population,
 )
+from src.domain.exceptions import DomainValidationError
 from src.models.pd import fit_explainable_baselines
+from src.models.pd.baselines import _fit, _metrics
 
 
 @pytest.fixture(scope="module")
@@ -81,3 +84,21 @@ def _modeling_bundle():
     history = generate_monthly_history(population)
     events = generate_credit_events(population, history)
     return build_modeling_datasets(population, history, events, generate_macroeconomic_bundle(91))
+
+
+def test_baseline_training_and_evaluation_require_both_target_classes() -> None:
+    with pytest.raises(DomainValidationError, match="events and non-events"):
+        _metrics(np.asarray([0, 0]), np.asarray([0.1, 0.2]))
+
+    modeling = _modeling_bundle()
+    train = [row for row in modeling.pd if row.split == "train" and row.target_default_12m == 0]
+    validation = [row for row in modeling.pd if row.split == "validation"]
+    calibration = [row for row in modeling.pd if row.split == "calibration"]
+    with pytest.raises(DomainValidationError, match="requires both classes"):
+        _fit(
+            train,
+            validation,
+            calibration,
+            target="target_default_12m",
+            name="invalid",
+        )

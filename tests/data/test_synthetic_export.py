@@ -1,10 +1,14 @@
 import json
+import sys
 from hashlib import sha256
 from pathlib import Path
+from types import SimpleNamespace
 
 import pyarrow.parquet as pq
+import pytest
 
-from src.data.synthetic.export import REQUIRED_DATASETS, materialize_synthetic_factory
+from src.data.synthetic import export
+from src.data.synthetic.export import REQUIRED_DATASETS, _write_table, materialize_synthetic_factory
 
 
 def _manifest(path: Path) -> dict:
@@ -62,3 +66,53 @@ def test_tracked_acceptance_artifact_matches_its_manifest() -> None:
         path = root / filename
         assert path.exists()
         assert sha256(path.read_bytes()).hexdigest() == metadata["sha256"]
+
+
+def test_export_rejects_empty_table_failed_quality_and_missing_manifest_dataset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with pytest.raises(ValueError, match="cannot materialize empty"):
+        _write_table(tmp_path / "empty.parquet", [])
+
+    monkeypatch.setattr(
+        export,
+        "assess_synthetic_quality",
+        lambda *_args: SimpleNamespace(passed=False, issues=("forced",)),
+    )
+    with pytest.raises(ValueError, match="quality gate failed"):
+        materialize_synthetic_factory(tmp_path / "failed")
+
+    monkeypatch.undo()
+    monkeypatch.setattr(export, "REQUIRED_DATASETS", (*REQUIRED_DATASETS, "missing"))
+    monkeypatch.setattr(
+        export,
+        "assess_synthetic_quality",
+        lambda *_args: SimpleNamespace(passed=True, issues=()),
+    )
+    with pytest.raises(ValueError, match="missing required datasets"):
+        materialize_synthetic_factory(tmp_path / "missing")
+
+
+def test_export_main_parses_cli_and_prints_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    destination = tmp_path / "factory"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "synthetic-export",
+            "--output",
+            str(destination),
+            "--seed",
+            "7",
+            "--clients",
+            "8",
+            "--contracts-per-client",
+            "1",
+        ],
+    )
+    expected = destination / "manifest.json"
+    monkeypatch.setattr(export, "materialize_synthetic_factory", lambda *_args, **_kwargs: expected)
+    export.main()
+    assert capsys.readouterr().out.strip() == str(expected)

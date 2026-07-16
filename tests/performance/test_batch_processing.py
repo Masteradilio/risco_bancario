@@ -54,6 +54,24 @@ def test_cache_key_changes_with_scenario_and_policy_versions() -> None:
     assert third.unique_profile_calculations == 1
 
 
+def test_batch_cache_and_processor_reject_invalid_capacity_and_evict_lru() -> None:
+    with pytest.raises(ValueError, match="cache capacity"):
+        VersionedResultCache(capacity=0)
+    with pytest.raises(ValueError, match="partition size"):
+        PartitionedStage1Processor(
+            load_scenario_set(seed=91), load_macro_risk_policy(), partition_size=0
+        )
+
+    contracts = list(synthetic_contracts(2, profiles=2))
+    cache = VersionedResultCache(capacity=1)
+    processor = PartitionedStage1Processor(
+        load_scenario_set(seed=91), load_macro_risk_policy(), cache=cache
+    )
+    summary = processor.process(contracts)
+    assert summary.unique_profile_calculations == 2
+    assert len(cache._values) == 1
+
+
 def test_ten_thousand_contracts_remain_partition_bounded() -> None:
     summary = PartitionedStage1Processor(
         load_scenario_set(seed=91),
@@ -88,6 +106,24 @@ def test_bounded_queue_applies_backpressure_and_completes_concurrently() -> None
 
     assert first.result(timeout=2) == 1
     assert second.result(timeout=2) == 2
+    queue.shutdown()
+
+
+def test_bounded_queue_rejects_invalid_size_and_releases_slot_on_submit_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with pytest.raises(ValueError, match="workers must be positive"):
+        BoundedBatchExecutor(workers=0, queue_capacity=0)
+    queue = BoundedBatchExecutor(workers=1, queue_capacity=0)
+    monkeypatch.setattr(
+        queue._executor,
+        "submit",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("submit failed")),
+    )
+    with pytest.raises(RuntimeError, match="submit failed"):
+        queue.submit(lambda: None)
+    assert queue._slots.acquire(blocking=False)
+    queue._slots.release()
     queue.shutdown()
 
 

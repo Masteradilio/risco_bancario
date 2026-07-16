@@ -140,3 +140,63 @@ def test_duplicate_contracts_or_movements_and_invalid_transfer_fail_closed() -> 
             from_stage=Stage.STAGE_1,
             to_stage=Stage.STAGE_1,
         )
+
+
+def test_disclosure_input_invariants_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="cannot exceed"):
+        DisclosureExposure("C", Stage.STAGE_1, "A", "retail", "10", "11")
+    with pytest.raises(DomainValidationError, match="from_stage and to_stage only"):
+        AllowanceMovement(
+            "BAD-TRANSFER",
+            AllowanceMovementType.STAGE_TRANSFER,
+            "10",
+            stage=Stage.STAGE_1,
+        )
+    with pytest.raises(DomainValidationError, match="requires stage only"):
+        AllowanceMovement("BAD-MOVEMENT", AllowanceMovementType.OTHER, "1")
+    with pytest.raises(DomainValidationError, match="requires opening and closing"):
+        generate_synthetic_disclosure_package(
+            reference_date=date(2026, 7, 31),
+            opening_exposures=(),
+            closing_exposures=_closing(),
+            movements=(),
+            sensitivity_report=_sensitivity(),
+            overlays=(),
+        )
+
+
+def test_duplicate_movement_and_overlay_ids_fail_closed() -> None:
+    duplicate_movement = _movements() + (_movements()[0],)
+    with pytest.raises(DomainValidationError, match="movement ids"):
+        generate_synthetic_disclosure_package(
+            reference_date=date(2026, 7, 31),
+            opening_exposures=_opening(),
+            closing_exposures=_closing(),
+            movements=duplicate_movement,
+            sensitivity_report=_sensitivity(),
+            overlays=(),
+        )
+    with pytest.raises(DomainValidationError, match="overlay ids"):
+        generate_synthetic_disclosure_package(
+            reference_date=date(2026, 7, 31),
+            opening_exposures=_opening(),
+            closing_exposures=_closing(),
+            movements=_movements(),
+            sensitivity_report=_sensitivity(),
+            overlays=(_overlay(), _overlay()),
+        )
+
+
+def test_corrupted_transfer_is_rejected_by_package_boundary() -> None:
+    transfer = _movements()[0]
+    object.__setattr__(transfer, "from_stage", None)
+    object.__setattr__(transfer, "to_stage", None)
+    with pytest.raises(DomainValidationError, match="origin and destination"):
+        generate_synthetic_disclosure_package(
+            reference_date=date(2026, 7, 31),
+            opening_exposures=_opening(),
+            closing_exposures=_opening(),
+            movements=(transfer,),
+            sensitivity_report=_sensitivity(),
+            overlays=(),
+        )

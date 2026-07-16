@@ -147,3 +147,17 @@ def test_stage3_requires_complete_aligned_scenario_projections() -> None:
         calculate_stage3_ecl(_contract(tuple(misaligned)), scenario_set)
     with pytest.raises(DomainValidationError, match="cannot exceed"):
         replace(_contract(_projections()), opening_loss_allowance="1001")
+
+
+def test_stage3_projection_and_contract_boundaries_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="requires periods"):
+        Stage3ScenarioProjection("base", ())
+    period = Stage3CashFlowPeriod(date(2026, 1, 1), "100")
+    with pytest.raises(DomainValidationError, match="unique and ordered"):
+        Stage3ScenarioProjection("base", (period, period))
+    with pytest.raises(DomainValidationError, match="requires scenario projections"):
+        _contract(())
+    reporting_date = date(2026, 1, 1)
+    invalid_reporting_date = replace(_contract(_projections()), reporting_date=reporting_date)
+    with pytest.raises(DomainValidationError, match="must follow reporting date"):
+        calculate_stage3_ecl(invalid_reporting_date, load_scenario_set(seed=91))

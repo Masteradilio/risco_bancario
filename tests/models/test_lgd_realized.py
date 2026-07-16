@@ -1,9 +1,12 @@
+import json
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
 import pytest
 
+from src.domain.exceptions import DomainValidationError
 from src.models.lgd import (
     LGDWorkoutDataset,
     LGDWorkoutRecord,
@@ -12,6 +15,7 @@ from src.models.lgd import (
     calculate_realized_lgd_dataset,
     load_realized_lgd_policy,
 )
+from src.models.lgd.realized import discount_recovery_cash_flow
 
 POLICY_PATH = Path("config/lgd_policy/2026.07.1.json")
 
@@ -145,3 +149,22 @@ def test_calculates_dataset_with_policy_lineage() -> None:
     assert len(results) == 2
     assert {item.policy_version for item in results} == {"2026.07.1"}
     assert {item.policy_sha256 for item in results} == {policy.sha256}
+
+
+def test_realized_lgd_policy_discount_and_ead_boundaries(tmp_path: Path) -> None:
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document | {"schema_version": "2.0.0"}), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="policy schema"):
+        load_realized_lgd_policy(path)
+    document["lower_bound"] = "1"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="bounds"):
+        load_realized_lgd_policy(path)
+    with pytest.raises(DomainValidationError, match="rate or cash-flow date"):
+        discount_recovery_cash_flow(Decimal("1"), date(2026, 1, 1), date(2026, 1, 1), Decimal("-1"))
+    with pytest.raises(DomainValidationError, match="EAD at default"):
+        calculate_realized_lgd(
+            replace(_record(), exposure_at_default=Decimal("0")),
+            load_realized_lgd_policy(POLICY_PATH),
+        )

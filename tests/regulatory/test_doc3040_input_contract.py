@@ -7,17 +7,28 @@ import pytest
 from src.domain.exceptions import DomainValidationError, TemporalConsistencyError
 from src.regulatory.doc3040 import (
     FIELD_CATALOG,
+    Accounting4966,
+    AdditionalInformation,
+    Aggregation,
     Client,
+    ConnectedIpoc,
+    ConnectedIpocGroup,
     Doc3040Input,
+    Guarantee,
     Header,
     MaturityValue,
     Operation,
+    RecognizedLoss,
     Requirement,
+    SicorInformation,
     SourceRef,
+    StageAllocation,
     assert_catalog_covers_models,
+    catalog_fields_for,
     iter_sourced_values,
     sourced,
 )
+from src.regulatory.doc3040 import contract as contract_module
 
 
 def sv(value, field: str = "field"):
@@ -112,6 +123,27 @@ def document(**changes) -> Doc3040Input:
     return Doc3040Input(**values)
 
 
+def aggregation(**changes) -> Aggregation:
+    values = {
+        "nature": sv("01"),
+        "modality": sv("0203"),
+        "resource_origin": sv("0101"),
+        "foreign_currency_link": sv("N"),
+        "value_band": sv("1"),
+        "location": sv("01310"),
+        "client_type": sv("1"),
+        "control_type": None,
+        "performance": sv("01"),
+        "special_characteristic": None,
+        "provision": sv(Decimal("10")),
+        "operation_count": sv(1),
+        "client_count": sv(1),
+        "maturities": (MaturityValue(vertex=sv("v110"), amount=sv(Decimal("100"))),),
+    }
+    values.update(changes)
+    return Aggregation(**values)
+
+
 def test_doc3040_layout_001_accepts_explicit_sourced_contract() -> None:
     contract = document()
     lineage = dict(iter_sourced_values(contract))
@@ -188,3 +220,196 @@ def test_header_does_not_invent_methodology_for_funds() -> None:
     assert fund.fund_type is not None
     with pytest.raises(DomainValidationError, match="exclusive"):
         replace(fund, expected_loss_methodology=sv("C", "methodology"))
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        ({"reference_month": sv(date(2026, 7, 2))}, "first day"),
+        ({"reporting_entity_cnpj": sv("123")}, "exactly 8"),
+        ({"part": sv(0)}, "must be positive"),
+        ({"remittance": sv(0)}, "must be positive"),
+        ({"total_clients": sv(-1)}, "non-negative"),
+        ({"responsible_name": sv("")}, "non-empty trimmed"),
+        ({"responsible_email": sv("invalid")}, "invalid format"),
+        ({"responsible_phone": sv("phone")}, "invalid format"),
+    ],
+)
+def test_header_scalar_formats_fail_closed(changes: dict, message: str) -> None:
+    with pytest.raises(DomainValidationError, match=message):
+        header(**changes)
+
+
+def test_maturity_and_operation_scalar_invariants_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="vCOD"):
+        MaturityValue(vertex=sv("110"), amount=sv(Decimal("1")))
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        MaturityValue(vertex=sv("v110"), amount=sv(Decimal("-1")))
+    with pytest.raises(DomainValidationError, match="exactly 8"):
+        operation(postal_code=sv("123"))
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        operation(provision=sv(Decimal("-1")))
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        operation(contracted_amount=sv(Decimal("-1")))
+    duplicate = MaturityValue(vertex=sv("v110"), amount=sv(Decimal("1")))
+    with pytest.raises(DomainValidationError, match="vertices must be unique"):
+        operation(maturities=(duplicate, duplicate))
+    assert operation(contracted_amount=None, maturity_date=None).contracted_amount is None
+
+
+def test_guarantee_and_additional_information_invariants() -> None:
+    common = {
+        "status": None,
+        "guarantee_type": sv("0101"),
+        "identification": None,
+        "value_type": sv("01"),
+        "percentage": None,
+        "original_value": None,
+        "revalued_value": None,
+        "revalued_percentage": None,
+        "revaluation_date": None,
+        "sharing": None,
+    }
+    with pytest.raises(DomainValidationError, match="percentage or original_value"):
+        Guarantee(**common)
+    with pytest.raises(DomainValidationError, match="cannot exceed 100"):
+        Guarantee(**{**common, "percentage": sv(Decimal("101"))})
+    with pytest.raises(DomainValidationError, match="revalued value"):
+        Guarantee(
+            **{
+                **common,
+                "original_value": sv(Decimal("100")),
+                "revaluation_date": sv(date(2026, 7, 1)),
+            }
+        )
+    valid = Guarantee(
+        **{
+            **common,
+            "original_value": sv(Decimal("100")),
+            "revalued_percentage": sv(Decimal("80")),
+            "revaluation_date": sv(date(2026, 7, 1)),
+        }
+    )
+    assert valid.revalued_percentage is not None
+
+    empty = {
+        "information_type": sv("0101"),
+        "code": None,
+        "identification": None,
+        "amount": None,
+        "percentage": None,
+        "quantity": None,
+    }
+    with pytest.raises(DomainValidationError, match="requires a sourced payload"):
+        AdditionalInformation(**empty)
+    assert AdditionalInformation(**{**empty, "code": sv("CODE")}).code is not None
+
+
+def test_sicor_accounting_and_stage_invariants() -> None:
+    sicor = {
+        "bacen_reference": sv("12345678901"),
+        "destination_order": sv(1),
+        "average_total_balance": sv(Decimal("100")),
+        "average_outstanding_balance": sv(Decimal("80")),
+        "status": sv("01"),
+        "bonus_type": None,
+        "bonus_amount": None,
+        "bonus_payment_date": None,
+    }
+    with pytest.raises(DomainValidationError, match="destination_order"):
+        SicorInformation(**{**sicor, "destination_order": sv(0)})
+    with pytest.raises(DomainValidationError, match="complete conditional group"):
+        SicorInformation(**{**sicor, "bonus_type": sv("01")})
+    assert SicorInformation(**sicor).bonus_type is None
+
+    with pytest.raises(DomainValidationError, match="first day"):
+        StageAllocation(reason=sv("001"), allocation_month=sv(date(2026, 7, 2)))
+    allocation = StageAllocation(reason=sv("001"), allocation_month=sv(date(2026, 7, 1)))
+    RecognizedLoss(reason=sv("01"), amount=sv(Decimal("1")))
+    empty_accounting = {
+        "asset_classification": None,
+        "stage": None,
+        "instrument_quantity": None,
+        "gross_carrying_amount": None,
+        "accumulated_loss": None,
+        "fair_value": None,
+        "effective_interest_rate": None,
+        "monthly_income": None,
+        "stage_one_pd_type": None,
+        "minimum_provision_portfolio": None,
+        "isolated_credit_risk_treatment": None,
+        "stage_allocations": (),
+        "recognized_losses": (),
+    }
+    with pytest.raises(DomainValidationError, match="must contain"):
+        Accounting4966(**empty_accounting)
+    with pytest.raises(DomainValidationError, match="requires gross"):
+        Accounting4966(**{**empty_accounting, "accumulated_loss": sv(Decimal("1"))})
+    with pytest.raises(DomainValidationError, match="explicit sourced stage"):
+        Accounting4966(**{**empty_accounting, "stage_allocations": (allocation,)})
+    valid = Accounting4966(
+        **{
+            **empty_accounting,
+            "stage": sv("1"),
+            "gross_carrying_amount": sv(Decimal("100")),
+            "accumulated_loss": sv(Decimal("1")),
+            "stage_allocations": (allocation,),
+        }
+    )
+    assert valid.stage is not None
+
+
+def test_client_group_aggregation_and_document_invariants() -> None:
+    with pytest.raises(DomainValidationError, match="at least one operation"):
+        client(operations=())
+    connected = ConnectedIpoc(ipoc=operation().ipoc)
+    with pytest.raises(DomainValidationError, match="at least two unique"):
+        ConnectedIpocGroup(ipocs=(connected,))
+    with pytest.raises(DomainValidationError, match="at least two unique"):
+        ConnectedIpocGroup(ipocs=(connected, connected))
+
+    with pytest.raises(DomainValidationError, match="PJ aggregations"):
+        aggregation(client_type=sv("2"))
+    with pytest.raises(DomainValidationError, match="counts must be positive"):
+        aggregation(operation_count=sv(0))
+    with pytest.raises(DomainValidationError, match="requires sourced maturity"):
+        aggregation(maturities=())
+
+    with pytest.raises(DomainValidationError, match="individualized clients or aggregations"):
+        document(clients=(), aggregations=(), header=header(total_clients=sv(0)))
+    original = client()
+    with pytest.raises(DomainValidationError, match="client codes must be unique"):
+        document(clients=(original, original), header=header(total_clients=sv(2)))
+    second_op = operation(ipoc=sv("123456780203112345678901CONTRATO2"))
+    with pytest.raises(DomainValidationError, match="operation IPOCs must be unique"):
+        document(clients=(client(), client(code=sv("OTHER"))), header=header(total_clients=sv(2)))
+    with pytest.raises(DomainValidationError, match="cannot be lower"):
+        document(aggregations=(aggregation(),), header=header(total_clients=sv(0)))
+    group = ConnectedIpocGroup(
+        ipocs=(
+            ConnectedIpoc(ipoc=operation().ipoc),
+            ConnectedIpoc(ipoc=second_op.ipoc),
+        )
+    )
+    with pytest.raises(DomainValidationError, match="must exist"):
+        document(connected_ipoc_groups=(group,))
+    two_operations = replace(client(), operations=(operation(), second_op))
+    assert document(
+        clients=(two_operations,), connected_ipoc_groups=(group, group)
+    ).connected_ipoc_groups
+    assert operation(cosif_accounts=None).cosif_accounts is None
+
+
+def test_catalog_query_and_completeness_guard(monkeypatch: pytest.MonkeyPatch) -> None:
+    assert catalog_fields_for(Header)
+    monkeypatch.setattr(
+        contract_module,
+        "FIELD_CATALOG",
+        tuple(
+            spec
+            for spec in contract_module.FIELD_CATALOG
+            if not (spec.model == "Header" and spec.field == "responsible_name")
+        ),
+    )
+    with pytest.raises(AssertionError, match="catalog is incomplete"):
+        assert_catalog_covers_models()

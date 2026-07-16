@@ -58,6 +58,16 @@ def test_contract_rejects_invalid_timeline_and_currency() -> None:
             "100",
             currency="USD",
         )
+    with pytest.raises(DomainValidationError, match="greater than zero"):
+        Contract(
+            "CT-1",
+            "CL-1",
+            "CP-1",
+            "LOAN",
+            date(2026, 1, 1),
+            date(2027, 1, 1),
+            "0",
+        )
 
 
 def test_guarantee_and_cash_flow_normalize_values() -> None:

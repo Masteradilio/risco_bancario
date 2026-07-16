@@ -1,17 +1,32 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import jwt
 import pytest
 from fastapi.testclient import TestClient
 
 from src.infrastructure.database import DatabaseManager, DatabaseSettings
 from src.interfaces.api.app import create_app
 from src.security.auth import AuthenticationError, AuthService
-from src.security.confirmations import ConfirmationError, ConfirmationService
-from src.security.passwords import PasswordPolicyError, hash_password, verify_password
+from src.security.auth import _utc_timestamp as auth_timestamp
+from src.security.confirmations import (
+    ConfirmationError,
+    ConfirmationService,
+)
+from src.security.confirmations import (
+    _utc_timestamp as confirmation_timestamp,
+)
+from src.security.passwords import (
+    PasswordPolicyError,
+    hash_password,
+    validate_password,
+    verify_password,
+)
 from src.security.rate_limit import RateLimiter, RateLimitExceeded
 from src.security.rbac import Permission, Role, is_allowed
+from src.security.retention import RetentionPolicy
 from src.security.settings import SecurityConfigurationError, SecuritySettings
 
 SECRET = "test-secret-that-is-at-least-32-bytes-long"
@@ -44,6 +59,15 @@ def test_security_configuration_is_fail_closed(monkeypatch: pytest.MonkeyPatch) 
         SecuritySettings.from_env()
     with pytest.raises(SecurityConfigurationError, match="32 bytes"):
         SecuritySettings(jwt_secret="too-short")
+    with pytest.raises(SecurityConfigurationError, match="lifetimes"):
+        SecuritySettings(jwt_secret=SECRET, access_token_minutes=0)
+    with pytest.raises(SecurityConfigurationError, match="rate-limit"):
+        SecuritySettings(jwt_secret=SECRET, rate_limit_requests=0)
+
+    monkeypatch.setenv("JWT_SECRET", SECRET)
+    monkeypatch.setenv("JWT_ISSUER", "test-issuer")
+    settings = SecuritySettings.from_env()
+    assert settings.issuer == "test-issuer"
 
 
 def test_password_policy_and_bcrypt_verification() -> None:
@@ -56,6 +80,22 @@ def test_password_policy_and_bcrypt_verification() -> None:
     assert password_hash.startswith("$2")
     assert verify_password("Strong!Pass123", password_hash)
     assert not verify_password("Wrong!Pass123", password_hash)
+    assert not verify_password("Strong!Pass123", "not-a-bcrypt-hash")
+
+
+@pytest.mark.parametrize(
+    "password,reason",
+    [
+        ("a" * 129 + "A1!", "length"),
+        ("lowercase!123", "uppercase"),
+        ("UPPERCASE!123", "lowercase"),
+        ("NoDigitsHere!", "digit"),
+        ("NoSpecial1234", "special"),
+    ],
+)
+def test_password_policy_reports_each_missing_character_class(password: str, reason: str) -> None:
+    with pytest.raises(PasswordPolicyError, match=reason):
+        validate_password(password)
 
 
 def test_jwt_session_is_persisted_and_revocable(database: DatabaseManager) -> None:
@@ -74,6 +114,32 @@ def test_jwt_session_is_persisted_and_revocable(database: DatabaseManager) -> No
         auth.issue_token("analyst", "Wrong!Pass123")
 
 
+def test_authentication_rejects_wrong_token_type_and_malformed_revoke(
+    database: DatabaseManager,
+) -> None:
+    auth = AuthService(database, SecuritySettings(jwt_secret=SECRET))
+    auth.create_user("analyst", "Strong!Pass123", Role.ANALYST)
+    token = auth.issue_token("analyst", "Strong!Pass123")
+    claims = jwt.decode(token, options={"verify_signature": False})
+    claims["type"] = "refresh"
+    wrong_type = jwt.encode(claims, SECRET, algorithm="HS256")
+
+    with pytest.raises(AuthenticationError, match="invalid token"):
+        auth.authenticate_token(wrong_type)
+    with pytest.raises(AuthenticationError, match="invalid token"):
+        auth.revoke("malformed")
+
+
+def test_persisted_security_timestamps_accept_datetime_and_reject_other_types() -> None:
+    value = datetime.now(UTC)
+    assert auth_timestamp(value) == value
+    assert confirmation_timestamp(value) == value
+    with pytest.raises(AuthenticationError, match="persisted timestamp"):
+        auth_timestamp(123)
+    with pytest.raises(ConfirmationError, match="persisted timestamp"):
+        confirmation_timestamp(123)
+
+
 def test_confirmation_is_bound_to_user_action_payload_and_single_use(
     database: DatabaseManager,
 ) -> None:
@@ -88,6 +154,37 @@ def test_confirmation_is_bound_to_user_action_payload_and_single_use(
     confirmation.consume(identifier, user.user_id, "regulatory:export", "a" * 64)
     with pytest.raises(ConfirmationError, match="consumed"):
         confirmation.consume(identifier, user.user_id, "regulatory:export", "a" * 64)
+
+
+def test_confirmation_rejects_bad_hash_and_detects_concurrent_consumption(
+    database: DatabaseManager,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    service = ConfirmationService(database, SecuritySettings(jwt_secret=SECRET))
+    with pytest.raises(ConfirmationError, match="lowercase SHA-256"):
+        service.issue("user", "action", "A" * 64)
+
+    monkeypatch.setattr(
+        database,
+        "fetch_one",
+        lambda *_args, **_kwargs: {
+            "user_id": "user",
+            "action": "action",
+            "payload_hash": "a" * 64,
+            "expires_at": datetime.now(UTC) + timedelta(minutes=1),
+            "consumed_at": None,
+        },
+    )
+    monkeypatch.setattr(database, "execute", lambda *_args, **_kwargs: 0)
+    with pytest.raises(ConfirmationError, match="already consumed"):
+        service.consume("confirmation", "user", "action", "a" * 64)
+
+
+def test_retention_policy_rejects_non_positive_period_or_blank_version() -> None:
+    with pytest.raises(ValueError, match="must be positive"):
+        RetentionPolicy(0, 1, 1, 1, "v1")
+    with pytest.raises(ValueError, match="must be positive"):
+        RetentionPolicy(1, 1, 1, 1, "")
 
 
 def test_rate_limiter_releases_key_after_window() -> None:

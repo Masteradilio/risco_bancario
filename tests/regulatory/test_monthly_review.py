@@ -64,3 +64,30 @@ def test_review_cannot_complete_before_reference_date() -> None:
             completed_at=datetime(2026, 7, 30, tzinfo=UTC),
             instruments=(_review(),),
         )
+
+
+def test_manifest_requires_instruments_with_matching_reference_date() -> None:
+    with pytest.raises(DomainValidationError, match="requires instruments"):
+        create_monthly_review_manifest(
+            review_id="REV",
+            reference_date=date(2026, 7, 31),
+            completed_at=datetime(2026, 8, 1, tzinfo=UTC),
+            instruments=(),
+        )
+    mismatched = InstrumentMonthlyReview(
+        "C-2",
+        date(2026, 7, 31),
+        date(2026, 8, 31),
+        Stage.STAGE_1,
+        Stage.STAGE_1,
+        "10",
+        "10",
+        "Review",
+    )
+    with pytest.raises(DomainValidationError, match="manifest reference date"):
+        create_monthly_review_manifest(
+            review_id="REV",
+            reference_date=date(2026, 7, 31),
+            completed_at=datetime(2026, 8, 1, tzinfo=UTC),
+            instruments=(mismatched,),
+        )

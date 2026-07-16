@@ -99,3 +99,18 @@ def test_activity_calendar_and_count_are_strict() -> None:
                 RevolvingActivity(date(2026, 3, 1)),
             ),
         )
+
+
+@pytest.mark.parametrize(
+    "overrides,message",
+    [
+        ({"contract_id": " "}, "contract_id"),
+        ({"term_months": 0}, "term_months"),
+        ({"credit_limit": "0"}, "positive credit limit"),
+        ({"initial_drawn_balance": "1001"}, "positive credit limit"),
+        ({"annual_rate": "-0.01"}, "annual_rate"),
+    ],
+)
+def test_revolving_terms_fail_closed(overrides: dict[str, object], message: str) -> None:
+    with pytest.raises(DomainValidationError, match=message):
+        terms(**overrides)

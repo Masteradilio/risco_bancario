@@ -1,7 +1,12 @@
+import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
+
+import pytest
 
 from src.data.synthetic import generate_macroeconomic_bundle
+from src.data.synthetic.macroeconomics import _load_policy
 
 
 def test_macro_bundle_is_reproducible_and_versioned() -> None:
@@ -78,3 +83,33 @@ def test_public_macro_tables_have_no_latent_fields() -> None:
     assert all(
         not key.startswith("_latent") for rows in tables.values() for row in rows for key in row
     )
+
+
+@pytest.mark.parametrize(
+    "mutation,message",
+    [
+        (
+            lambda document: document["forecast"]["scenarios"].reverse(),
+            "requires upside",
+        ),
+        (
+            lambda document: document["forecast"]["scenarios"][0].update(weight="0.20"),
+            "weights must sum",
+        ),
+        (
+            lambda document: (
+                document["forecast"]["scenarios"][1].update(weight="0.60"),
+                document["forecast"]["scenarios"][-1].update(weight="0.10"),
+            ),
+            "stress is a sensitivity",
+        ),
+    ],
+)
+def test_macro_policy_fails_closed(tmp_path: Path, mutation, message: str) -> None:
+    source = Path("config/synthetic/macroeconomic_scenarios/1.0.0.json")
+    document = json.loads(source.read_text(encoding="utf-8"))
+    mutation(document)
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(ValueError, match=message):
+        _load_policy(path)

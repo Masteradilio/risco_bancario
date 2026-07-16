@@ -141,3 +141,8 @@ def test_empty_misaligned_and_overlong_baselines_are_rejected() -> None:
     )
     with pytest.raises(DomainValidationError, match="exceeds"):
         calculate_probability_weighted_scenario_ecl(overlong, scenario_set, "portfolio", policy)
+
+
+def test_baseline_discount_factor_must_be_positive() -> None:
+    with pytest.raises(DomainValidationError, match="greater than zero"):
+        BaselineRiskPeriod(date(2026, 1, 1), "0.10", "0.50", "100", "0", "0", "0")

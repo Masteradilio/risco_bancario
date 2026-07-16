@@ -113,3 +113,9 @@ def test_stage1_rejects_past_and_misaligned_periods() -> None:
     )
     with pytest.raises(DomainValidationError, match="align"):
         calculate_stage1_ecl(misaligned, load_scenario_set(seed=91), load_macro_risk_policy())
+
+
+def test_stage1_rejects_periods_out_of_chronological_order() -> None:
+    periods = _periods(2)
+    with pytest.raises(DomainValidationError, match="chronologically ordered"):
+        replace(_contract(months=2), periods=tuple(reversed(periods)))

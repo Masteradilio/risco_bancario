@@ -1,9 +1,11 @@
+import json
 from datetime import date
 from pathlib import Path
 
 import pytest
 
 from src.domain.contracts import Contract
+from src.domain.exceptions import DomainValidationError
 from src.models.sicr import (
     SICRAssessmentInput,
     assess_sicr,
@@ -124,3 +126,41 @@ def test_no_trigger_returns_explicit_reason(baseline, policy) -> None:
     result = assess(baseline, policy)
     assert not result.is_sicr
     assert result.reasons == ("no_sicr_trigger",)
+
+
+@pytest.mark.parametrize(
+    "mutation,message",
+    [
+        (lambda document: document.update(schema_version="2.0.0"), "policy schema"),
+        (lambda document: document.update(rating_order=[]), "rating_order"),
+        (
+            lambda document: document["low_credit_risk"].update(eligible_ratings=["UNKNOWN"]),
+            "must exist",
+        ),
+        (lambda document: document.update(relative_lifetime_pd_ratio="1"), "ratio greater"),
+    ],
+)
+def test_sicr_policy_fails_closed(tmp_path: Path, mutation, message: str) -> None:
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    mutation(document)
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match=message):
+        load_sicr_policy(path)
+
+
+def test_sicr_assessment_rejects_temporal_delinquency_and_rating_errors(baseline, policy) -> None:
+    with pytest.raises(DomainValidationError, match="cannot precede recognition"):
+        assess_sicr(
+            SICRAssessmentInput(
+                baseline,
+                date(2025, 12, 1),
+                "0.01",
+                "A2",
+            ),
+            policy,
+        )
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        assess(baseline, policy, days_past_due=-1)
+    with pytest.raises(DomainValidationError, match="not present"):
+        assess(baseline, policy, current_rating="UNKNOWN")

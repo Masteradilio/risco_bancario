@@ -10,6 +10,8 @@ Endpoints:
 - /multiple_explained_classify - Batch classification with SHAP
 """
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -41,13 +43,34 @@ logger = logging.getLogger(__name__)
 BASE_DIR = Path(__file__).resolve().parent.parent
 DADOS_DIR = BASE_DIR.parent / "dados"
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """Load model and database without deprecated startup event hooks."""
+    global classifier
+
+    try:
+        logger.info("Loading client database...")
+        load_client_database()
+        logger.info("Loading PRINAD classifier...")
+        classifier = PRINADClassifier()
+        if classifier.is_ready():
+            logger.info("PRINAD classifier loaded successfully")
+        else:
+            logger.warning("Classifier loaded but model artifacts missing - using heuristic fallback")
+    except Exception as error:
+        logger.error("Error during startup: %s", error)
+    yield
+
+
 # Create FastAPI app
 app = FastAPI(
     title="PRINAD API v2.0",
     description="API demonstrativa de classificação de risco com dados sintéticos; conformidade não avaliada",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS
@@ -338,33 +361,6 @@ def classify_multiple_cpfs(cpfs: List[str], include_shap: bool = False) -> Tuple
             errors.append({'cpf': cpf, 'erro': str(e)})
     
     return results, errors
-
-
-# =============================================================================
-# STARTUP EVENT
-# =============================================================================
-
-@app.on_event("startup")
-async def startup_event():
-    """Load model and database on startup."""
-    global classifier
-    
-    try:
-        # Load database
-        logger.info("Loading client database...")
-        load_client_database()
-        
-        # Load classifier
-        logger.info("Loading PRINAD classifier...")
-        classifier = PRINADClassifier()
-        
-        if classifier.is_ready():
-            logger.info("PRINAD classifier loaded successfully")
-        else:
-            logger.warning("Classifier loaded but model artifacts missing - using heuristic fallback")
-            
-    except Exception as e:
-        logger.error(f"Error during startup: {e}")
 
 
 # =============================================================================

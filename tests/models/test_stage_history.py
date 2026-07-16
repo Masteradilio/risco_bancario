@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -222,3 +223,52 @@ def test_history_rejects_non_contiguous_stage_or_date(baseline, policies) -> Non
                 first.sicr_policy_sha256,
             )
         )
+
+
+def test_history_rejects_contract_sequence_prior_stage_and_decision_mismatches(
+    baseline, policies
+) -> None:
+    first = decide_stage_transition(
+        context(baseline, policies, date(2026, 7, 1), Stage.STAGE_1),
+        StageHistoryLedger("CT-HISTORY"),
+        policies[0],
+    )
+    ledger = StageHistoryLedger("CT-HISTORY").append(first)
+    with pytest.raises(DomainValidationError, match="contract mismatch"):
+        StageHistoryLedger("OTHER").append(first)
+    with pytest.raises(DomainValidationError, match="sequence must be contiguous"):
+        ledger.append(replace(first, sequence=3, effective_date=date(2026, 8, 1)))
+    with pytest.raises(DomainValidationError, match="prior stage"):
+        ledger.append(
+            replace(
+                first,
+                sequence=2,
+                effective_date=date(2026, 8, 1),
+                prior_stage=Stage.STAGE_2,
+            )
+        )
+    wrong_history = StageHistoryLedger("OTHER")
+    with pytest.raises(DomainValidationError, match="history contract mismatch"):
+        decide_stage_transition(
+            context(baseline, policies, date(2026, 8, 1), Stage.STAGE_1),
+            wrong_history,
+            policies[0],
+        )
+    valid_context = context(baseline, policies, date(2026, 8, 1), Stage.STAGE_1)
+    with pytest.raises(DomainValidationError, match="decisions must refer"):
+        decide_stage_transition(
+            replace(valid_context, contract_id="OTHER"),
+            StageHistoryLedger("OTHER"),
+            policies[0],
+        )
+
+
+def test_unchanged_stage_without_trigger_has_explicit_history_reason(baseline, policies) -> None:
+    transition = context(baseline, policies, date(2026, 8, 1), Stage.STAGE_1)
+    transition = replace(transition, sicr=replace(transition.sicr, reasons=()))
+    record = decide_stage_transition(
+        transition,
+        StageHistoryLedger("CT-HISTORY"),
+        policies[0],
+    )
+    assert record.reasons == ("stage_unchanged_no_trigger",)

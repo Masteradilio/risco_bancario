@@ -115,6 +115,16 @@ def test_modeling_dataset_rejects_misaligned_realized_rows(modeling_bundle) -> N
 
     with pytest.raises(DomainValidationError, match="equal length"):
         build_lgd_modeling_dataset(workout, realized[:-1], population, history, macro)
+    with pytest.raises(DomainValidationError, match="default order differs"):
+        build_lgd_modeling_dataset(workout, tuple(reversed(realized)), population, history, macro)
+    with pytest.raises(DomainValidationError, match="feature evidence is missing"):
+        build_lgd_modeling_dataset(
+            workout,
+            realized,
+            population,
+            replace(history, snapshots=()),
+            macro,
+        )
 
 
 def test_modeling_requires_train_and_validation(modeling_bundle) -> None:
@@ -128,3 +138,24 @@ def test_modeling_requires_train_and_validation(modeling_bundle) -> None:
 
     with pytest.raises(DomainValidationError, match="train and validation"):
         fit_lgd_models(validation_only)
+
+
+def test_lgd_specialized_candidates_require_both_target_classes(modeling_bundle) -> None:
+    dataset = modeling_bundle[2]
+    no_cures = replace(
+        dataset,
+        rows=tuple(
+            replace(row, target_cure=False) if row.split == "train" else row for row in dataset.rows
+        ),
+    )
+    with pytest.raises(DomainValidationError, match="cure and non-cure"):
+        fit_lgd_models(no_cures)
+    no_full_losses = replace(
+        dataset,
+        rows=tuple(
+            replace(row, target_full_loss=False) if row.split == "train" else row
+            for row in dataset.rows
+        ),
+    )
+    with pytest.raises(DomainValidationError, match="full and fractional"):
+        fit_lgd_models(no_full_losses)

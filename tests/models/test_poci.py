@@ -13,6 +13,12 @@ from src.ecl.calculation import (
     measure_poci_change,
 )
 
+POCI_CASES = list(
+    csv.DictReader(
+        Path("tests/fixtures/golden/poci_cases.csv").read_text(encoding="utf-8").splitlines()
+    )
+)
+
 
 def test_poci_classification_covers_acquired_and_originated_credit_impaired() -> None:
     acquired = classify_poci(
@@ -40,7 +46,7 @@ def test_credit_adjusted_eir_uses_initial_expected_cashflows() -> None:
 
 @pytest.mark.parametrize(
     "row",
-    list(csv.DictReader(Path("tests/fixtures/golden/poci_cases.csv").open(encoding="utf-8"))),
+    POCI_CASES,
     ids=lambda row: row["case_id"],
 )
 def test_poci_golden_cases_reconcile_manual_measurement(row) -> None:
@@ -94,3 +100,28 @@ def test_poci_credit_adjusted_eir_fails_when_price_cannot_reconcile() -> None:
             date(2026, 1, 1),
             (POCICashFlow(date(2027, 1, 1), "88"),),
         )
+
+
+def test_poci_cashflow_boundaries_fail_closed() -> None:
+    recognition = date(2026, 1, 1)
+    after = POCICashFlow(date(2027, 1, 1), "100")
+    with pytest.raises(DomainValidationError, match="must align"):
+        measure_poci_change("CT", recognition, "80", (), (), ())
+    with pytest.raises(DomainValidationError, match="after recognition"):
+        measure_poci_change(
+            "CT",
+            recognition,
+            "80",
+            (POCICashFlow(recognition, "100"),),
+            (POCICashFlow(recognition, "80"),),
+            (POCICashFlow(recognition, "70"),),
+        )
+
+    invalid = POCICashFlow(date(2027, 1, 1), "1")
+    object.__setattr__(invalid, "amount", Decimal("-1"))
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        measure_poci_change("CT", recognition, "80", (after,), (invalid,), (invalid,))
+    with pytest.raises(DomainValidationError, match="must follow recognition"):
+        credit_adjusted_eir("80", recognition, (POCICashFlow(recognition, "80"),))
+    with pytest.raises(DomainValidationError, match="exceeds supported"):
+        credit_adjusted_eir("0.01", recognition, (after,))

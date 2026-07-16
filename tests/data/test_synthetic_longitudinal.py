@@ -1,7 +1,9 @@
 from datetime import date
 from decimal import Decimal
+from random import Random
 
 from src.data.synthetic import PopulationConfig, generate_monthly_history, generate_population
+from src.data.synthetic.longitudinal import _update_days_past_due
 
 
 def history():
@@ -84,3 +86,16 @@ def test_custom_window_is_respected() -> None:
     assert all(
         date(2020, 1, 1) <= item.reference_date <= date(2021, 12, 1) for item in result.snapshots
     )
+
+
+def test_delinquency_transition_supports_entry_cap_cure_and_stability() -> None:
+    always_transition = Random(1)
+    always_transition.random = lambda: 0.0  # type: ignore[method-assign]
+    never_transition = Random(1)
+    never_transition.random = lambda: 1.0  # type: ignore[method-assign]
+
+    assert _update_days_past_due(0.80, 0, always_transition) == 30
+    assert _update_days_past_due(0.80, 120, always_transition) == 120
+    assert _update_days_past_due(0.20, 30, always_transition) == 0
+    assert _update_days_past_due(0.20, 30, never_transition) == 30
+    assert _update_days_past_due(0.50, 30, always_transition) == 30
