@@ -1,3 +1,5 @@
+import json
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -167,3 +169,83 @@ def test_temporal_and_balance_contracts_fail_closed() -> None:
             ead_at_default=Decimal("120"),
             policy=policy,
         )
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        calculate_realized_ccf(
+            observation_date=date(2025, 1, 1),
+            default_date=date(2025, 7, 1),
+            observed_balance=Decimal("-1"),
+            observed_limit=Decimal("100"),
+            limit_at_default=Decimal("100"),
+            ead_at_default=Decimal("70"),
+            policy=policy,
+        )
+
+
+def test_realized_ccf_floors_negative_incremental_drawdown() -> None:
+    policy = replace(load_revolving_ccf_policy(POLICY_PATH), lower_bound=Decimal("0.10"))
+    result = calculate_realized_ccf(
+        observation_date=date(2025, 1, 1),
+        default_date=date(2025, 7, 1),
+        observed_balance=Decimal("40"),
+        observed_limit=Decimal("100"),
+        limit_at_default=Decimal("100"),
+        ead_at_default=Decimal("20"),
+        policy=policy,
+    )
+    assert result.realized_ccf == Decimal("0.10")
+    assert result.bound_action == "floored_at_zero"
+
+
+@pytest.mark.parametrize(
+    "mutation,message",
+    [
+        (lambda document: document.update(schema_version="2.0.0"), "policy schema"),
+        (lambda document: document.update(horizons_months=[]), "horizons"),
+        (lambda document: document.update(lower_bound="1"), "bounds"),
+    ],
+)
+def test_revolving_policy_fails_closed(tmp_path: Path, mutation, message: str) -> None:
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    mutation(document)
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match=message):
+        load_revolving_ccf_policy(path)
+
+
+def test_revolving_training_and_prediction_boundaries(ccf_bundle) -> None:
+    _, dataset = ccf_bundle
+    insufficient = replace(dataset, rows=dataset.rows[:4])
+    with pytest.raises(DomainValidationError, match="sample is insufficient"):
+        fit_revolving_ccf_model(insufficient)
+    model = fit_revolving_ccf_model(dataset)
+    assert predict_revolving_ccf(model, ()) == ()
+
+
+def test_revolving_dataset_requires_snapshot_before_default() -> None:
+    policy = load_revolving_ccf_policy(POLICY_PATH)
+    population = generate_population(
+        PopulationConfig(
+            seed=policy.development_seed,
+            clients=policy.development_clients,
+            contracts_per_client=policy.development_contracts_per_client,
+        )
+    )
+    history = generate_monthly_history(population)
+    events = generate_credit_events(population, history)
+    revolving_ids = {
+        contract.contract_id
+        for contract in population.contracts
+        if contract.facility_type == "revolving"
+    }
+    target = next(item for item in events.defaults if item.contract_id in revolving_ids)
+    incomplete = replace(
+        history,
+        snapshots=tuple(
+            replace(snapshot, reference_date=target.default_date)
+            for snapshot in history.snapshots
+            if snapshot.contract_id == target.contract_id
+        ),
+    )
+    with pytest.raises(DomainValidationError, match="no prior snapshot"):
+        build_revolving_ccf_dataset(population, incomplete, events, policy)

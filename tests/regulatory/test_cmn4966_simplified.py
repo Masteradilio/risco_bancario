@@ -1,5 +1,7 @@
+import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -13,6 +15,7 @@ from src.regulatory.cmn4966 import (
     load_simplified_provision_policy,
     resolve_methodology,
 )
+from src.regulatory.cmn4966.simplified import _load_policy_file
 
 REFERENCE_DATE = date(2026, 7, 31)
 
@@ -59,6 +62,13 @@ def test_cooperative_system_exceptions_route_to_complete_methodology() -> None:
     )
     assert with_s3.methodology == ProvisionMethodology.COMPLETE
     assert authorized_central.methodology == ProvisionMethodology.COMPLETE
+    no_exception = resolve_methodology(
+        framework=RegulatoryFramework.CMN4966,
+        segment=PrudentialSegment.S5,
+        is_credit_cooperative=True,
+        cooperative_system_segments=(PrudentialSegment.S4, PrudentialSegment.S5),
+    )
+    assert no_exception.methodology == ProvisionMethodology.SIMPLIFIED
 
 
 def test_invalid_authorization_and_cooperative_facts_fail_closed() -> None:
@@ -183,3 +193,41 @@ def test_complete_route_and_inconsistent_default_state_are_rejected() -> None:
             problem_asset=False,
             **common,
         )
+
+
+def test_simplified_amount_and_policy_boundaries_fail_closed(tmp_path: Path) -> None:
+    common = {
+        "applicability": _simplified(),
+        "reference_date": REFERENCE_DATE,
+        "portfolio": ProvisionPortfolio.C1,
+        "gross_carrying_amount": "1000",
+        "estimated_expected_loss": "20",
+        "problem_asset": False,
+        "default_date": None,
+    }
+    with pytest.raises(DomainValidationError, match="days_past_due"):
+        calculate_simplified_provision(days_past_due=-1, **common)
+    with pytest.raises(DomainValidationError, match="cannot exceed"):
+        calculate_simplified_provision(
+            days_past_due=0, **{**common, "estimated_expected_loss": "1001"}
+        )
+    with pytest.raises(DomainValidationError, match="unsupported or ambiguous"):
+        load_simplified_provision_policy(date(1900, 1, 1), tmp_path)
+
+    source = next(
+        (Path(__file__).parents[2] / "config/regulatory/cmn4966_simplified").glob("*.json")
+    )
+    document = json.loads(source.read_text(encoding="utf-8"))
+    bad_bands = json.loads(json.dumps(document))
+    bad_bands["additional_rates_non_problem_by_days_past_due"]["maximum_days"] = [1, 2, 3, 4]
+    path = tmp_path / "bad-bands.json"
+    path.write_text(json.dumps(bad_bands), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="four official"):
+        _load_policy_file(path)
+
+    bad_rates = json.loads(json.dumps(document))
+    bad_rates["additional_rates_non_problem_by_days_past_due"]["C1"] = ["0.1"]
+    path = tmp_path / "bad-rates.json"
+    path.write_text(json.dumps(bad_rates), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="four non-problem"):
+        _load_policy_file(path)

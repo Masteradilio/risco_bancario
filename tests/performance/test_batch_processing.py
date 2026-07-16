@@ -109,6 +109,24 @@ def test_bounded_queue_applies_backpressure_and_completes_concurrently() -> None
     queue.shutdown()
 
 
+def test_bounded_queue_rejects_invalid_size_and_releases_slot_on_submit_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with pytest.raises(ValueError, match="workers must be positive"):
+        BoundedBatchExecutor(workers=0, queue_capacity=0)
+    queue = BoundedBatchExecutor(workers=1, queue_capacity=0)
+    monkeypatch.setattr(
+        queue._executor,
+        "submit",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("submit failed")),
+    )
+    with pytest.raises(RuntimeError, match="submit failed"):
+        queue.submit(lambda: None)
+    assert queue._slots.acquire(blocking=False)
+    queue._slots.release()
+    queue.shutdown()
+
+
 def test_performance_target_is_explicit_and_not_an_institutional_sla() -> None:
     target = Path("config/performance/targets.json").read_text(encoding="utf-8")
     assert "demonstrative_capacity_target" in target

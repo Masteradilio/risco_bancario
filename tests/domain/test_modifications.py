@@ -8,6 +8,8 @@ from src.domain.contracts import (
     AmortizationMethod,
     AmortizationTerms,
     ModificationRequest,
+    RateReset,
+    RateType,
     apply_prepayment,
     modify_contract,
     project_amortized_schedule,
@@ -76,3 +78,27 @@ def test_modification_requires_matching_principal_and_fair_value_rules() -> None
         ModificationRequest(3, revised, True)
     with pytest.raises(DomainValidationError, match="cannot set"):
         ModificationRequest(3, revised, False, "100")
+
+
+def test_modification_and_prepayment_boundaries_fail_closed() -> None:
+    schedule = project_amortized_schedule(original_terms())
+    revised = replace(original_terms(), origination_date=date(2026, 4, 15), term_months=9)
+    with pytest.raises(DomainValidationError, match="after_period must be positive"):
+        ModificationRequest(0, revised, False)
+    with pytest.raises(DomainValidationError, match="outside the schedule"):
+        apply_prepayment(original_terms(), 99, "1")
+    with pytest.raises(DomainValidationError, match="greater than zero"):
+        apply_prepayment(original_terms(), 1, "0")
+    with pytest.raises(DomainValidationError, match="outside the schedule"):
+        modify_contract(schedule, ModificationRequest(99, revised, False))
+
+
+def test_variable_rate_prepayment_carries_latest_reset_into_revised_curve() -> None:
+    variable = replace(
+        original_terms(),
+        rate_type=RateType.VARIABLE,
+        rate_resets=(RateReset(date(2026, 2, 15), "0.15"),),
+    )
+    result = apply_prepayment(variable, 3, "100")
+    assert result.revised_schedule is not None
+    assert result.revised_schedule.periods[0].annual_rate == Decimal("0.15000000")

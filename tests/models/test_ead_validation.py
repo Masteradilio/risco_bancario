@@ -1,6 +1,9 @@
+import json
 from dataclasses import replace
+from decimal import Decimal
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from src.data.synthetic import (
@@ -20,6 +23,7 @@ from src.models.ead import (
     load_revolving_ccf_policy,
     validate_ead_models,
 )
+from src.models.ead.validation import _metrics
 
 
 @pytest.fixture(scope="module")
@@ -150,3 +154,61 @@ def test_policy_lineage_and_empty_holdout_fail_closed(validation_bundle) -> None
     )
     with pytest.raises(DomainValidationError, match="empty"):
         validate_ead_models(amortized, train_only, model, off_balance, policy)
+
+
+def test_ead_validation_policy_and_vectors_fail_closed(tmp_path: Path) -> None:
+    source = Path("config/ead_validation/2026.07.1.json")
+    document = json.loads(source.read_text(encoding="utf-8"))
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document | {"schema_version": "2.0.0"}), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="policy schema"):
+        load_ead_validation_policy(path)
+    document["maximum_ccf_mae"] = "-1"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="thresholds"):
+        load_ead_validation_policy(path)
+    with pytest.raises(DomainValidationError, match="empty or misaligned"):
+        _metrics(np.asarray([]), np.asarray([]))
+
+
+def test_ead_validation_emits_every_quantitative_blocker(validation_bundle) -> None:
+    amortized, dataset, model, off_balance, policy, _ = validation_bundle
+    strict = replace(
+        policy,
+        minimum_amortized_observations=10_000,
+        maximum_amortized_mae=Decimal("-1"),
+        maximum_ccf_mae=Decimal("-1"),
+        maximum_ccf_rmse=Decimal("-1"),
+        minimum_sensitivity_delta=Decimal("1000000"),
+    )
+    report = validate_ead_models(amortized, dataset, model, off_balance, strict)
+    assert {
+        "amortized_sample_below_minimum",
+        "amortized_mae_above_limit",
+        "ccf_mae_above_limit",
+        "ccf_rmse_above_limit",
+        "sensitivity_not_responsive",
+    } <= set(report.blockers)
+
+
+def test_ead_validation_can_clear_every_governance_blocker(validation_bundle) -> None:
+    amortized, dataset, model, off_balance, policy, _ = validation_bundle
+    lenient = replace(
+        policy,
+        minimum_amortized_observations=0,
+        maximum_amortized_mae=Decimal("999"),
+        minimum_ccf_validation_observations=0,
+        maximum_ccf_mae=Decimal("999"),
+        maximum_ccf_rmse=Decimal("999"),
+        minimum_segment_observations=0,
+        minimum_ccf_validation_years=0,
+        require_limit_change_validation=False,
+        minimum_sensitivity_delta=Decimal("0.00000001"),
+        require_institutional_evidence=False,
+        evidence_status="institutionally_validated",
+    )
+    approved_model = replace(model, status="approved")
+    validated_off_balance = replace(off_balance, evidence_status="institutionally_validated")
+    report = validate_ead_models(amortized, dataset, approved_model, validated_off_balance, lenient)
+    assert report.blockers == ()
+    assert report.approval_status == "approved"

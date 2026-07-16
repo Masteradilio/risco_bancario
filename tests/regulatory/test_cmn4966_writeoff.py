@@ -167,3 +167,38 @@ def test_writeoff_and_recovery_controls_fail_closed() -> None:
         recognize_post_writeoff_recovery(
             written, event_date=date(2026, 7, 1), amount="10", evidence_id="REC"
         )
+
+
+def test_ledger_amount_boundaries_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="positive gross"):
+        open_writeoff_ledger("C", "0", "0")
+    with pytest.raises(DomainValidationError, match="allowance cannot exceed"):
+        open_writeoff_ledger("C", "10", "11")
+    ledger = open_writeoff_ledger("C", "100", "20")
+    with pytest.raises(DomainValidationError, match="must be positive"):
+        write_off(
+            ledger,
+            event_date=date(2026, 7, 1),
+            amount="0",
+            recovery_not_probable=True,
+            evidence_id="WO",
+        )
+    with pytest.raises(DomainValidationError, match="cannot exceed"):
+        write_off(
+            ledger,
+            event_date=date(2026, 7, 1),
+            amount="101",
+            recovery_not_probable=True,
+            evidence_id="WO",
+        )
+    written = write_off(
+        ledger,
+        event_date=date(2026, 7, 1),
+        amount="10",
+        recovery_not_probable=True,
+        evidence_id="WO",
+    )
+    with pytest.raises(DomainValidationError, match="must be positive"):
+        recognize_post_writeoff_recovery(
+            written, event_date=date(2026, 7, 2), amount="0", evidence_id="REC"
+        )

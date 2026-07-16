@@ -89,6 +89,21 @@ def test_duplicate_contract_baselines_are_rejected() -> None:
         OriginationBaselineLedger("1.0.0", (item, item))
 
 
+def test_origination_ledger_schema_and_policy_hash_fail_closed() -> None:
+    with pytest.raises(DomainValidationError, match="unsupported origination ledger schema"):
+        OriginationBaselineLedger("2.0.0", ())
+    with pytest.raises(DomainValidationError, match="lowercase SHA-256"):
+        create_origination_baseline(
+            contract(),
+            "0.08",
+            "R2",
+            model_name="model",
+            model_version="1",
+            policy_version="policy",
+            policy_sha256="A" * 64,
+        )
+
+
 @pytest.mark.parametrize("field", ["model_name", "model_version", "policy_version"])
 def test_required_origination_metadata_fails_closed(field) -> None:
     values = {

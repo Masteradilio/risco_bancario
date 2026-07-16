@@ -1,6 +1,8 @@
+import json
 from dataclasses import replace
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -95,3 +97,27 @@ def test_missing_variable_and_unknown_segment_are_rejected() -> None:
         calculate_macro_risk_multipliers("base", incomplete, "portfolio", policy)
     with pytest.raises(DomainValidationError, match="unknown macro risk segment"):
         calculate_macro_risk_multipliers("base", point, "unknown", policy)
+
+
+@pytest.mark.parametrize(
+    "mutation,message",
+    [
+        (lambda document: document["components"].pop("ccf"), "requires pd"),
+        (
+            lambda document: document["components"]["pd"].update(minimum="0"),
+            "bounds are invalid",
+        ),
+        (
+            lambda document: document["segment_scalars"]["portfolio"].pop("ccf"),
+            "every macro segment",
+        ),
+    ],
+)
+def test_macro_risk_policy_fails_closed(tmp_path: Path, mutation, message: str) -> None:
+    source = Path("config/macro_risk_relations/2026.07.1.json")
+    document = json.loads(source.read_text(encoding="utf-8"))
+    mutation(document)
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match=message):
+        load_macro_risk_policy(path)

@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 
@@ -83,3 +84,19 @@ def test_invalid_workout_window_fails_closed(workout) -> None:
             observation_end_date=date(2025, 12, 1),
             workout_window_months=0,
         )
+
+
+def test_workout_skips_future_defaults_and_rejects_unknown_contract(workout) -> None:
+    population, events, dataset = workout
+    first = events.defaults[0]
+    future = replace(first, default_id="FUTURE", default_date=date(2026, 1, 1))
+    with_future = replace(events, defaults=(*events.defaults, future))
+    rebuilt = build_lgd_workout_dataset(
+        population, with_future, observation_end_date=date(2025, 12, 1)
+    )
+    assert len(rebuilt.records) == len(dataset.records)
+
+    unknown = replace(first, default_id="UNKNOWN", contract_id="UNKNOWN")
+    with_unknown = replace(events, defaults=(unknown,))
+    with pytest.raises(DomainValidationError, match="unknown contract"):
+        build_lgd_workout_dataset(population, with_unknown, observation_end_date=date(2025, 12, 1))

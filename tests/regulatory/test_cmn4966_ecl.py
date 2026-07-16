@@ -1,5 +1,7 @@
+import json
 from datetime import date
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -9,6 +11,7 @@ from src.regulatory.cmn4966 import (
     apply_provision_floor,
     load_provision_floor_policy,
 )
+from src.regulatory.cmn4966.provision_floor import _load_policy_file
 
 
 def test_bcb352_floor_policy_is_official_versioned_and_hashable() -> None:
@@ -141,3 +144,45 @@ def test_invalid_temporal_and_amount_inputs_fail_closed() -> None:
         apply_provision_floor(
             **{**common, "calculated_ecl": "1000.01"}, default_date=date(2026, 7, 1)
         )
+
+    with pytest.raises(DomainValidationError, match="days_past_due"):
+        apply_provision_floor(**{**common, "days_past_due": -1}, default_date=None)
+    with pytest.raises(DomainValidationError, match="only allowed"):
+        apply_provision_floor(**{**common, "days_past_due": 90}, default_date=date(2026, 7, 1))
+
+
+def test_provision_floor_policy_structure_fails_closed(tmp_path: Path) -> None:
+    policy = load_provision_floor_policy(date(2026, 7, 14))
+    with pytest.raises(DomainValidationError, match="non-negative"):
+        policy.rate_for(ProvisionPortfolio.C1, -1)
+
+    source = next(
+        (Path(__file__).parents[2] / "config/regulatory/cmn4966_provision_floor").glob("*.json")
+    )
+    original = json.loads(source.read_text(encoding="utf-8"))
+
+    def reject(name: str, document: dict, message: str) -> None:
+        path = tmp_path / name
+        path.write_text(json.dumps(document), encoding="utf-8")
+        with pytest.raises(DomainValidationError, match=message):
+            _load_policy_file(path)
+
+    missing = json.loads(json.dumps(original))
+    del missing["floor_rates_by_month_since_default"]["C5"]
+    reject("missing.json", missing, "C1 through C5")
+
+    short = json.loads(json.dumps(original))
+    short["floor_rates_by_month_since_default"]["C1"] = ["0.1"]
+    reject("short.json", short, "22 month bands")
+
+    decreasing = json.loads(json.dumps(original))
+    decreasing["floor_rates_by_month_since_default"]["C1"][1] = "0.001"
+    reject("decreasing.json", decreasing, "non-decreasing")
+
+    terminal = json.loads(json.dumps(original))
+    terminal["floor_rates_by_month_since_default"]["C1"][-1] = "0.999"
+    reject("terminal.json", terminal, "100%")
+
+    threshold = json.loads(json.dumps(original))
+    threshold["delinquency_threshold_days"] = 91
+    reject("threshold.json", threshold, "90-day")

@@ -1,3 +1,5 @@
+import json
+from dataclasses import replace
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -152,3 +154,57 @@ def test_rejects_collateral_that_does_not_match_contract() -> None:
 
     with pytest.raises(DomainValidationError, match="does not match"):
         project_collateral_recovery(_record(), collateral, load_collateral_policy(POLICY_PATH))
+
+
+def test_collateral_policy_rejects_schema_scenario_and_assumption_bounds(tmp_path: Path) -> None:
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(document | {"schema_version": "2.0.0"}), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="policy schema"):
+        load_collateral_policy(path)
+
+    document["sensitivities"].pop("upside")
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="requires upside"):
+        load_collateral_policy(path)
+
+    document = json.loads(POLICY_PATH.read_text(encoding="utf-8"))
+    first = next(iter(document["assumptions"].values()))
+    first["haircut"] = "2"
+    path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="base assumptions"):
+        load_collateral_policy(path)
+
+
+def test_collateral_projection_rejects_unknown_and_effectively_invalid_assumptions() -> None:
+    policy = load_collateral_policy(POLICY_PATH)
+    with pytest.raises(DomainValidationError, match="unsupported"):
+        project_collateral_recovery(
+            _record(),
+            replace(_collateral(), collateral_type="unsupported"),
+            policy,
+        )
+    sensitivity = next(item for item in policy.sensitivities if item.scenario == "base")
+    bad_rate = replace(sensitivity, haircut_delta=Decimal("2"))
+    with pytest.raises(DomainValidationError, match="haircut or cost"):
+        project_collateral_recovery(
+            _record(), _collateral(), replace(policy, sensitivities=(bad_rate,))
+        )
+    base = next(item for item in policy.assumptions if item.collateral_type == "real_estate")
+    bad_timing = replace(base, execution_months=0)
+    with pytest.raises(DomainValidationError, match="timing or value change"):
+        project_collateral_recovery(
+            _record(),
+            _collateral(),
+            replace(
+                policy,
+                assumptions=(bad_timing,),
+                sensitivities=(sensitivity,),
+            ),
+        )
+
+
+def test_unsecured_record_rejects_observed_collateral_recovery() -> None:
+    record = _record(cashflows=(_cashflow("collateral_execution", Decimal("10")),))
+    with pytest.raises(DomainValidationError, match="has no collateral record"):
+        project_collateral_recovery(record, None, load_collateral_policy(POLICY_PATH))

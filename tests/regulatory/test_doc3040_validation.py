@@ -1,7 +1,11 @@
+import copy
+import json
 from dataclasses import replace
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
+from lxml import etree
 
 from src.domain.exceptions import DomainValidationError
 from src.regulatory.doc3040 import (
@@ -9,8 +13,10 @@ from src.regulatory.doc3040 import (
     IssueSeverity,
     PortfolioEclControl,
     generate_xml_candidate,
+    load_layout_registry,
     prevalidate_xml,
 )
+from src.regulatory.doc3040.validation import _load_domains
 from tests.regulatory.test_doc3040_generator import base_document, base_operation, sv
 
 
@@ -123,3 +129,150 @@ def test_malformed_xml_and_invalid_control_fail_closed() -> None:
     assert report.errors[0].rule_id == "XML-PARSE"
     with pytest.raises(DomainValidationError, match="non-negative"):
         PortfolioEclControl("IPOC", Decimal("-1"), Decimal("0"), "EV")
+    with pytest.raises(DomainValidationError, match="requires IPOC"):
+        PortfolioEclControl("", Decimal("1"), Decimal("0"), "EV")
+    with pytest.raises(DomainValidationError, match="requires IPOC"):
+        PortfolioEclControl("IPOC", Decimal("1"), Decimal("0"), "")
+
+
+def test_layout_resolution_rejects_invalid_and_unsupported_months() -> None:
+    content = generate_xml_candidate(reconciled_document()).content
+    invalid = content.replace(b'DtBase="2026-07"', b'DtBase="invalid"')
+    report = prevalidate_xml(invalid, controls())
+    assert report.errors[0].rule_id == "LAYOUT-RESOLUTION"
+    assert "YYYY-MM" in report.errors[0].message
+    unsupported = content.replace(b'DtBase="2026-07"', b'DtBase="2024-01"')
+    report = prevalidate_xml(unsupported, controls())
+    assert report.errors[0].rule_id == "LAYOUT-RESOLUTION"
+    assert "unsupported" in report.errors[0].message
+
+
+def test_domain_file_binding_and_shape_fail_closed(tmp_path: Path) -> None:
+    layout = load_layout_registry()[0]
+    source = Path("config/regulatory/doc3040/domains/2026.07-supported-subset.json")
+    original = json.loads(source.read_text(encoding="utf-8"))
+
+    def reject(name: str, payload: dict, message: str) -> None:
+        path = tmp_path / name
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(DomainValidationError, match=message):
+            _load_domains(layout, path)
+
+    wrong_layout = copy.deepcopy(original)
+    wrong_layout["layout_version"] = "wrong"
+    reject("layout.json", wrong_layout, "does not match")
+    wrong_hash = copy.deepcopy(original)
+    wrong_hash["derived_from_layout_sha256"] = "0" * 64
+    reject("hash.json", wrong_hash, "not bound")
+    wrong_values = copy.deepcopy(original)
+    wrong_values["values"] = []
+    reject("values.json", wrong_values, "must be an object")
+    for index, value in enumerate(([], [1])):
+        wrong_domain = copy.deepcopy(original)
+        wrong_domain["values"]["client_type"] = value
+        reject(f"domain-{index}.json", wrong_domain, "non-empty string list")
+
+
+def test_local_domain_validator_traverses_every_supported_block() -> None:
+    root = etree.fromstring(generate_xml_candidate(reconciled_document()).content)
+    root.set("TpArq", "INVALID")
+    client = root.find("Cli")
+    assert client is not None
+    client.attrib.pop("Tp")
+    client.set("PorteCli", "INVALID")
+    client.set("TpCtrl", "INVALID")
+    operation = client.find("Op")
+    assert operation is not None
+    operation.set("OrigemRec", "INVALID")
+    maturity = operation.find("Venc")
+    assert maturity is not None
+    amount = maturity.attrib.pop("v110")
+    maturity.set("v999", amount)
+    etree.SubElement(
+        operation,
+        "Gar",
+        Tp="INVALID",
+        SitGar="INVALID",
+        TpVlrGar="INVALID",
+        Compart="INVALID",
+    )
+    etree.SubElement(operation, "Inf", Tp="INVALID")
+    etree.SubElement(operation, "Sicor", Situacao="INVALID")
+    accounting = operation.find("ContInstFinRes4966")
+    assert accounting is not None
+    accounting.set("ClasAtFin", "INVALID")
+    accounting.set("EstInstFin", "INVALID")
+    etree.SubElement(accounting, "Estagio", Motivo="INVALID", DtAlocacao="2026-07")
+    etree.SubElement(accounting, "Perda", MotPerda="INVALID", VlrPerda="1.00")
+    etree.SubElement(
+        root,
+        "Agreg",
+        NatuOp="INVALID",
+        Mod="INVALID",
+        OrigemRec="INVALID",
+        VincME="INVALID",
+        FaixaVlr="INVALID",
+        TpCli="INVALID",
+        TpCtrl="INVALID",
+    )
+    report = prevalidate_xml(etree.tostring(root), controls())
+    local = [issue for issue in report.errors if issue.rule_id.startswith("LOCAL-")]
+    assert any(issue.rule_id == "LOCAL-REQUIRED" and issue.field == "Tp" for issue in local)
+    assert {issue.field for issue in local} >= {
+        "TpArq",
+        "PorteCli",
+        "TpCtrl",
+        "OrigemRec",
+        "v999",
+        "Tp",
+        "Situacao",
+        "ClasAtFin",
+        "Motivo",
+        "MotPerda",
+    }
+
+
+def test_semantic_duplicate_and_component_controls_fail_closed() -> None:
+    root = etree.fromstring(generate_xml_candidate(reconciled_document()).content)
+    client = root.find("Cli")
+    operation = root.find("./Cli/Op")
+    assert client is not None and operation is not None
+    client.append(copy.deepcopy(operation))
+    report = prevalidate_xml(etree.tostring(root), controls())
+    assert {"LOCAL-IPOC-UNIQUE", "LOCAL-CONTRACT-UNIQUE"} <= {
+        issue.rule_id for issue in report.errors
+    }
+
+    root = etree.fromstring(generate_xml_candidate(reconciled_document()).content)
+    operation = root.find("./Cli/Op")
+    assert operation is not None
+    operation.set("IPOC", "WRONG")
+    report = prevalidate_xml(etree.tostring(root), ())
+    assert "LOCAL-IPOC-COMPONENTS" in {issue.rule_id for issue in report.errors}
+
+    with pytest.raises(DomainValidationError, match="unique IPOCs"):
+        prevalidate_xml(
+            generate_xml_candidate(reconciled_document()).content,
+            (controls()[0], controls()[0]),
+        )
+
+
+def test_missing_accounting_and_invalid_decimals_are_reported() -> None:
+    root = etree.fromstring(generate_xml_candidate(reconciled_document()).content)
+    operation = root.find("./Cli/Op")
+    assert operation is not None
+    accounting = operation.find("ContInstFinRes4966")
+    assert accounting is not None
+    operation.remove(accounting)
+    report = prevalidate_xml(etree.tostring(root), controls())
+    assert "LOCAL-ECL-BLOCK" in {issue.rule_id for issue in report.errors}
+
+    root = etree.fromstring(generate_xml_candidate(reconciled_document()).content)
+    accounting = root.find("./Cli/Op/ContInstFinRes4966")
+    assert accounting is not None
+    accounting.attrib.pop("VlrContBr")
+    accounting.set("VlrPerdaAcum", "not-a-decimal")
+    report = prevalidate_xml(etree.tostring(root), controls())
+    assert {"LOCAL-PORTFOLIO-GROSS", "LOCAL-PORTFOLIO-ECL"} <= {
+        issue.rule_id for issue in report.errors
+    }

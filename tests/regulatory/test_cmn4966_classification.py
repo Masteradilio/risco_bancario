@@ -58,6 +58,25 @@ def test_sppi_passes_basic_lending_terms_and_reports_every_failure() -> None:
     }
 
 
+def test_sppi_reports_every_basic_and_index_failure() -> None:
+    failed = assess_sppi(
+        SPPITerms(
+            principal_is_fair_value_at_initial_recognition=False,
+            interest_is_time_value_and_credit_risk=False,
+            includes_only_basic_lending_costs_and_margin=False,
+            extension_preserves_basic_lending_return=False,
+            non_basic_currency_or_index_link=True,
+        )
+    )
+    assert set(failed.reasons) == {
+        "principal_not_initial_fair_value",
+        "interest_not_time_value_and_credit_risk",
+        "non_basic_lending_cost_or_margin",
+        "non_basic_extension_feature",
+        "non_basic_currency_or_index_link",
+    }
+
+
 @pytest.mark.parametrize(
     ("objective", "category"),
     [
@@ -127,6 +146,50 @@ def test_impairment_eligibility_is_explicit_for_fvtpl_scope_exclusions() -> None
     )
     assert not level_one.impairment_eligible
     assert not derivative.impairment_eligible
+
+    with pytest.raises(DomainValidationError, match="fair_value_level"):
+        classify_financial_asset(
+            business_model=_model(BusinessModelObjective.OTHER),
+            terms=SPPITerms(),
+            kind=FinancialAssetKind.OTHER_DEBT,
+        )
+
+
+def test_reclassification_recognition_covers_every_category_route() -> None:
+    categories = {
+        objective: classify_financial_asset(
+            business_model=_model(objective),
+            terms=SPPITerms(),
+            kind=FinancialAssetKind.PRIVATE_DEBT_SECURITY,
+        )
+        for objective in BusinessModelObjective
+    }
+
+    def reclassify(previous_objective, new_objective):
+        return reclassify_financial_asset(
+            previous=categories[previous_objective],
+            new_business_model=_model(new_objective, effective=date(2026, 8, 1)),
+            change_date=date(2026, 7, 14),
+            terms=SPPITerms(),
+            kind=FinancialAssetKind.PRIVATE_DEBT_SECURITY,
+            carrying_amount="1000",
+            fair_value="1010",
+            accumulated_oci="25",
+        )
+
+    assert (
+        reclassify(BusinessModelObjective.HOLD_TO_COLLECT, BusinessModelObjective.OTHER).recognition
+        == ReclassificationRecognition.PROFIT_OR_LOSS
+    )
+    assert (
+        reclassify(
+            BusinessModelObjective.HOLD_TO_COLLECT_AND_SELL,
+            BusinessModelObjective.OTHER,
+        ).recognition
+        == ReclassificationRecognition.PROFIT_OR_LOSS
+    )
+    for objective in BusinessModelObjective:
+        assert reclassify(objective, objective).recognition == ReclassificationRecognition.NONE
 
 
 def test_reclassification_is_prospective_on_first_day_of_next_period() -> None:
