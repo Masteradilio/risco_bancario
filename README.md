@@ -76,6 +76,7 @@ em `docs/golden_cases/`, e o pacote de rastreabilidade exportado fica em
 
 ## Guias
 
+- [Master Portfolio Benchmark & Scorecard de Robustez](docs/PORTFOLIO_BENCHMARK.md)
 - [Arquitetura do sistema](docs/architecture/SYSTEM_ARCHITECTURE.md)
 - [Tutorial de ECL](docs/tutorials/ECL_TUTORIAL.md)
 - [Exemplos da API](docs/api/EXAMPLES.md)

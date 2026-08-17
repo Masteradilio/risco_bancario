@@ -1,0 +1,49 @@
+{
+  "timestamp_utc": "2026-08-17T17:02:49.156006+00:00",
+  "python_version": "3.13.7",
+  "stress_testing": {
+    "n_contracts": 1000,
+    "total_ead": 52231894.660201035,
+    "total_ecl_base": 1225555.1822022868,
+    "total_ecl_stressed": 2620727.2016213704,
+    "delta_ecl": 1395172.0194190836,
+    "coverage_base_pct": 0.0234637320774067,
+    "coverage_stressed_pct": 0.050174844674326494,
+    "staging_base": {
+      "stage1": 610,
+      "stage2": 389,
+      "stage3": 1
+    },
+    "staging_stress": {
+      "stage1": 386,
+      "stage2": 594,
+      "stage3": 20
+    },
+    "sicr_migrations": 224
+  },
+  "model_risk": {
+    "psi": 0.33298706951507673,
+    "psi_status": "red",
+    "auc_roc": 0.8842,
+    "gini": 0.7684,
+    "ks_stat": 0.612,
+    "brier_score": 0.0418
+  },
+  "performance": {
+    "batch_size": 50000,
+    "elapsed_seconds": 2.8603,
+    "throughput_per_second": 17480.49,
+    "peak_memory_mb": 6.25,
+    "api_latency_p50_ms": 12.4,
+    "api_latency_p95_ms": 18.2,
+    "api_latency_p99_ms": 27.5,
+    "total_weighted_ecl": "1646882.49"
+  },
+  "governance": {
+    "golden_cases_checked": 8,
+    "reconciliation_passed": true,
+    "doc3040_status": "PREVALIDATED_CANONICAL_LAYOUT",
+    "arithmetic_policy": "Decimal(ROUND_HALF_EVEN)",
+    "audit_ledger_status": "TAMPER_EVIDENT_HASHED"
+  }
+}

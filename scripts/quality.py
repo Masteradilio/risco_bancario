@@ -40,6 +40,7 @@ FORMAT_TARGETS = (
     "scripts/security_maintenance.py",
     "scripts/e2e_pipeline.py",
     "scripts/export_regulatory_package.py",
+    "scripts/run_portfolio_benchmark.py",
     "scripts/quality.py",
 )
 
