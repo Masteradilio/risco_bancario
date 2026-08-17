@@ -116,3 +116,19 @@ def test_export_main_parses_cli_and_prints_manifest(
     monkeypatch.setattr(export, "materialize_synthetic_factory", lambda *_args, **_kwargs: expected)
     export.main()
     assert capsys.readouterr().out.strip() == str(expected)
+
+
+def test_export_module_entrypoint(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    import runpy
+
+    destination = tmp_path / "module"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["synthetic-export", "--output", str(destination), "--clients", "7"],
+    )
+    monkeypatch.delitem(sys.modules, "src.data.synthetic.export")
+    runpy.run_module("src.data.synthetic.export", run_name="__main__")
+    assert capsys.readouterr().out.strip().endswith("manifest.json")

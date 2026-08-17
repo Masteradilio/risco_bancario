@@ -8,7 +8,7 @@ import time
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -195,8 +195,7 @@ def create_app(
         _principal: Annotated[Principal, Depends(current_principal)],
         http_request: Request,
     ) -> None:
-        if credentials is None:
-            raise HTTPException(status_code=401, detail="authentication required")
+        token = cast(HTTPAuthorizationCredentials, credentials)
         audit.record(
             actor_id=_principal.user_id,
             actor_role=_principal.role.value,
@@ -209,7 +208,7 @@ def create_app(
             status="SUCCEEDED",
             client_ip=http_request.client.host if http_request.client else None,
         )
-        auth.revoke(credentials.credentials)
+        auth.revoke(token.credentials)
 
     @application.post(
         "/api/v1/security/confirmations",

@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 
@@ -194,3 +195,37 @@ def test_committed_synthetic_evidence_is_rejected_and_versioned() -> None:
     assert evidence["report_hash"] == (
         "8d402a738f436b8643c2ce3dce46cffcd9f70276f92bc2112297ef82b6e953a5"
     )
+
+
+def test_remaining_ead_boundaries_fail_closed(tmp_path: Path) -> None:
+    with pytest.raises(DomainValidationError, match="identifiers"):
+        EADBacktestObservation("", "amortized", "loan", Decimal("1"), Decimal("1"), "band")
+    with pytest.raises(DomainValidationError, match="model identity"):
+        backtest_ead("", "v1", evidence())
+
+    corrupted = evidence()[30]
+    object.__setattr__(corrupted, "predicted_ccf", None)
+    with pytest.raises(DomainValidationError, match="CCF evidence is incomplete"):
+        backtest_ead("model", "v1", evidence()[:30] + (corrupted,))
+
+    policy = load_ead_backtest_policy()
+    with pytest.raises(DomainValidationError, match="unsupported EAD dimensions"):
+        evaluate(policy=replace(policy, required_revolving_dimensions=("unknown",)))
+
+    original = json.loads(DEFAULT_EAD_BACKTEST_POLICY.read_text(encoding="utf-8"))
+    mutations = (
+        (lambda payload: payload.pop("version"), "missing or unknown"),
+        (lambda payload: payload.update(version=""), "requires a version"),
+        (lambda payload: payload.update(maximum_ccf_mae="0"), "limits must be positive"),
+        (
+            lambda payload: payload.update(required_revolving_dimensions=["product", "product"]),
+            "unique strings",
+        ),
+    )
+    for index, (mutate, message) in enumerate(mutations):
+        payload = json.loads(json.dumps(original))
+        mutate(payload)
+        path = tmp_path / f"invalid-{index}.json"
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        with pytest.raises(DomainValidationError, match=message):
+            load_ead_backtest_policy(path)

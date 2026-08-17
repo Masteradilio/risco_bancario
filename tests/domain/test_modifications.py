@@ -102,3 +102,20 @@ def test_variable_rate_prepayment_carries_latest_reset_into_revised_curve() -> N
     result = apply_prepayment(variable, 3, "100")
     assert result.revised_schedule is not None
     assert result.revised_schedule.periods[0].annual_rate == Decimal("0.15000000")
+
+
+def test_variable_rate_prepayment_keeps_future_resets() -> None:
+    variable = replace(
+        original_terms(),
+        rate_type=RateType.VARIABLE,
+        rate_resets=(
+            RateReset(date(2026, 2, 15), "0.15"),
+            RateReset(date(2026, 5, 15), "0.16"),
+        ),
+    )
+    result = apply_prepayment(variable, 3, "100")
+    assert result.revised_schedule is not None
+    assert {period.annual_rate for period in result.revised_schedule.periods} == {
+        Decimal("0.15000000"),
+        Decimal("0.16000000"),
+    }

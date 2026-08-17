@@ -160,3 +160,25 @@ def test_override_overlay_export_and_validation_contracts(database: DatabaseMana
     assert exported.action == "REGULATORY_EXPORT"
     assert validated.action == "REGULATORY_VALIDATION"
     assert service.verify_chain() == 4
+
+    with pytest.raises(ValueError, match="unsupported audit action"):
+        service.record_export_or_validation(
+            actor_id="manager",
+            actor_role="MANAGER",
+            action="INVALID",
+            artifact_id="artifact",
+            input_payload={},
+            result_payload={},
+            versions={},
+            status="FAILED",
+        )
+
+
+@pytest.mark.parametrize("limit", [0, 1001])
+def test_audit_listing_limit_fails_closed(database: DatabaseManager, limit: int) -> None:
+    with pytest.raises(ValueError, match="between 1 and 1000"):
+        AuditService(database).list_events(limit=limit)
+
+
+def test_audit_listing_accepts_valid_limit(database: DatabaseManager) -> None:
+    assert AuditService(database).list_events(limit=1) == []

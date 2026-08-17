@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 import time
 from copy import deepcopy
 from pathlib import Path
@@ -10,10 +11,13 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from src.agent.evidence import ExecutionNotFoundError, GroundedEvidenceAgent
+from src.ecl.batch import BatchQueueFullError
 from src.infrastructure.database import DatabaseManager, DatabaseSettings
 from src.infrastructure.database.repository import canonical_json
 from src.interfaces.api.app import create_app
 from src.interfaces.api.schemas import ECLCalculationRequest, PortfolioRequest
+from src.interfaces.api.service import CanonicalECLApiService
 from src.security.rbac import Role
 from src.security.settings import SecuritySettings
 
@@ -353,3 +357,124 @@ def test_agent_requires_authentication_and_result_permission(tmp_path: Path) -> 
 
     assert anonymous.status_code == 401
     assert admin.status_code == 403
+
+
+def test_https_headers_startup_recovery_and_rate_limit(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    settings = DatabaseSettings(sqlite_path=tmp_path / "recovery.sqlite3")
+    database = DatabaseManager(settings)
+    database.apply_migrations()
+    database.execute(
+        "INSERT INTO calculation_jobs "
+        "(job_id, status, request_json, request_hash, created_at, started_at) "
+        "VALUES (?, ?, ?, ?, ?, ?)",
+        ("job", "RUNNING", "{}", "a" * 64, "2026-07-01", "2026-07-01"),
+    )
+    security = SecuritySettings(
+        jwt_secret="test-secret-that-is-at-least-32-bytes-long",
+        rate_limit_requests=1,
+    )
+    with caplog.at_level(logging.WARNING):
+        app = create_app(settings, security)
+    auth = app.state.auth_service
+    auth.create_user("manager", "Strong!Pass123", Role.MANAGER)
+    token = auth.issue_token("manager", "Strong!Pass123")
+    with TestClient(app, base_url="https://testserver") as api:
+        first = api.get(
+            "/api/v1/ecl/executions/missing",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        second = api.get(
+            "/api/v1/ecl/executions/missing",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        health = api.get("/health")
+    assert first.status_code == 404
+    assert second.status_code == 429
+    assert health.headers["strict-transport-security"].startswith("max-age")
+    assert "Interrupted jobs marked as failed" in caplog.text
+
+
+def test_individual_value_error_and_missing_agent_evidence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    with client(tmp_path) as api:
+        monkeypatch.setattr(
+            CanonicalECLApiService,
+            "calculate",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError("invalid calculation")),
+        )
+        invalid = api.post("/api/v1/ecl/individual", json=calculation_payload())
+        monkeypatch.setattr(
+            GroundedEvidenceAgent,
+            "answer",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(ExecutionNotFoundError("missing")),
+        )
+        missing = api.post(
+            "/api/v1/agent/query",
+            json={"execution_id": "missing", "question": "Resuma."},
+        )
+    assert invalid.status_code == 422
+    assert missing.status_code == 404
+
+
+def test_portfolio_confirmation_queue_and_worker_failures(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    payload = calculation_payload(execution_key="failure:2026-06-30")
+    portfolio = {"calculations": [payload]}
+    with client(tmp_path) as api:
+        denied = api.post(
+            "/api/v1/ecl/portfolio",
+            json=portfolio,
+            headers={"X-Confirmation-Id": "missing"},
+        )
+
+        canonical = PortfolioRequest.model_validate(portfolio).model_dump(mode="json")
+        request_hash = hashlib.sha256(canonical_json(canonical).encode()).hexdigest()
+        confirmation = api.post(
+            "/api/v1/security/confirmations",
+            json={"action": "ecl:calculate:portfolio", "payload_hash": request_hash},
+        ).json()
+        monkeypatch.setattr(
+            api.app.state.batch_queue,
+            "submit",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(BatchQueueFullError("full")),
+        )
+        full = api.post(
+            "/api/v1/ecl/portfolio",
+            json=portfolio,
+            headers={"X-Confirmation-Id": confirmation["confirmation_id"]},
+        )
+    assert denied.status_code == 409
+    assert full.status_code == 503
+
+    payload = calculation_payload(execution_key="worker-failure:2026-06-30")
+    portfolio = {"calculations": [payload]}
+    with client(tmp_path / "worker") as api:
+        canonical = PortfolioRequest.model_validate(portfolio).model_dump(mode="json")
+        request_hash = hashlib.sha256(canonical_json(canonical).encode()).hexdigest()
+        confirmation = api.post(
+            "/api/v1/security/confirmations",
+            json={"action": "ecl:calculate:portfolio", "payload_hash": request_hash},
+        ).json()
+        monkeypatch.setattr(
+            CanonicalECLApiService,
+            "calculate",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("worker failed")),
+        )
+        accepted = api.post(
+            "/api/v1/ecl/portfolio",
+            json=portfolio,
+            headers={"X-Confirmation-Id": confirmation["confirmation_id"]},
+        )
+        deadline = time.monotonic() + 5
+        while True:
+            status_response = api.get(accepted.json()["status_url"])
+            if status_response.json()["status"] == "FAILED":
+                break
+            if time.monotonic() >= deadline:
+                raise AssertionError("failed portfolio job did not finish")
+            time.sleep(0.01)
+    assert status_response.json()["error_code"] == "CALCULATION_FAILED"

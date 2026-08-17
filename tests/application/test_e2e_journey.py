@@ -9,7 +9,8 @@ from pathlib import Path
 import pytest
 
 from scripts.e2e_pipeline import resolve_code_version
-from src.application.e2e import run_e2e_journey
+from src.application.e2e import _jsonable, run_e2e_journey
+from src.infrastructure.database import DatabaseManager
 
 
 def test_canonical_e2e_is_reconciled_and_fail_closed(tmp_path: Path) -> None:
@@ -58,3 +59,29 @@ def test_archive_without_git_metadata_uses_deterministic_source_fingerprint(
 def test_explicit_e2e_commit_must_follow_lineage_contract() -> None:
     with pytest.raises(ValueError, match="lowercase hexadecimal"):
         resolve_code_version("unknown")
+
+
+def test_e2e_json_encoder_covers_supported_containers(tmp_path: Path) -> None:
+    assert _jsonable((tmp_path,)) == [str(tmp_path)]
+    assert _jsonable([tmp_path]) == [str(tmp_path)]
+    assert _jsonable({1: tmp_path}) == {"1": str(tmp_path)}
+    assert _jsonable("unchanged") == "unchanged"
+
+
+def test_e2e_rejects_unreconciled_persistence(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    original = DatabaseManager.fetch_one
+    status_queries = 0
+
+    def missing_execution(self, sql, parameters=()):
+        nonlocal status_queries
+        if sql.startswith("SELECT status FROM calculation_executions"):
+            status_queries += 1
+            if status_queries == 2:
+                return None
+        return original(self, sql, parameters)
+
+    monkeypatch.setattr(DatabaseManager, "fetch_one", missing_execution)
+    with pytest.raises(RuntimeError, match="could not be reconciled"):
+        run_e2e_journey(tmp_path / "evidence", tmp_path / "work", "abcdef1")

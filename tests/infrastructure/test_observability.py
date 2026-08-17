@@ -2,15 +2,19 @@ from __future__ import annotations
 
 import json
 import logging
+import sys
 from pathlib import Path
 
 import yaml
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from src.infrastructure.database import DatabaseSettings
-from src.infrastructure.logging import JsonFormatter
+from src.infrastructure.logging import JsonFormatter, setup_json_logging
+from src.infrastructure.observability import middleware as middleware_module
 from src.infrastructure.observability.context import job_context, request_context
 from src.infrastructure.observability.metrics import MetricsRegistry
+from src.infrastructure.observability.middleware import configure_observability
 from src.interfaces.api import create_app
 from src.security.settings import SecuritySettings
 
@@ -34,6 +38,27 @@ def test_json_logs_include_utc_trace_request_and_job_correlation() -> None:
     assert payload["request_id"] == "request-1"
     assert payload["job_id"] == "job-1"
     assert len(payload["trace_id"]) == 32 and len(payload["span_id"]) == 16
+
+
+def test_json_logs_capture_exception_metadata_and_setup_is_idempotent() -> None:
+    formatter = JsonFormatter()
+    try:
+        raise ValueError("expected")
+    except ValueError:
+        record = logging.LogRecord(
+            "risk.test", logging.ERROR, __file__, 1, "failed", (), sys.exc_info()
+        )
+    payload = json.loads(formatter.format(record))
+    assert payload["exception_type"] == "ValueError"
+    assert "expected" in payload["exception"]
+
+    root = logging.getLogger()
+    before = len(root.handlers)
+    setup_json_logging(logging.WARNING)
+    after_first = len(root.handlers)
+    setup_json_logging(logging.INFO)
+    assert len(root.handlers) == after_first
+    assert after_first in {before, before + 1}
 
 
 def test_w3c_trace_is_propagated_with_a_new_server_span() -> None:
@@ -73,6 +98,39 @@ def test_api_exposes_metrics_and_request_correlation(tmp_path: Path) -> None:
     assert metrics.status_code == 200
     assert 'route="/health"' in metrics.text
     assert "risco_application_info" in metrics.text
+
+
+def test_observability_records_failed_requests_and_optional_request_id(
+    monkeypatch,
+) -> None:
+    app = FastAPI()
+    metrics = configure_observability(app)
+
+    @app.get("/failure")
+    def failure() -> None:
+        raise RuntimeError("expected")
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.get("/failure")
+    assert response.status_code == 500
+    assert 'route="/failure"' in metrics.render()
+    assert 'status_class="5xx"' in metrics.render()
+
+    monkeypatch.setattr(
+        middleware_module,
+        "current_context",
+        lambda: {"request_id": None, "trace_id": "a" * 32, "span_id": "b" * 16, "job_id": None},
+    )
+    app = FastAPI()
+    configure_observability(app)
+
+    @app.get("/ok")
+    def ok() -> dict[str, bool]:
+        return {"ok": True}
+
+    with TestClient(app) as client:
+        response = client.get("/ok")
+    assert "X-Request-ID" not in response.headers
 
 
 def test_prometheus_alerts_and_grafana_dashboard_are_provisioned() -> None:

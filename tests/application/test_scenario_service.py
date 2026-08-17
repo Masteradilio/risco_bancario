@@ -2,6 +2,7 @@ import json
 from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -96,3 +97,44 @@ def test_snapshot_cache_rejects_tampered_payload(tmp_path) -> None:
     snapshot.path.write_text(json.dumps(document), encoding="utf-8")
     with pytest.raises(DomainValidationError, match="hash mismatch"):
         cache.load(snapshot.path)
+
+
+def test_snapshot_cache_rejects_naive_times_collisions_and_naive_metadata(tmp_path) -> None:
+    cache = ScenarioSnapshotCache(tmp_path)
+    with pytest.raises(DomainValidationError, match="timezone-aware"):
+        cache.store(
+            provider="provider",
+            source_version="v1",
+            retrieved_at=datetime(2026, 7, 14, 12),
+            payload={"value": "1"},
+        )
+    snapshot = cache.store(
+        provider="provider",
+        source_version="v1",
+        retrieved_at=datetime(2026, 7, 14, 12, tzinfo=UTC),
+        payload={"value": "1"},
+    )
+    original = snapshot.path.read_bytes()
+    snapshot.path.write_bytes(b"collision")
+    with pytest.raises(DomainValidationError, match="collision"):
+        cache.store(
+            provider="provider",
+            source_version="v1",
+            retrieved_at=datetime(2026, 7, 14, 12, tzinfo=UTC),
+            payload={"value": "1"},
+        )
+    snapshot.path.write_bytes(original)
+    document = json.loads(original)
+    document["metadata"]["retrieved_at"] = "2026-07-14T12:00:00"
+    snapshot.path.write_text(json.dumps(document), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="timestamp must be timezone-aware"):
+        cache.load(snapshot.path)
+
+
+def test_scenario_service_rejects_mismatched_source_policy(tmp_path) -> None:
+    policy = json.loads(Path("config/scenario_service/2026.07.1.json").read_text(encoding="utf-8"))
+    policy["source"]["policy_version"] = "wrong"
+    path = tmp_path / "policy.json"
+    path.write_text(json.dumps(policy), encoding="utf-8")
+    with pytest.raises(DomainValidationError, match="source policy version mismatch"):
+        load_scenario_set(seed=91, policy_path=path)
