@@ -39,6 +39,7 @@ def test_api_example_is_a_valid_reproducible_calculation() -> None:
 
 def test_documented_artifacts_and_screenshot_exist() -> None:
     expected = (
+        "README.en.md",
         "docs/architecture/SYSTEM_ARCHITECTURE.md",
         "docs/tutorials/ECL_TUTORIAL.md",
         "docs/api/EXAMPLES.md",
@@ -47,3 +48,19 @@ def test_documented_artifacts_and_screenshot_exist() -> None:
         "docs/demo/screenshots/ecl-evidence-workspace.png",
     )
     assert all((ROOT / item).is_file() for item in expected)
+
+
+def test_english_readme_is_complete_and_consistent() -> None:
+    readme_en = (ROOT / "README.en.md").read_text(encoding="utf-8")
+    required = (
+        "src/interfaces/api",
+        "powershell -NoProfile -ExecutionPolicy Bypass -File .\\scripts\\setup.ps1",
+        "scripts\\e2e_pipeline.py",
+        "docs/architecture/SYSTEM_ARCHITECTURE.md",
+        "docs/tutorials/ECL_TUTORIAL.md",
+        "docs/api/EXAMPLES.md",
+        "docs/portfolio/TECHNICAL_INTERVIEW_GUIDE.md",
+        "COMPLETED_WITH_MODEL_APPROVAL_BLOCKERS",
+        "PREVALIDATED_CANONICAL",
+    )
+    assert all(item in readme_en for item in required)

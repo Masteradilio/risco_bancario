@@ -1,5 +1,7 @@
 # Risco Bancário — núcleo demonstrativo de ECL
 
+[🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md)
+
 Plataforma de engenharia para estudar perda esperada de crédito, IFRS 9 e a
 Resolução CMN 4.966 com dados exclusivamente sintéticos. O repositório reúne
 domínio tipado, fábrica longitudinal, modelos de PD/LGD/EAD, staging, cálculo

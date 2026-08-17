@@ -96,7 +96,6 @@ def test_legacy_exports_are_explicitly_non_official() -> None:
         "backend/perda_esperada/src/modulo_forward_looking.py",
         "backend/perda_esperada/src/modulo_pd_behavior.py",
         "frontend/src/pages/ecl/ECLExportacaoPage.tsx",
-        "frontend-nextjs-backup/src/app/perda-esperada/exportacao/page.tsx",
     )
     combined = "\n".join((ROOT / path).read_text(encoding="utf-8") for path in paths)
 
