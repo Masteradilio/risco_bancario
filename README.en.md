@@ -130,7 +130,7 @@ The quality suite enforces Black, Ruff, MyPy, 754 canonical unit/integration tes
 
 - [System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)
 - [Master Portfolio Benchmark & Robustness Scorecard](docs/PORTFOLIO_BENCHMARK.md)
-- [Expected Credit Loss (ECL) Calculation Tutorial](docs/tutorials/ECL_TUTORIAL.md)
+- [Expected Credit Loss & Benchmark Tutorial](docs/tutorials/ECL_TUTORIAL.en.md)
 - [API Examples & Contracts](docs/api/EXAMPLES.md)
 - [Technical Interview Guide](docs/portfolio/TECHNICAL_INTERVIEW_GUIDE.md)
 - [End-to-End Journey & Blocker Semantics](docs/operations/E2E_JOURNEY.md)
