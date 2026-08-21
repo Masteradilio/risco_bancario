@@ -1,4 +1,4 @@
-# Risco Bancário — núcleo demonstrativo de ECL
+# Modelo de Perda Esperada IFRS 9 — núcleo demonstrativo de ECL
 
 [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md)
 
