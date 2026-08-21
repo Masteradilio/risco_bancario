@@ -95,3 +95,10 @@ estão versionados; portanto, o Documento 3040 gerado recebe somente o status
 `PREVALIDATED_DERIVED_XSD`. A adaptação a uma instituição exige dados reais,
 validação independente, governança, aprovação dos modelos e homologação dos
 processos e leiautes aplicáveis.
+
+## 📄 Licença e Termos de Uso
+
+Este projeto está licenciado sob a **[GNU Affero General Public License v3.0 (GNU AGPLv3)](LICENSE)**.
+
+> **Proteção Copyleft Forte:** Qualquer utilização, modificação, distribuição ou execução deste software como serviço de rede (*Network Server / SaaS / Cloud Platform*) exige obrigatoriamente a disponibilização pública e irrestrita do código-fonte completo das obras derivadas sob esta mesma licença AGPLv3. A apropriação fechada ou exploração comercial proprietária deste repositório sem anuência expressa do autor é legalmente vedada.
+

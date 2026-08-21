@@ -139,6 +139,9 @@ The quality suite enforces Black, Ruff, MyPy, 754 canonical unit/integration tes
 
 ---
 
-## 📄 License & Attribution
+## 📄 License & Terms of Use
 
-This repository is published under the [MIT License](LICENSE) for research, portfolio demonstration, and educational purposes.
+This repository is licensed under the **[GNU Affero General Public License v3.0 (GNU AGPLv3)](LICENSE)**.
+
+> **Strong Copyleft Protection:** Any use, modification, distribution, or network service execution (*Network Server / SaaS / Cloud Platform*) of this codebase strictly requires the complete derivative source code to be published and made publicly available under the exact same AGPLv3 license. Proprietary closed-source usage, embedding, or commercial exploitation without express written consent from the author is strictly prohibited by law.
+

@@ -39,6 +39,7 @@ def test_api_example_is_a_valid_reproducible_calculation() -> None:
 
 def test_documented_artifacts_and_screenshot_exist() -> None:
     expected = (
+        "LICENSE",
         "README.en.md",
         "docs/architecture/SYSTEM_ARCHITECTURE.md",
         "docs/tutorials/ECL_TUTORIAL.md",
