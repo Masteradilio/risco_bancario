@@ -1,4 +1,4 @@
-# Modelo de Perda Esperada IFRS 9 — núcleo demonstrativo de ECL
+# Modelo de Risco de Crédito para cálculo de Perda Esperada padrão IFRS 9
 
 [🇧🇷 Português](README.md) | [🇺🇸 English](README.en.md)
 
